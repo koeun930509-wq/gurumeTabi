@@ -1,0 +1,144 @@
+// 가짜 데이터 — 실제로는 Flask 백엔드를 거쳐 Supabase(restaurants, reviews_cache) + 네이버/구글 API에서 가져옵니다.
+
+export const mockRestaurants = [
+  {
+    id: 'sushi-masa',
+    name: '스시 마사',
+    address: '오사카부 오사카시 주오구 도톤보리 1-6-8',
+    phone: '06-6211-1200',
+    rating: 4.4,
+    localRatio: 65,
+    hasRudeReview: false,
+    status: 'closed', // open | closed | soldout
+    acceptsCard: true,
+    walkMinutes: 8,
+    acceptsReservation: true,
+    reviews: [
+      {
+        source: 'naver',
+        author: 'blog_osaka_eats',
+        snippet: '오사카 여행 중 우연히 들른 스시집인데 재료가 정말 신선했어요. 현지인들도 많이 오는 분위기였습니다.',
+        isAdFiltered: true,
+      },
+      {
+        source: 'naver',
+        author: 'mika_diary',
+        snippet: '가격대는 있지만 오마카세 스시 코스가 만족스러웠어요. 직원분들도 친절했습니다.',
+        isAdFiltered: true,
+      },
+      {
+        source: 'google',
+        author: '익명 방문자',
+        rating: 5,
+        snippet: 'Best sushi experience in Osaka. Fresh and authentic.',
+        isAdFiltered: null,
+      },
+    ],
+  },
+  {
+    id: 'ichiran-osaka',
+    name: '이치란 라멘 오사카점',
+    address: '오사카부 오사카시 주오구 난바 1-2-3',
+    phone: '06-6631-3999',
+    rating: 3.8,
+    localRatio: 72,
+    hasRudeReview: false,
+    status: 'open',
+    acceptsCard: true,
+    walkMinutes: 3,
+    acceptsReservation: false,
+    reviews: [
+      {
+        source: 'naver',
+        author: 'ramen_lover_kr',
+        snippet: '1인석 시스템이 신기했고, 돈코츠 라멘 국물이 진했어요.',
+        isAdFiltered: true,
+      },
+      {
+        source: 'google',
+        author: '익명 방문자',
+        rating: 4,
+        snippet: 'Consistent quality, always a safe choice near Namba.',
+        isAdFiltered: null,
+      },
+    ],
+  },
+  {
+    id: 'yamachan-takoyaki',
+    name: '타코야키 야마짱',
+    address: '오사카부 오사카시 주오구 도톤보리 1-4-16',
+    phone: '06-6211-5559',
+    rating: 4.1,
+    localRatio: 58,
+    hasRudeReview: true,
+    status: 'open',
+    acceptsCard: false,
+    walkMinutes: 6,
+    acceptsReservation: false,
+    reviews: [
+      {
+        source: 'naver',
+        author: 'travel_with_j',
+        snippet: '길거리 타코야키치고는 맛있는데 직원 응대가 다소 무뚝뚝했어요.',
+        isAdFiltered: true,
+      },
+    ],
+  },
+  {
+    id: 'sushi-masa-backup',
+    name: '스시 타로',
+    address: '오사카부 오사카시 주오구 도톤보리 2-1-5',
+    phone: '06-6212-3344',
+    rating: 4.0,
+    localRatio: 60,
+    hasRudeReview: false,
+    status: 'open',
+    acceptsCard: true,
+    walkMinutes: 4,
+    acceptsReservation: true,
+    reviews: [
+      {
+        source: 'naver',
+        author: 'osaka_local_food',
+        snippet: '스시 마사 휴무일 때 대신 갔는데 여기도 훌륭했습니다. 현지인 손님 비중이 높아요.',
+        isAdFiltered: true,
+      },
+    ],
+  },
+  {
+    id: 'kushikatsu-daruma',
+    name: '쿠시카츠 다루마',
+    address: '오사카부 오사카시 나니와구 도톤보리 1-6-2',
+    phone: '06-6645-8837',
+    rating: 3.9,
+    localRatio: 80,
+    hasRudeReview: false,
+    status: 'open',
+    acceptsCard: true,
+    walkMinutes: 10,
+    acceptsReservation: true,
+    reviews: [],
+  },
+  {
+    id: 'okonomiyaki-mizuno',
+    name: '오코노미야키 미즈노',
+    address: '오사카부 오사카시 주오구 도톤보리 1-4-15',
+    phone: '06-6212-6360',
+    rating: 4.2,
+    localRatio: 61,
+    hasRudeReview: false,
+    status: 'soldout',
+    acceptsCard: false,
+    walkMinutes: 5,
+    acceptsReservation: false,
+    reviews: [],
+  },
+]
+
+export function getRestaurantById(id) {
+  return mockRestaurants.find((r) => r.id === id)
+}
+
+export function getBackupPlan(excludeId) {
+  return mockRestaurants.find((r) => r.id !== excludeId && r.status === 'open')
+}

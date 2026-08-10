@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-navy: #1E3A5F;
+  --color-brand-navy-dark: #14283F;
+  --color-brand-coral: #FF6B4A;
+  --color-brand-coral-dark: #E2502F;
+  --color-status-open: #2F9E5B;
+  --color-status-closed: #6B7280;
+  --color-status-soldout: #DC2626;
+  --font-sans: -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: #F7F8FA;
+  color: #141413;
+}
