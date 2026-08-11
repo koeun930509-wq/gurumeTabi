@@ -47,3 +47,5 @@ npm test         # vitest run (Vitest + React Testing Library, jsdom 환경)
 - 프로젝트 루트에는 관련 없는 한국어 `.docx` 워크시트 파일들과 `drive-download-*.zip`도 있음 — 이건 강의/기획 자료이고 앱 코드가 아니며, gitignore 처리됨(`*.docx`, `drive-download-*.zip`).
 - `design-system/MASTER.md` + `design-system/mockups/*.html`은 `ui-ux-pro-max` 스킬로 생성된 별도의 디자인 토큰 레퍼런스 및 standalone HTML 프로토타입임 — 실제 React 앱의 일부가 아니고 어떤 라우트에도 연결되어 있지 않음. `src/pages/`의 실제 페이지들과 혼동하지 말 것; `MASTER.md`는 `src/index.css`에 이미 존재하는 토큰들을 문서화한 것으로 취급하고, 여기서 색상을 동기화해와야 하는 새로운 source of truth로 취급하지 말 것.
 - `src/pages/HomePage.jsx.bak`은 리워크 이전 `HomePage.jsx`를 수동으로 백업해둔 스냅샷임(안전망용, 어디서도 import되지 않음) — 복원/diff 요청이 있을 때가 아니면 무시할 것.
+- 검색어 매칭용 상수(`FOOD_TYPES`, `REGIONS`)와 일본어 음차 표기 정규화 함수(`normalizeJapaneseTranscription`, "오코노미야키"/"오꼬노미야끼"처럼 평음·경음·격음 표기 차이를 흡수)는 `src/utils/searchTerms.js`에 있음 — `SearchResultsPage.jsx`에 중복 정의하지 말고 여기서 import.
+- `SearchAutocompleteInput`(`src/components/SearchAutocompleteInput.jsx`)은 헤더 검색창과 `/search` 페이지의 검색창 둘 다에서 쓰는 공용 컴포넌트임 — 검색 입력 UI/자동완성 동작을 고칠 때 한쪽만 수정하고 다른 쪽을 빠뜨리지 않도록 두 사용처(`Header.jsx`, `SearchResultsPage.jsx`) 모두 확인할 것.

@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { IconClose, IconLogout, IconMenu, IconSearch, IconUser } from './icons'
+import SearchAutocompleteInput from './SearchAutocompleteInput'
 
 const navLinkClass = (isActive) =>
   `text-lg font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
@@ -47,11 +48,14 @@ export default function Header({ active, showSearch = true }) {
           className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-300 bg-gray-50 px-3 py-1.5 min-w-[170px]"
         >
           <IconSearch className="w-3.5 h-3.5 text-gray-400 flex-none" />
-          <input
+          <SearchAutocompleteInput
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={setQ}
+            onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
             placeholder="지역·음식 검색"
-            className="bg-transparent outline-none text-xs text-gray-600 w-full"
+            inputClassName="bg-transparent outline-none text-xs text-gray-600 w-full"
+            wrapperClassName="relative flex-1"
+            listClassName="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-30 overflow-hidden"
           />
         </form>
       )}
@@ -63,7 +67,8 @@ export default function Header({ active, showSearch = true }) {
             navigate('/')
           }}
           aria-label="로그아웃"
-          className="text-gray-500 hover:text-brand-navy transition-colors"
+          title="로그아웃"
+          className="text-gray-500 hover:text-brand-navy transition-colors cursor-pointer"
         >
           <IconLogout className="w-7 h-7" />
         </button>
@@ -71,7 +76,8 @@ export default function Header({ active, showSearch = true }) {
         <Link
           to="/login"
           aria-label="로그인"
-          className="text-gray-500 hover:text-brand-navy transition-colors"
+          title="로그인"
+          className="text-gray-500 hover:text-brand-navy transition-colors cursor-pointer"
         >
           <IconUser className="w-7 h-7" />
         </Link>

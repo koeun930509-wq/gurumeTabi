@@ -5,12 +5,8 @@ import SearchResultCard from '../components/SearchResultCard'
 import SearchResultGridCard from '../components/SearchResultGridCard'
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck } from '../components/icons'
 import { mockRestaurants } from '../data/mockRestaurants'
-
-const FOOD_TYPES = [
-  '스시', '라멘', '소바', '우동', '오코노미야키', '타코야키', '쿠시카츠', '돈부리',
-  '장어덮밥', '텐동', '돈카츠', '모츠나베', '스키야키', '오뎅', '카레', '오무라이스',
-  '야키소바', '몬자야키', '디저트', '카페',
-]
+import { FOOD_TYPES, REGIONS, normalizeJapaneseTranscription } from '../utils/searchTerms'
+import SearchAutocompleteInput from '../components/SearchAutocompleteInput'
 
 const TRUST_FILTERS = [
   { key: 'rating35', label: '구글 평점 3.5+' },
@@ -57,6 +53,7 @@ export default function SearchResultsPage() {
   const [pendingQ, setPendingQ] = useState('')
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [selectedFoods, setSelectedFoods] = useState([])
+  const [selectedRegions, setSelectedRegions] = useState([])
   const [sortBy, setSortBy] = useState('recommended')
   const [viewMode, setViewMode] = useState('grid')
   const [sortMenuOpen, setSortMenuOpen] = useState(false)
@@ -79,6 +76,7 @@ export default function SearchResultsPage() {
   function resetFilters() {
     setFilters(DEFAULT_FILTERS)
     setSelectedFoods([])
+    setSelectedRegions([])
   }
 
   function toggleFood(food) {
@@ -87,14 +85,36 @@ export default function SearchResultsPage() {
     )
   }
 
+  function toggleRegion(region) {
+    setSelectedRegions((prev) =>
+      prev.includes(region) ? prev.filter((r) => r !== region) : [...prev, region]
+    )
+  }
+
   const queryTokens = useMemo(() => q.split(/\s+/).filter(Boolean), [q])
+
+  // 지역 필터를 직접 선택했으면 검색어에 남아있는 지역명 토큰(예: "오사카")은
+  // 매칭에서 제외하고 음식/가게명 토큰만 사용 — 필터가 검색어보다 우선한다.
+  const matchTokens = useMemo(
+    () =>
+      selectedRegions.length > 0
+        ? queryTokens.filter((token) => !REGIONS.includes(token))
+        : queryTokens,
+    [queryTokens, selectedRegions]
+  )
 
   const matchedResults = useMemo(() => {
     return mockRestaurants
       .filter((r) => {
         if (
-          queryTokens.length > 0 &&
-          !queryTokens.every((token) => r.name.includes(token) || r.address.includes(token))
+          matchTokens.length > 0 &&
+          !matchTokens.every((token) => {
+            const normalizedToken = normalizeJapaneseTranscription(token)
+            return (
+              normalizeJapaneseTranscription(r.name).includes(normalizedToken) ||
+              r.address.includes(token)
+            )
+          })
         )
           return false
         if (filters.rating35 && r.rating < 3.5) return false
@@ -105,10 +125,11 @@ export default function SearchResultsPage() {
         if (filters.walk10 && r.walkMinutes > 10) return false
         if (filters.reservation && !r.acceptsReservation) return false
         if (selectedFoods.length > 0 && !selectedFoods.includes(r.category)) return false
+        if (selectedRegions.length > 0 && !selectedRegions.includes(r.region)) return false
         return true
       })
       .sort(SORT_OPTIONS.find((o) => o.key === sortBy).sorter)
-  }, [filters, queryTokens, sortBy, selectedFoods])
+  }, [filters, matchTokens, sortBy, selectedFoods, selectedRegions])
 
   const results = matchedResults.slice(0, MAX_RESULTS)
   const hiddenCount = matchedResults.length - results.length
@@ -191,12 +212,12 @@ export default function SearchResultsPage() {
           </div>
           */}
 
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex flex-col min-h-0">
             <h4 className="text-[11px] tracking-wider text-gray-400 mb-2.5">
               필터 · 음식 종류
             </h4>
-            <div className="relative flex-1 min-h-0">
-              <div className="h-full flex flex-col gap-1 overflow-y-auto pretty-scroll-light pr-2">
+            <div className="relative min-h-0">
+              <div className="h-[120px] flex flex-col gap-1 overflow-y-auto pretty-scroll-light pr-2">
                 {FOOD_TYPES.map((food) => (
                   <label
                     key={food}
@@ -209,6 +230,31 @@ export default function SearchResultsPage() {
                       className="w-4 h-4 accent-brand-coral rounded flex-none"
                     />
                     {food}
+                  </label>
+                ))}
+              </div>
+              <div className="pointer-events-none absolute bottom-0 left-0 right-2 h-6 bg-gradient-to-t from-white to-transparent" />
+            </div>
+          </div>
+
+          <div className="flex flex-col min-h-0">
+            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2.5">
+              필터 · 지역
+            </h4>
+            <div className="relative min-h-0">
+              <div className="h-[120px] flex flex-col gap-1 overflow-y-auto pretty-scroll-light pr-2">
+                {REGIONS.map((region) => (
+                  <label
+                    key={region}
+                    className="flex items-center gap-2 text-[13px] text-gray-700 py-1 cursor-pointer hover:text-brand-navy"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedRegions.includes(region)}
+                      onChange={() => toggleRegion(region)}
+                      className="w-4 h-4 accent-brand-coral rounded flex-none"
+                    />
+                    {region}
                   </label>
                 ))}
               </div>
@@ -237,11 +283,12 @@ export default function SearchResultsPage() {
                 }}
                 className="relative w-full max-w-sm"
               >
-                <input
+                <SearchAutocompleteInput
                   value={pendingQ}
-                  onChange={(e) => setPendingQ(e.target.value)}
+                  onChange={setPendingQ}
+                  onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
                   placeholder="예: 오사카 라멘"
-                  className="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
+                  inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
                 />
                 <button
                   type="submit"
@@ -260,7 +307,7 @@ export default function SearchResultsPage() {
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <h1 className="font-bold text-xl text-gray-900">
+                  <h1 className="font-bold text-xl text-gray-900 pl-2">
                     {q ? `"${q}" 검색 결과` : '전체 카테고리'}
                   </h1>
                   <div className="text-sm text-white">

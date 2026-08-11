@@ -42,7 +42,7 @@ export default function HomePage() {
           광고 없는 찐맛집 · 일본 여행 전용
         </div>
 
-        <form onSubmit={handleSearch} className="relative w-full max-w-2xl">
+        <form onSubmit={handleSearch} className="gradient-border-input relative w-full max-w-2xl">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}

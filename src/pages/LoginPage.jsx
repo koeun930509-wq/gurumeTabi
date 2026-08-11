@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-full flex flex-col items-center justify-center gap-4 px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-cover bg-center opacity-60 blur-sm scale-105" style={{ backgroundImage: `url(/loginBg.png)` }} />
+      <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url(/loginBg.png)` }} />
       <div className="absolute inset-0 bg-brand-navy-dark/35" aria-hidden="true" />
 
       <form

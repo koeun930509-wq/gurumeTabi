@@ -23,8 +23,8 @@ export default function Sidebar({ active }) {
 
   return (
     <aside className="hidden md:flex flex-col w-60 flex-none min-h-screen bg-white/70 backdrop-blur-sm border-r border-brand-peach/60 p-5 gap-6">
-      <Link to="/" className="font-extrabold text-brand-navy text-base px-1">
-        Gurume Tabi
+      <Link to="/" className="px-1">
+        <img src="/logo.png" alt="Gurume Tabi" className="w-[180px] h-auto" />
       </Link>
 
       <nav className="flex flex-col gap-1.5">
@@ -44,6 +44,7 @@ export default function Sidebar({ active }) {
               logout()
               navigate('/')
             }}
+            title="로그아웃"
             className="flex items-center gap-3 text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:bg-brand-peach/40 hover:text-brand-navy transition-colors"
           >
             <IconLogout className="w-[18px] h-[18px] flex-none" />
@@ -52,6 +53,7 @@ export default function Sidebar({ active }) {
         ) : (
           <Link
             to="/login"
+            title="로그인"
             className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:bg-brand-peach/40 hover:text-brand-navy transition-colors"
           >
             <IconLogin className="w-[18px] h-[18px] flex-none" />
