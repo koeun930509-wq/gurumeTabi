@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { IconLock, IconMail } from "../components/icons";
-import loginBg from "../assets/login-bg.png";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -26,19 +25,15 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-full flex flex-col items-center justify-center gap-4 px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-cover bg-center opacity-60 blur-sm scale-105 grayscale" style={{ backgroundImage: `url(${loginBg})` }} />
-      <div className="absolute inset-0 bg-black/10" />
-      <div className="absolute inset-0 bg-brand-coral/30" />
+      <div className="absolute inset-0 bg-cover bg-center opacity-60 blur-sm scale-105" style={{ backgroundImage: `url(/loginBg.png)` }} />
+      <div className="absolute inset-0 bg-brand-navy-dark/35" aria-hidden="true" />
 
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-xs flex flex-col gap-2.5 bg-white/70 backdrop-blur-xl border border-white/60 rounded-2xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.4)] p-7"
+        className="relative w-full max-w-xs flex flex-col gap-2.5 bg-white border border-gray-100 rounded-2xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.4)] p-7"
       >
-        <Link
-          to="/"
-          className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-coral to-brand-navy flex items-center justify-center text-white font-extrabold text-lg mb-1"
-        >
-          G
+        <Link to="/" className="mb-1">
+          <img src="/logo.png" alt="Gurume Tabi" className="h-12 w-auto" />
         </Link>
         <div className="text-xl font-bold text-gray-900">다시 오셨네요</div>
         <div className="text-sm text-gray-500 mb-2">계속하려면 로그인해주세요</div>

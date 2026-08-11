@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>맛집 상세 · Gurume Tabi</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'brand-navy': { DEFAULT: '#6D28D9', dark: '#4C1D95' },
+          'brand-coral': { DEFAULT: '#A855F7', dark: '#7E22CE' },
+          'brand-peach': { DEFAULT: '#EDE4FB', dark: '#DCC9F5' },
+          'status-open': '#2F9E5B',
+          'status-closed': '#6B7280',
+          'status-soldout': '#DC2626',
+        },
+        fontFamily: { sans: ['Pretendard', '-apple-system', 'Segoe UI', 'Malgun Gothic', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { color: #362447; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-[100dvh] bg-white font-sans text-[#362447]">
+
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 h-14 flex items-center justify-between gap-4 overflow-x-auto">
+    <a href="home.html" class="font-bold text-brand-navy shrink-0">Gurume Tabi</a>
+    <div class="flex items-center gap-3 text-sm text-slate-600 shrink-0">
+      <a href="home.html" class="hover:text-brand-navy">홈</a>
+      <a href="search-results.html" class="hover:text-brand-navy">검색결과</a>
+      <a href="restaurant-detail.html" class="hover:text-brand-navy">맛집상세</a>
+      <a href="saved-places.html" class="hover:text-brand-navy">저장한맛집</a>
+      <a href="login.html" class="hover:text-brand-navy">로그인</a>
+      <a href="signup.html" class="hover:text-brand-navy">회원가입</a>
+      <a href="mypage.html" class="hover:text-brand-navy">마이페이지</a>
+    </div>
+  </div>
+</nav>
+<p class="text-center text-xs text-slate-400 py-1 bg-slate-50">프로토타입 탐색용 내비게이션 — 실제 정보구조 아님 (PRD 6절 참고)</p>
+
+<main class="min-h-[100dvh] pb-24 lg:pb-14" style="word-break: keep-all;">
+
+  <div class="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
+
+    <!-- 상단 액션: 뒤로가기 / 저장 -->
+    <div class="flex items-center justify-between pt-4">
+      <button
+        type="button"
+        aria-label="뒤로가기"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-600 transition-colors duration-150 ease-out hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy"
+        onclick="history.back()"
+      >
+        <i class="ph ph-arrow-left text-[24px]" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        aria-label="맛집 저장"
+        aria-pressed="false"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-600 transition-colors duration-150 ease-out hover:bg-brand-peach hover:text-brand-navy-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy"
+      >
+        <i class="ph ph-star text-[24px]" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- 대표 이미지 -->
+    <div class="mt-3">
+      <img
+        src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1200&q=80"
+        alt="스시 마사 매장 내부 사진"
+        class="aspect-[4/3] w-full rounded-2xl object-cover md:aspect-[16/9]"
+      />
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-10">
+
+      <!-- 본문 -->
+      <div class="lg:col-span-2">
+
+        <!-- 상호명 · 카테고리 · 영업상태 -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-sm font-medium text-slate-500">스시</span>
+          <span class="text-slate-300" aria-hidden="true">·</span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-status-closed/10 px-3 py-1 text-xs font-medium text-status-closed">
+            <i class="ph ph-x-circle text-[16px]" aria-hidden="true"></i>
+            휴무
+          </span>
+        </div>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900 md:text-[28px]">스시 마사</h1>
+        <p class="mt-1 text-sm text-slate-600 md:text-base">신선한 재료로 만든 정통 스시 오마카세</p>
+
+        <!-- 평점 / 리뷰수 / 현지인 비율 -->
+        <div class="mt-4 flex flex-wrap items-center gap-4 text-sm">
+          <span class="inline-flex items-center gap-1 font-bold text-slate-900">
+            <i class="ph ph-star text-[18px] text-brand-navy" aria-hidden="true"></i>
+            <span class="tabular-nums">4.4</span>
+          </span>
+          <span class="text-slate-500">리뷰 <span class="tabular-nums font-medium text-slate-700">324</span>개</span>
+          <span class="text-slate-500">현지인 방문 비율 <span class="tabular-nums font-medium text-slate-700">65</span>%</span>
+        </div>
+
+        <!-- 검증 리뷰 요약 태그 -->
+        <ul class="mt-4 flex flex-wrap gap-2" aria-label="검증 리뷰 요약">
+          <li>
+            <span class="inline-flex items-center gap-1 rounded-full bg-brand-peach px-3 py-1 text-xs font-medium text-brand-navy-dark">
+              <i class="ph ph-check-circle text-[16px]" aria-hidden="true"></i>
+              현지인 방문 다수
+            </span>
+          </li>
+          <li>
+            <span class="inline-flex items-center gap-1 rounded-full bg-brand-peach px-3 py-1 text-xs font-medium text-brand-navy-dark">
+              <i class="ph ph-check-circle text-[16px]" aria-hidden="true"></i>
+              불친절 후기 없음
+            </span>
+          </li>
+          <li>
+            <span class="inline-flex items-center gap-1 rounded-full bg-brand-peach px-3 py-1 text-xs font-medium text-brand-navy-dark">
+              <i class="ph ph-check-circle text-[16px]" aria-hidden="true"></i>
+              협찬 리뷰 2건 필터링됨
+            </span>
+          </li>
+        </ul>
+
+        <!-- 실용 정보 -->
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-4 md:p-6">
+          <dl class="space-y-3 text-sm">
+            <div class="flex items-start gap-3">
+              <i class="ph ph-map-pin mt-0.5 text-[20px] text-slate-400" aria-hidden="true"></i>
+              <div>
+                <dt class="sr-only">주소</dt>
+                <dd class="text-slate-700">오사카부 오사카시 주오구 도톤보리 1-6-8</dd>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <i class="ph ph-phone mt-0.5 text-[20px] text-slate-400" aria-hidden="true"></i>
+              <div>
+                <dt class="sr-only">전화번호</dt>
+                <dd>
+                  <a href="tel:0662111200" class="text-slate-700 hover:text-brand-navy">06-6211-1200</a>
+                </dd>
+              </div>
+            </div>
+          </dl>
+          <div class="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-slate-100 pt-4 text-sm text-slate-600">
+            <span class="inline-flex items-center gap-1.5">
+              <i class="ph ph-credit-card text-[18px] text-slate-400" aria-hidden="true"></i>
+              카드결제 가능
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <i class="ph ph-calendar-check text-[18px] text-slate-400" aria-hidden="true"></i>
+              예약 가능
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <i class="ph ph-person-simple-walk text-[18px] text-slate-400" aria-hidden="true"></i>
+              도보 8분
+            </span>
+          </div>
+        </div>
+
+        <!-- 리뷰 -->
+        <div class="mt-8">
+          <h2 class="text-lg font-bold text-slate-900">리뷰 검증 결과</h2>
+          <p class="mt-1 text-sm text-slate-600">협찬성 리뷰는 자동으로 걸러내고, 네이버와 구글 리뷰를 함께 보여드립니다.</p>
+
+          <!-- 네이버 블로그 리뷰 -->
+          <section aria-labelledby="naver-reviews-heading" class="mt-5">
+            <h3 id="naver-reviews-heading" class="flex items-center gap-2 text-base font-bold text-slate-900">
+              <i class="ph ph-check-circle text-[18px] text-brand-navy" aria-hidden="true"></i>
+              네이버 블로그 리뷰
+            </h3>
+            <ul class="mt-3 space-y-3">
+              <li class="rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-sm font-medium text-slate-900">blog_osaka_eats</span>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-brand-peach px-2 py-0.5 text-[11px] font-medium text-brand-navy-dark">
+                    <i class="ph ph-check-circle text-[14px]" aria-hidden="true"></i>
+                    협찬 리뷰 필터링됨
+                  </span>
+                </div>
+                <p class="mt-2 text-sm text-slate-700">오사카 여행 중 우연히 들른 스시집인데 재료가 정말 신선했어요. 현지인들도 많이 오는 분위기였습니다.</p>
+              </li>
+              <li class="rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-sm font-medium text-slate-900">mika_diary</span>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-brand-peach px-2 py-0.5 text-[11px] font-medium text-brand-navy-dark">
+                    <i class="ph ph-check-circle text-[14px]" aria-hidden="true"></i>
+                    협찬 리뷰 필터링됨
+                  </span>
+                </div>
+                <p class="mt-2 text-sm text-slate-700">가격대는 있지만 오마카세 스시 코스가 만족스러웠어요. 직원분들도 친절했습니다.</p>
+              </li>
+            </ul>
+          </section>
+
+          <!-- 구글 리뷰 -->
+          <section aria-labelledby="google-reviews-heading" class="mt-6">
+            <h3 id="google-reviews-heading" class="flex items-center gap-2 text-base font-bold text-slate-900">
+              <i class="ph ph-globe text-[18px] text-brand-navy" aria-hidden="true"></i>
+              구글 리뷰
+            </h3>
+            <p class="mt-1 text-xs text-slate-400">출처: Google · 매장당 최대 5건 수집, 주기적으로 재조회됩니다</p>
+            <ul class="mt-3 space-y-3">
+              <li class="rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-sm font-medium text-slate-900">익명 방문자</span>
+                  <span class="inline-flex items-center gap-1 text-sm font-bold text-slate-900">
+                    <i class="ph ph-star text-[16px] text-brand-navy" aria-hidden="true"></i>
+                    <span class="tabular-nums">5.0</span>
+                  </span>
+                </div>
+                <p class="mt-2 text-sm text-slate-700">Best sushi experience in Osaka. Fresh and authentic.</p>
+                <p class="mt-2 inline-flex items-center gap-1 text-[11px] text-slate-400">
+                  <i class="ph ph-globe text-[12px]" aria-hidden="true"></i>
+                  Google 리뷰
+                </p>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+      </div>
+
+      <!-- 사이드: 백업 플랜 (status: closed 조건부 노출) -->
+      <aside class="lg:col-span-1 lg:sticky lg:top-24 lg:self-start" aria-label="근처 백업 플랜">
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+          <div class="flex items-start gap-2 rounded-xl bg-slate-50 p-3">
+            <i class="ph ph-x-circle mt-0.5 text-[20px] text-status-closed" aria-hidden="true"></i>
+            <p class="text-sm text-slate-600">스시 마사는 현재 휴무예요. 근처 백업 맛집을 확인해보세요.</p>
+          </div>
+
+          <!-- 정적 지도 목업 (실제 지도 API 미연동) -->
+          <div
+            class="mt-4 flex aspect-[4/3] items-center justify-center rounded-xl bg-slate-100"
+            role="img"
+            aria-label="스시 마사 주변 지도 미리보기 (정적 이미지, 실제 지도 아님)"
+          >
+            <div class="text-center text-slate-400">
+              <i class="ph ph-map-pin text-[32px]" aria-hidden="true"></i>
+              <p class="mt-1 text-xs">지도 미리보기</p>
+            </div>
+          </div>
+
+          <!-- 백업 후보 미리보기 -->
+          <div class="mt-4 rounded-xl border border-slate-100 p-3">
+            <p class="text-xs font-medium text-slate-400">근처 백업 후보</p>
+            <div class="mt-2 flex items-center gap-3">
+              <img
+                src="https://images.unsplash.com/photo-1553621042-f6e147245754?w=160&q=80"
+                alt="스시 타로 매장 사진"
+                class="h-14 w-14 shrink-0 rounded-lg object-cover"
+                loading="lazy"
+              />
+              <div class="min-w-0">
+                <p class="truncate text-sm font-bold text-slate-900">스시 타로</p>
+                <p class="mt-0.5 text-xs text-slate-500">가성비 좋은 스시 세트가 인기</p>
+                <p class="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                  <i class="ph ph-star text-[14px] text-brand-navy" aria-hidden="true"></i>
+                  <span class="tabular-nums">4.0</span>
+                  <span aria-hidden="true">·</span>
+                  <span>도보 <span class="tabular-nums">4</span>분</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 데스크톱 사이드 카드 내 CTA (모바일은 하단 sticky 바에서 노출) -->
+          <a
+            href="restaurant-detail.html"
+            class="mt-4 hidden h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-coral text-sm font-medium text-white shadow-lg transition-transform duration-200 ease-out hover:bg-brand-coral-dark active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:ring-offset-2 lg:flex"
+          >
+            <i class="ph ph-map text-[20px]" aria-hidden="true"></i>
+            근처 백업 플랜 보기
+          </a>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- 모바일 전용 하단 sticky 백업 플랜 CTA (status: closed 조건부, 페이지당 코랄 CTA 1개) -->
+<div class="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur lg:hidden">
+  <a
+    href="restaurant-detail.html"
+    class="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-coral text-sm font-medium text-white shadow-lg transition-transform duration-200 ease-out hover:bg-brand-coral-dark active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-coral focus-visible:ring-offset-2"
+  >
+    <i class="ph ph-map text-[20px]" aria-hidden="true"></i>
+    근처 백업 플랜 보기
+  </a>
+</div>
+
+</body>
+</html>

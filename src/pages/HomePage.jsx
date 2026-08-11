@@ -20,21 +20,34 @@ export default function HomePage() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      {/* 1. header — 상단 고정 */}
+    <div className="relative h-screen flex flex-col overflow-hidden">
+      {/* 배경 영상 + 어두운 오버레이 */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover -z-20"
+        src="/sushi.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        aria-hidden="true"
+      />
+      <div className="absolute inset-0 bg-brand-navy-dark/35 -z-10" aria-hidden="true" />
+
+      {/* header — 상단 고정 */}
       <Header active="home" showSearch={false} />
 
-      {/* 3. header/이전 서치 결과를 뺀 나머지 공간에 검색 폼을 정중앙 배치 */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 min-h-0">
-        <div className="text-xs font-mono tracking-widest text-gray-400 mb-4">
+      {/* 헤드라인 → 검색창 → 인기 태그 순으로 정중앙 배치 */}
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 min-h-0 gap-5">
+        <div className="text-xs font-sans tracking-widest text-white/70">
           광고 없는 찐맛집 · 일본 여행 전용
         </div>
+
         <form onSubmit={handleSearch} className="relative w-full max-w-2xl">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="지역 · 음식 종류로 검색 (예: 오사카 라멘)"
-            className="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none shadow-[0_10px_30px_-10px_rgba(109,40,217,0.3)] focus:shadow-[0_10px_30px_-6px_rgba(109,40,217,0.45)] transition-shadow"
+            className="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] focus:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.6)] transition-shadow"
           />
           <button
             type="submit"
@@ -44,12 +57,13 @@ export default function HomePage() {
             <IconSearch className="w-5 h-5" />
           </button>
         </form>
-        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mt-5">
+
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
           {POPULAR.map((tag) => (
             <button
               key={tag}
               onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-              className="text-sm text-status-open font-medium hover:underline"
+              className="text-sm text-white font-medium hover:underline"
             >
               #{tag}
             </button>
@@ -57,16 +71,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. 이전 서치 결과 — 하단 고정 */}
-      <section className="flex-none flex gap-3.5 overflow-x-auto px-6 py-5">
+      {/* 이전 서치 결과 — 하단 고정 */}
+      <section className="relative flex-none flex gap-3.5 overflow-x-auto px-6 py-5">
         {RECENT.map((r) => (
-          <div
+          <button
             key={r.label}
-            className="flex-none min-w-[200px] bg-white rounded-xl p-5 text-sm text-gray-500 whitespace-nowrap"
+            onClick={() => navigate(`/search?q=${encodeURIComponent(r.label)}`)}
+            className="group flex-none min-w-[200px] text-left cursor-pointer bg-white/70 hover:bg-brand-navy/70 rounded-xl p-5 text-sm text-gray-500 hover:text-white whitespace-nowrap hover:shadow-[0_10px_24px_-8px_rgba(0,0,0,0.35)] hover:-translate-y-1 transition-all duration-200 ease-out"
           >
-            <div className="font-bold text-base text-gray-900 mb-1">{r.label}</div>
+            <div className="font-bold text-base text-gray-900 group-hover:text-white mb-1">{r.label}</div>
             {r.time}
-          </div>
+          </button>
         ))}
       </section>
     </div>

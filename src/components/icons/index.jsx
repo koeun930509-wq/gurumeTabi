@@ -178,3 +178,44 @@ export function IconChevronDown(props) {
     </svg>
   )
 }
+
+export function IconGrid(props) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </svg>
+  )
+}
+
+export function IconCheck(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="m5 12 5 5 9-9" />
+    </svg>
+  )
+}
+
+export function IconArrowLeft(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M19 12H5" />
+      <path d="m11 18-6-6 6-6" />
+    </svg>
+  )
+}
+
+export function IconList(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M8 6h13" />
+      <path d="M8 12h13" />
+      <path d="M8 18h13" />
+      <path d="M3 6h.01" />
+      <path d="M3 12h.01" />
+      <path d="M3 18h.01" />
+    </svg>
+  )
+}

@@ -4,10 +4,10 @@ import { useAuth } from '../context/AuthContext'
 import { IconClose, IconLogout, IconMenu, IconSearch, IconUser } from './icons'
 
 const navLinkClass = (isActive) =>
-  `text-xl font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
+  `text-lg font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
 
 const mobileNavLinkClass = (isActive) =>
-  `px-4 py-3 text-xl font-semibold border-b border-gray-100 ${isActive ? 'text-brand-navy' : 'text-gray-600'}`
+  `px-4 py-3 text-lg font-semibold border-b border-gray-100 ${isActive ? 'text-brand-navy' : 'text-gray-600'}`
 
 export default function Header({ active, showSearch = true }) {
   const { user, logout } = useAuth()
@@ -21,9 +21,9 @@ export default function Header({ active, showSearch = true }) {
   }
 
   return (
-    <nav className="relative flex items-center gap-6 px-4 sm:px-6 py-7 bg-white shadow-[0_4px_16px_-4px_rgba(109,40,217,0.15)] z-10">
-      <Link to="/" className="font-extrabold text-brand-navy text-2xl">
-        Gurume Tabi
+    <nav className="relative flex items-center gap-6 px-4 sm:px-6 py-6 bg-white shadow-[0_4px_16px_-4px_rgba(109,40,217,0.15)] z-10">
+      <Link to="/" className="flex-none">
+        <img src="/logo.png" alt="Gurume Tabi" className="h-[43.2px] sm:h-12 w-auto" />
       </Link>
 
       {/* 데스크톱 nav 링크 — 화면 정중앙 고정, 모바일에서는 숨기고 햄버거 메뉴로 이동 */}

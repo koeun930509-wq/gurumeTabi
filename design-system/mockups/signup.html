@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>회원가입 · Gurume Tabi</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'brand-navy': { DEFAULT: '#6D28D9', dark: '#4C1D95' },
+          'brand-coral': { DEFAULT: '#A855F7', dark: '#7E22CE' },
+          'brand-peach': { DEFAULT: '#EDE4FB', dark: '#DCC9F5' },
+          'status-open': '#2F9E5B',
+          'status-closed': '#6B7280',
+          'status-soldout': '#DC2626',
+        },
+        fontFamily: { sans: ['Pretendard', '-apple-system', 'Segoe UI', 'Malgun Gothic', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { color: #362447; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-[100dvh] bg-white font-sans text-[#362447]">
+
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 h-14 flex items-center justify-between gap-4 overflow-x-auto">
+    <a href="home.html" class="font-bold text-brand-navy shrink-0">Gurume Tabi</a>
+    <div class="flex items-center gap-3 text-sm text-slate-600 shrink-0">
+      <a href="home.html" class="hover:text-brand-navy">홈</a>
+      <a href="search-results.html" class="hover:text-brand-navy">검색결과</a>
+      <a href="restaurant-detail.html" class="hover:text-brand-navy">맛집상세</a>
+      <a href="saved-places.html" class="hover:text-brand-navy">저장한맛집</a>
+      <a href="login.html" class="hover:text-brand-navy">로그인</a>
+      <a href="signup.html" class="hover:text-brand-navy">회원가입</a>
+      <a href="mypage.html" class="hover:text-brand-navy">마이페이지</a>
+    </div>
+  </div>
+</nav>
+<p class="text-center text-xs text-slate-400 py-1 bg-slate-50">프로토타입 탐색용 내비게이션 — 실제 정보구조 아님 (PRD 6절 참고)</p>
+
+<main class="min-h-[100dvh] flex items-center justify-center px-4 py-12 md:py-20" style="word-break: keep-all;">
+
+  <section
+    class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8"
+    aria-labelledby="signup-heading"
+  >
+    <div class="flex flex-col items-center text-center">
+      <span class="flex h-14 w-14 items-center justify-center rounded-full bg-brand-peach" aria-hidden="true">
+        <i class="ph ph-clock text-[28px] text-brand-navy-dark"></i>
+      </span>
+
+      <h1 id="signup-heading" class="mt-5 text-xl font-bold text-slate-900">
+        회원가입 기능 준비 중입니다
+      </h1>
+
+      <p class="mt-3 text-sm text-slate-600">
+        현재는 이메일 로그인만 지원하고 있어요.<br class="hidden sm:block" />
+        회원가입 기능은 곧 제공될 예정입니다.
+      </p>
+
+      <a
+        href="login.html"
+        class="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-navy px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-brand-navy-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy"
+      >
+        <i class="ph ph-arrow-left text-[20px]" aria-hidden="true"></i>
+        로그인으로 돌아가기
+      </a>
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>

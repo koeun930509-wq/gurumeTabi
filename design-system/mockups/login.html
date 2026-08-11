@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>로그인 · Gurume Tabi</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'brand-navy': { DEFAULT: '#6D28D9', dark: '#4C1D95' },
+          'brand-coral': { DEFAULT: '#A855F7', dark: '#7E22CE' },
+          'brand-peach': { DEFAULT: '#EDE4FB', dark: '#DCC9F5' },
+          'status-open': '#2F9E5B',
+          'status-closed': '#6B7280',
+          'status-soldout': '#DC2626',
+        },
+        fontFamily: { sans: ['Pretendard', '-apple-system', 'Segoe UI', 'Malgun Gothic', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { color: #362447; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body class="min-h-[100dvh] bg-white font-sans text-[#362447]">
+
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 h-14 flex items-center justify-between gap-4 overflow-x-auto">
+    <a href="home.html" class="font-bold text-brand-navy shrink-0">Gurume Tabi</a>
+    <div class="flex items-center gap-3 text-sm text-slate-600 shrink-0">
+      <a href="home.html" class="hover:text-brand-navy">홈</a>
+      <a href="search-results.html" class="hover:text-brand-navy">검색결과</a>
+      <a href="restaurant-detail.html" class="hover:text-brand-navy">맛집상세</a>
+      <a href="saved-places.html" class="hover:text-brand-navy">저장한맛집</a>
+      <a href="login.html" class="hover:text-brand-navy">로그인</a>
+      <a href="signup.html" class="hover:text-brand-navy">회원가입</a>
+      <a href="mypage.html" class="hover:text-brand-navy">마이페이지</a>
+    </div>
+  </div>
+</nav>
+<p class="text-center text-xs text-slate-400 py-1 bg-slate-50">프로토타입 탐색용 내비게이션 — 실제 정보구조 아님 (PRD 6절 참고)</p>
+
+<main class="min-h-[100dvh] bg-slate-50" style="word-break: keep-all;">
+
+  <section class="relative overflow-hidden px-4 py-12 md:py-20">
+    <!-- 코랄 강조색: 로그인 화면 오버레이 지정 용도(§2) — 장식용 블러 원 1개, 버튼에는 쓰지 않음 -->
+    <div class="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-brand-coral/10 blur-3xl" aria-hidden="true"></div>
+
+    <div class="relative mx-auto w-full max-w-md">
+
+      <!-- 로고 + 신뢰 문구 -->
+      <div class="text-center">
+        <a href="home.html" class="inline-flex items-center gap-1.5 text-xl font-bold text-brand-navy">
+          <i class="ph ph-check-circle text-[24px]" aria-hidden="true"></i>
+          Gurume Tabi
+        </a>
+        <p class="mt-2 text-sm text-slate-600">광고 없이, 검증된 맛집만 보여드려요</p>
+      </div>
+
+      <!-- 로그인 카드 -->
+      <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm md:p-8">
+        <h1 class="text-lg font-bold text-slate-900">로그인</h1>
+        <p class="mt-1 text-sm text-slate-600">저장한 맛집·마이페이지를 이용하려면 로그인해주세요.</p>
+
+        <form id="login-form" class="mt-6 space-y-5" novalidate>
+          <div>
+            <label for="login-email" class="block text-sm font-medium text-slate-700">이메일</label>
+            <div class="mt-1.5 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 focus-within:ring-2 focus-within:ring-brand-navy">
+              <i class="ph ph-envelope-simple text-[20px] text-slate-400" aria-hidden="true"></i>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                placeholder="you@example.com"
+                class="h-11 w-full min-w-0 bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="login-password" class="block text-sm font-medium text-slate-700">비밀번호</label>
+            <div class="mt-1.5 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 focus-within:ring-2 focus-within:ring-brand-navy">
+              <i class="ph ph-lock-simple text-[20px] text-slate-400" aria-hidden="true"></i>
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+                placeholder="비밀번호 입력"
+                class="h-11 w-full min-w-0 bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none"
+              />
+              <button
+                type="button"
+                id="toggle-password"
+                aria-label="비밀번호 보이기"
+                aria-pressed="false"
+                class="shrink-0 rounded-lg p-2 text-slate-400 hover:text-brand-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy"
+              >
+                <i class="ph ph-eye text-[20px]" aria-hidden="true" id="toggle-password-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 실제 폼 제출 시 서버 에러가 들어올 영역(현재는 비어 있음) -->
+          <div id="login-error" role="alert" aria-live="polite" class="sr-only"></div>
+
+          <button
+            type="submit"
+            class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-navy text-sm font-medium text-white transition-transform duration-200 ease-out hover:bg-brand-navy-dark active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
+          >
+            로그인
+          </button>
+        </form>
+
+        <p class="mt-5 text-center text-sm text-slate-600">
+          계정이 없으신가요?
+          <a href="signup.html" class="font-medium text-brand-navy hover:underline">회원가입</a>
+        </p>
+      </div>
+
+      <!-- 에러 상태 디자인 참고 예시 — 실제 폼과 분리, 정적/비활성 -->
+      <div class="mt-8">
+        <div class="flex items-center gap-3 text-xs text-slate-400" role="separator">
+          <span class="h-px flex-1 bg-slate-200"></span>
+          <span>디자인 참고용 — 에러 상태 예시 (동작하지 않는 정적 화면)</span>
+          <span class="h-px flex-1 bg-slate-200"></span>
+        </div>
+
+        <div class="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white p-6 opacity-90 md:p-8" aria-hidden="true">
+          <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+            <i class="ph ph-eye-slash text-[14px]" aria-hidden="true"></i>
+            미리보기 전용
+          </span>
+
+          <div class="mt-4 space-y-5">
+            <div>
+              <label for="login-email-error" class="block text-sm font-medium text-slate-700">이메일</label>
+              <div class="mt-1.5 flex items-center gap-2 rounded-xl border border-status-soldout bg-white px-4">
+                <i class="ph ph-envelope-simple text-[20px] text-slate-400" aria-hidden="true"></i>
+                <input
+                  id="login-email-error"
+                  type="email"
+                  value="minjun@exemple.com"
+                  disabled
+                  class="h-11 w-full min-w-0 bg-transparent text-base text-slate-900 focus:outline-none"
+                />
+              </div>
+              <p class="mt-1.5 flex items-center gap-1 text-xs font-medium text-status-soldout">
+                <i class="ph ph-warning-circle text-[16px]" aria-hidden="true"></i>
+                이메일 형식이 올바르지 않아요. 다시 확인해주세요.
+              </p>
+            </div>
+
+            <div>
+              <label for="login-password-error" class="block text-sm font-medium text-slate-700">비밀번호</label>
+              <div class="mt-1.5 flex items-center gap-2 rounded-xl border border-status-soldout bg-white px-4">
+                <i class="ph ph-lock-simple text-[20px] text-slate-400" aria-hidden="true"></i>
+                <input
+                  id="login-password-error"
+                  type="password"
+                  value="********"
+                  disabled
+                  class="h-11 w-full min-w-0 bg-transparent text-base text-slate-900 focus:outline-none"
+                />
+              </div>
+              <p class="mt-1.5 flex items-center gap-1 text-xs font-medium text-status-soldout">
+                <i class="ph ph-warning-circle text-[16px]" aria-hidden="true"></i>
+                이메일 또는 비밀번호가 일치하지 않아요.
+              </p>
+            </div>
+
+            <button type="button" disabled class="inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-200 text-sm font-medium text-slate-400">
+              로그인
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script>
+  document.getElementById('login-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+  });
+
+  document.getElementById('toggle-password').addEventListener('click', function () {
+    var input = document.getElementById('login-password');
+    var icon = document.getElementById('toggle-password-icon');
+    var willShow = input.type === 'password';
+    input.type = willShow ? 'text' : 'password';
+    icon.className = willShow ? 'ph ph-eye-slash text-[20px]' : 'ph ph-eye text-[20px]';
+    this.setAttribute('aria-label', willShow ? '비밀번호 숨기기' : '비밀번호 보이기');
+    this.setAttribute('aria-pressed', willShow ? 'true' : 'false');
+  });
+</script>
+
+</body>
+</html>
