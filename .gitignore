@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 워크시트/다운로드 자료 (코드 아님)
+*.docx
+drive-download-*.zip

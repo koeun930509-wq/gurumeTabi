@@ -1,9 +1,16 @@
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../components/Header'
 import StatusBadge from '../components/StatusBadge'
 import ReviewCard from '../components/ReviewCard'
+import { IconPhone, IconPin, IconStar } from '../components/icons'
 import { getBackupPlan, getRestaurantById } from '../data/mockRestaurants'
 import { useAuth } from '../context/AuthContext'
+
+function osmEmbedSrc(lat, lng, delta = 0.006) {
+  const bbox = [lng - delta, lat - delta, lng + delta, lat + delta].join('%2C')
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`
+}
 
 export default function RestaurantDetailPage() {
   const { id } = useParams()
@@ -21,8 +28,19 @@ export default function RestaurantDetailPage() {
   }
 
   const isSaved = savedIds.includes(restaurant.id)
-  const needsBackup = restaurant.status !== 'open'
-  const backup = needsBackup ? getBackupPlan(restaurant.id) : null
+  const backup = getBackupPlan(restaurant.id)
+  const mainMapRef = useRef(null)
+  const [mainMapHeight, setMainMapHeight] = useState(null)
+
+  useEffect(() => {
+    const el = mainMapRef.current
+    if (!el) return
+    const observer = new ResizeObserver((entries) => {
+      setMainMapHeight(entries[0].contentRect.height)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   function handleSaveClick() {
     if (!user) {
@@ -36,9 +54,32 @@ export default function RestaurantDetailPage() {
     <div className="min-h-full flex flex-col">
       <Header active="search" />
 
-      <div className="max-w-4xl mx-auto w-full p-6 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-6">
-        <div className="flex flex-col gap-3.5">
-          <div className="h-48 rounded-lg bg-[repeating-linear-gradient(45deg,#e5e7eb_0,#e5e7eb_5px,transparent_5px,transparent_10px)]" />
+      <div className="w-full p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="md:col-span-3 bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-5 flex flex-col gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            {restaurant.image ? (
+              <img
+                src={restaurant.image}
+                alt={restaurant.name}
+                className="aspect-[4/3] w-full rounded-xl object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.nextElementSibling.style.display = 'block'
+                }}
+              />
+            ) : null}
+            <div
+              className="aspect-[4/3] rounded-xl bg-[repeating-linear-gradient(45deg,#FFE4D3_0,#FFE4D3_5px,#FFF3EA_5px,#FFF3EA_10px)]"
+              style={restaurant.image ? { display: 'none' } : undefined}
+            />
+            <iframe
+              ref={mainMapRef}
+              title={`${restaurant.name} 위치 지도`}
+              className="aspect-[4/3] w-full rounded-xl border-0"
+              loading="lazy"
+              src={osmEmbedSrc(restaurant.lat, restaurant.lng)}
+            />
+          </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-lg">{restaurant.name}</span>
@@ -48,30 +89,49 @@ export default function RestaurantDetailPage() {
             <StatusBadge status={restaurant.status} />
             <button
               onClick={handleSaveClick}
-              className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full border ${
+              className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full ${
                 isSaved
-                  ? 'bg-brand-coral text-white border-brand-coral'
-                  : 'bg-status-open/10 text-status-open border-status-open'
+                  ? 'bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white shadow-[0_4px_10px_-2px_rgba(126,34,206,0.5)]'
+                  : 'bg-status-open/10 text-status-open'
               }`}
             >
-              ⭐ {isSaved ? '저장됨' : '저장'}
+              <IconStar className="w-3 h-3" />
+              {isSaved ? '저장됨' : '저장'}
             </button>
           </div>
-          <div className="text-xs text-gray-500 flex flex-col gap-0.5">
-            <div>📍 {restaurant.address}</div>
-            <div>📞 {restaurant.phone}</div>
+          <div className="text-base text-gray-500 flex flex-col gap-1">
+            <div className="inline-flex items-center gap-1.5">
+              <IconPin className="w-4 h-4 flex-none" />
+              {restaurant.address}
+            </div>
+            <div className="inline-flex items-center gap-1.5">
+              <IconPhone className="w-4 h-4 flex-none" />
+              {restaurant.phone}
+            </div>
           </div>
 
           <div>
             <h4 className="text-[11px] tracking-wider text-gray-400 font-mono mb-2">
               필터링된 검증 리뷰 · 출처: 네이버 블로그 + 구글
             </h4>
+            <div className="flex flex-wrap gap-1.5 mb-2.5">
+              {restaurant.localRatio >= 60 && (
+                <span className="text-xs font-bold text-status-open bg-status-open/10 px-2.5 py-1 rounded-full">
+                  현지인 방문 다수
+                </span>
+              )}
+              {!restaurant.hasRudeReview && (
+                <span className="text-xs font-bold text-status-open bg-status-open/10 px-2.5 py-1 rounded-full">
+                  불친절 후기 없음
+                </span>
+              )}
+            </div>
             {restaurant.reviews.length === 0 ? (
-              <div className="text-xs text-gray-400 border border-dashed border-gray-300 rounded-md p-4 text-center">
+              <div className="text-base text-gray-400 bg-brand-peach/30 rounded-xl p-4 text-center">
                 아직 검증된 리뷰가 없어요.
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 gap-2.5">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                 {restaurant.reviews.map((rv, i) => (
                   <ReviewCard key={i} review={rv} />
                 ))}
@@ -83,28 +143,30 @@ export default function RestaurantDetailPage() {
           </div>
         </div>
 
-        {needsBackup && (
-          <aside className="bg-gray-50 rounded-lg p-5 flex flex-col gap-3 h-fit">
-            <h4 className="text-[11px] tracking-wider text-gray-400 font-mono">근처 백업 플랜</h4>
-            <div className="h-32 rounded-md bg-[linear-gradient(#e5e7eb_1px,transparent_1px),linear-gradient(90deg,#e5e7eb_1px,transparent_1px)] bg-[length:14px_14px] bg-gray-100 flex items-center justify-center text-lg">
-              📍
-            </div>
-            {backup ? (
-              <>
-                <div className="text-sm font-bold">{backup.name}</div>
-                <div className="text-xs text-gray-500">★{backup.rating} · 도보 {backup.walkMinutes}분</div>
-                <button
-                  onClick={() => navigate(`/place/${backup.id}`)}
-                  className="bg-brand-coral text-white font-bold text-xs rounded-md py-2 text-center"
-                >
-                  근처 백업 플랜 보기 →
-                </button>
-              </>
-            ) : (
-              <div className="text-xs text-gray-400">근처에 대안이 없어요.</div>
-            )}
-          </aside>
-        )}
+        <aside className="pt-0 px-5 pb-5 flex flex-col gap-3 h-fit">
+          <h4 className="text-lg font-bold">근처 백업 플랜</h4>
+          <iframe
+            title="근처 백업 플랜 지도"
+            className={`w-full rounded-xl border-0 ${mainMapHeight ? '' : 'aspect-[4/3]'}`}
+            style={mainMapHeight ? { height: `${mainMapHeight}px` } : undefined}
+            loading="lazy"
+            src={osmEmbedSrc((backup ?? restaurant).lat, (backup ?? restaurant).lng)}
+          />
+          {backup ? (
+            <>
+              <div className="text-base font-bold">{backup.name}</div>
+              <div className="text-base text-gray-500">★{backup.rating} · 역에서 도보 {backup.walkMinutes}분</div>
+              <button
+                onClick={() => navigate(`/place/${backup.id}`)}
+                className="bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white font-bold text-base rounded-full py-4 text-center shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)]"
+              >
+                근처 백업 플랜 보기 →
+              </button>
+            </>
+          ) : (
+            <div className="text-base text-gray-400">근처에 대안이 없어요.</div>
+          )}
+        </aside>
       </div>
     </div>
   )

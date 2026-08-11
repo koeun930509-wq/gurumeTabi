@@ -1,12 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { IconClose, IconLogout, IconMenu, IconSearch, IconUser } from './icons'
 
 const navLinkClass = (isActive) =>
-  `text-sm font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
+  `text-xl font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
 
 const mobileNavLinkClass = (isActive) =>
-  `px-4 py-3 text-sm font-semibold border-b border-gray-100 ${isActive ? 'text-brand-navy' : 'text-gray-600'}`
+  `px-4 py-3 text-xl font-semibold border-b border-gray-100 ${isActive ? 'text-brand-navy' : 'text-gray-600'}`
 
 export default function Header({ active, showSearch = true }) {
   const { user, logout } = useAuth()
@@ -20,13 +21,13 @@ export default function Header({ active, showSearch = true }) {
   }
 
   return (
-    <nav className="relative flex items-center gap-6 px-4 sm:px-6 py-3.5 border-b-2 border-brand-coral bg-white">
-      <Link to="/" className="font-extrabold text-brand-navy text-base">
-        J-Taste Pass
+    <nav className="relative flex items-center gap-6 px-4 sm:px-6 py-7 bg-white shadow-[0_4px_16px_-4px_rgba(109,40,217,0.15)] z-10">
+      <Link to="/" className="font-extrabold text-brand-navy text-2xl">
+        Gurume Tabi
       </Link>
 
-      {/* 데스크톱 nav 링크 — 모바일에서는 숨기고 햄버거 메뉴로 이동 */}
-      <div className="hidden md:flex items-center gap-6">
+      {/* 데스크톱 nav 링크 — 화면 정중앙 고정, 모바일에서는 숨기고 햄버거 메뉴로 이동 */}
+      <div className="hidden md:flex items-center gap-[4.5rem] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <Link to="/search" className={navLinkClass(active === 'search')}>
           검색
         </Link>
@@ -45,7 +46,7 @@ export default function Header({ active, showSearch = true }) {
           onSubmit={handleSearch}
           className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-300 bg-gray-50 px-3 py-1.5 min-w-[170px]"
         >
-          <span className="text-xs">🔍</span>
+          <IconSearch className="w-3.5 h-3.5 text-gray-400 flex-none" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -61,16 +62,18 @@ export default function Header({ active, showSearch = true }) {
             logout()
             navigate('/')
           }}
-          className="bg-brand-coral text-white text-sm font-bold px-3.5 py-1.5 rounded-md"
+          aria-label="로그아웃"
+          className="text-gray-500 hover:text-brand-navy transition-colors"
         >
-          로그아웃
+          <IconLogout className="w-7 h-7" />
         </button>
       ) : (
         <Link
           to="/login"
-          className="bg-brand-coral text-white text-sm font-bold px-3.5 py-1.5 rounded-md"
+          aria-label="로그인"
+          className="text-gray-500 hover:text-brand-navy transition-colors"
         >
-          로그인
+          <IconUser className="w-7 h-7" />
         </Link>
       )}
 
@@ -79,9 +82,9 @@ export default function Header({ active, showSearch = true }) {
         onClick={() => setMenuOpen((v) => !v)}
         aria-label="메뉴 열기"
         aria-expanded={menuOpen}
-        className="md:hidden text-xl leading-none text-brand-navy"
+        className="md:hidden text-brand-navy"
       >
-        {menuOpen ? '✕' : '☰'}
+        {menuOpen ? <IconClose className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
       </button>
 
       {/* 모바일 드롭다운 메뉴 */}

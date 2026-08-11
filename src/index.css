@@ -1,23 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-navy: #1E3A5F;
-  --color-brand-navy-dark: #14283F;
-  --color-brand-coral: #FF6B4A;
-  --color-brand-coral-dark: #E2502F;
-  --color-status-open: #2F9E5B;
-  --color-status-closed: #6B7280;
-  --color-status-soldout: #DC2626;
-  --font-sans: -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --color-brand-navy: #6d28d9;
+  --color-brand-navy-dark: #4c1d95;
+  --color-brand-coral: #a855f7;
+  --color-brand-coral-dark: #7e22ce;
+  --color-brand-peach: #ede4fb;
+  --color-brand-peach-dark: #dcc9f5;
+  --color-status-open: #2f9e5b;
+  --color-status-closed: #6b7280;
+  --color-status-soldout: #dc2626;
+  --font-sans: "Pretendard", -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.75rem;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background-color: #F7F8FA;
-  color: #141413;
+  background: linear-gradient(135deg, #9993e2 0%, #f3e8ff 45%, #ffb194 100%);
+  background-attachment: fixed;
+  color: #362447;
 }
