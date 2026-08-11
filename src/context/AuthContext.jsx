@@ -7,21 +7,21 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('jtaste_user')
+    const saved = localStorage.getItem('gurume_user')
     return saved ? JSON.parse(saved) : null
   })
   const [savedIds, setSavedIds] = useState(() => {
-    const saved = localStorage.getItem('jtaste_saved_ids')
+    const saved = localStorage.getItem('gurume_saved_ids')
     return saved ? JSON.parse(saved) : []
   })
 
   useEffect(() => {
-    if (user) localStorage.setItem('jtaste_user', JSON.stringify(user))
-    else localStorage.removeItem('jtaste_user')
+    if (user) localStorage.setItem('gurume_user', JSON.stringify(user))
+    else localStorage.removeItem('gurume_user')
   }, [user])
 
   useEffect(() => {
-    localStorage.setItem('jtaste_saved_ids', JSON.stringify(savedIds))
+    localStorage.setItem('gurume_saved_ids', JSON.stringify(savedIds))
   }, [savedIds])
 
   function login(email) {

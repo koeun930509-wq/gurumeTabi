@@ -16,8 +16,14 @@ function App() {
       <Route path="/place/:id" element={<RestaurantDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
-      {/* 뼈대 단계 — 로그인 없이도 접근 가능하게 열어둠 */}
-      <Route path="/saved" element={<SavedPlacesPage />} />
+      <Route
+        path="/saved"
+        element={
+          <ProtectedRoute>
+            <SavedPlacesPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/mypage"
         element={
