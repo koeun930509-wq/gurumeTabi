@@ -17,18 +17,6 @@ export default function RestaurantDetailPage() {
   const navigate = useNavigate()
   const { user, savedIds, toggleSave } = useAuth()
   const restaurant = getRestaurantById(id)
-
-  if (!restaurant) {
-    return (
-      <div className="min-h-full flex flex-col">
-        <Header active="search" />
-        <div className="p-10 text-center text-gray-400">맛집 정보를 찾을 수 없어요.</div>
-      </div>
-    )
-  }
-
-  const isSaved = savedIds.includes(restaurant.id)
-  const backup = getBackupPlan(restaurant.id)
   const mainMapRef = useRef(null)
   const [mainMapHeight, setMainMapHeight] = useState(null)
 
@@ -41,6 +29,18 @@ export default function RestaurantDetailPage() {
     observer.observe(el)
     return () => observer.disconnect()
   }, [])
+
+  if (!restaurant) {
+    return (
+      <div className="min-h-full flex flex-col">
+        <Header active="search" />
+        <div className="p-10 text-center text-gray-400">맛집 정보를 찾을 수 없어요.</div>
+      </div>
+    )
+  }
+
+  const isSaved = savedIds.includes(restaurant.id)
+  const backup = getBackupPlan(restaurant.id)
 
   function handleSaveClick() {
     if (!user) {

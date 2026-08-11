@@ -9,6 +9,13 @@ npm install
 npm run dev
 ```
 
+## 테스트
+
+```bash
+npm test        # Vitest — 전체 테스트 1회 실행
+npm run lint     # oxlint
+```
+
 ## 기술 스택 (현재 구현된 범위)
 
 | 구분 | 기술 | 비고 |

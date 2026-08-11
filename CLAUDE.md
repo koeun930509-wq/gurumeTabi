@@ -13,9 +13,10 @@ npm run dev      # vite dev server
 npm run build    # vite build
 npm run lint      # oxlint (NOT eslint — config at .oxlintrc.json)
 npm run preview  # preview production build
+npm test         # vitest run (Vitest + React Testing Library, jsdom env)
 ```
 
-No test framework is configured.
+Test files live next to the code they test (`*.test.jsx`). Vitest config is inline in `vite.config.js` (`test: {...}`), setup file at `src/setupTests.js`.
 
 ## Styling — Tailwind v4, no config file
 
@@ -29,7 +30,7 @@ Theme lives in `src/index.css` inside an `@theme{}` block — there is **no `tai
 
 - Single quotes, no semicolons, function components only
 - State management: React Context only (`src/context/AuthContext.jsx`), no Redux/Zustand
-- Custom hook pattern: `useAuth()` wraps `useContext(AuthContext)`, defined in the same file as the provider
+- Custom hook pattern: `useAuth()` wraps `useContext(AuthContext)`, defined in the same file as the provider. `AuthContext` itself is also exported (for tests to wrap components in a mock `AuthContext.Provider` without going through `AuthProvider`'s localStorage logic) — this trips oxlint's `only-export-components` warning, which is expected and fine here
 - Tailwind classes inlined directly in JSX; helper functions like `navLinkClass(isActive)` return template-string class combinations — no `clsx`/`cva`
 
 ## Routing & auth

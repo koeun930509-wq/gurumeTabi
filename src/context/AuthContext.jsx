@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 // 뼈대 단계 — 실제로는 Supabase Auth(이메일/비밀번호)를 사용합니다.
 // 지금은 로그인 상태와 저장한 맛집(saved_places 대응)을 localStorage로 흉내만 냅니다.
 
-const AuthContext = createContext(null)
+export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
