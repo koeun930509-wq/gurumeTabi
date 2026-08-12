@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { IconClose, IconLogout, IconMenu, IconSearch, IconUser } from './icons'
+import { IconClose, IconMenu, IconSearch } from './icons'
 import SearchAutocompleteInput from './SearchAutocompleteInput'
+import AccountActions from './AccountActions'
 
 const navLinkClass = (isActive) =>
   `text-lg font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
@@ -11,7 +11,6 @@ const mobileNavLinkClass = (isActive) =>
   `px-4 py-3 text-lg font-semibold border-b border-gray-100 ${isActive ? 'text-brand-navy' : 'text-gray-600'}`
 
 export default function Header({ active, showSearch = true }) {
-  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -60,28 +59,7 @@ export default function Header({ active, showSearch = true }) {
         </form>
       )}
 
-      {user ? (
-        <button
-          onClick={() => {
-            logout()
-            navigate('/')
-          }}
-          aria-label="로그아웃"
-          title="로그아웃"
-          className="text-gray-500 hover:text-brand-navy transition-colors cursor-pointer"
-        >
-          <IconLogout className="w-7 h-7" />
-        </button>
-      ) : (
-        <Link
-          to="/login"
-          aria-label="로그인"
-          title="로그인"
-          className="text-gray-500 hover:text-brand-navy transition-colors cursor-pointer"
-        >
-          <IconUser className="w-7 h-7" />
-        </Link>
-      )}
+      <AccountActions />
 
       {/* 햄버거 버튼 — 모바일 전용 */}
       <button

@@ -63,9 +63,13 @@ export default function RestaurantDetailPage() {
           className="w-full aspect-[32/7] sm:aspect-[32/5] bg-[repeating-linear-gradient(45deg,#FFE4D3_0,#FFE4D3_5px,#FFF3EA_5px,#FFF3EA_10px)]"
           style={restaurant.image ? { display: 'none' } : undefined}
         />
+        <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <h1 className="text-white font-bold text-3xl text-center px-6">{restaurant.name}</h1>
+        </div>
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 left-6 inline-flex items-center gap-1.5 bg-white/80 backdrop-blur text-xs font-bold text-gray-700 rounded-full px-4 py-2 shadow-md hover:text-brand-navy transition-colors"
+          className="absolute top-4 left-6 inline-flex items-center gap-1.5 bg-white/80 backdrop-blur text-xs font-normal text-gray-700 rounded-full px-4 py-2 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
         >
           <IconArrowLeft className="w-4 h-4" />
           검색결과
@@ -87,7 +91,7 @@ export default function RestaurantDetailPage() {
           >
             {(STATUS_PILL[restaurant.status] ?? STATUS_PILL.open).label}
           </span>
-          <span className="text-base text-gray-400">
+          <span className="text-sm text-gray-400">
             {restaurant.category} · 리뷰 {restaurant.reviewCount}개
           </span>
         </div>
@@ -116,22 +120,35 @@ export default function RestaurantDetailPage() {
 
             <button
               onClick={handleSaveClick}
-              className="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl py-3.5 shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all"
+              className="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl py-3.5 shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all cursor-pointer"
             >
               <IconStar className="w-4 h-4" />
               {isSaved ? '저장됨' : '이 가게 저장하기'}
             </button>
 
-            {backup ? (
-              <button
-                onClick={() => navigate(`/place/${backup.id}`)}
-                className="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-brand-coral-dark bg-brand-peach/60 hover:bg-brand-peach rounded-xl py-3.5 transition-colors"
+            <div className="flex gap-3">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${restaurant.lat}%2C${restaurant.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex items-center justify-center text-sm font-bold text-brand-navy border border-brand-navy rounded-xl py-3 hover:bg-brand-navy/5 transition-colors"
               >
-                근처 백업 플랜 보기 →
-              </button>
-            ) : (
-              <div className="text-sm text-gray-400 text-center py-1">근처에 대안이 없어요.</div>
-            )}
+                구글 지도
+              </a>
+
+              {backup ? (
+                <button
+                  onClick={() => navigate(`/place/${backup.id}`)}
+                  className="flex-1 inline-flex items-center justify-center text-sm font-bold text-brand-coral-dark border border-brand-coral-dark rounded-xl py-3 hover:bg-brand-peach/40 transition-colors"
+                >
+                  근처 백업 플랜
+                </button>
+              ) : (
+                <div className="flex-1 inline-flex items-center justify-center text-sm text-gray-400 border border-gray-200 rounded-xl py-3">
+                  대안 없음
+                </div>
+              )}
+            </div>
 
             <div className="text-[11px] text-gray-500 bg-[#f8f8f8] rounded-xl p-3 leading-relaxed">
               <strong className="block text-gray-600 font-bold mb-1">표기 원칙</strong>
@@ -143,11 +160,13 @@ export default function RestaurantDetailPage() {
           <div className="order-2 md:order-1 md:col-span-3 flex flex-col gap-3">
             <div>
               <div className="flex flex-wrap gap-2.5 mb-2.5">
+                <span className="text-xs font-medium text-status-open">#{restaurant.region}</span>
+                <span className="text-xs font-medium text-status-open">#{restaurant.category}</span>
                 {restaurant.localRatio >= 60 && (
-                  <span className="text-xs font-medium text-status-open">#현지인 방문 다수</span>
+                  <span className="text-xs font-medium text-status-open">#현지인방문다수</span>
                 )}
                 {!restaurant.hasRudeReview && (
-                  <span className="text-xs font-medium text-status-open">#불친절 후기 없음</span>
+                  <span className="text-xs font-medium text-status-open">#불친절후기없음</span>
                 )}
               </div>
               {restaurant.reviews.length === 0 ? (

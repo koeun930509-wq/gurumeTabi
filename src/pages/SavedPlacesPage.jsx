@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
-import RestaurantCard from '../components/RestaurantCard'
+import SearchResultGridCard from '../components/SearchResultGridCard'
+import AccountActions from '../components/AccountActions'
 import { IconSearch, IconStar } from '../components/icons'
 import { mockRestaurants } from '../data/mockRestaurants'
 import { useAuth } from '../context/AuthContext'
@@ -21,7 +22,17 @@ export default function SavedPlacesPage() {
         </div>
 
         <div className="p-6 md:p-8 w-full flex-1 flex flex-col gap-6">
-          <h1 className="font-bold text-2xl text-gray-900">저장한 맛집</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="font-bold text-2xl text-gray-900 flex items-baseline gap-[10px]">
+              저장한 맛집
+              <span className="font-normal text-sm text-white">
+                총 <span className="text-brand-navy font-bold text-lg">{saved.length}</span>개
+              </span>
+            </h1>
+            <div className="hidden md:flex items-center gap-4">
+              <AccountActions />
+            </div>
+          </div>
 
           {saved.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-10">
@@ -39,9 +50,9 @@ export default function SavedPlacesPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {saved.map((r) => (
-                <RestaurantCard key={r.id} restaurant={r} />
+                <SearchResultGridCard key={r.id} restaurant={r} />
               ))}
             </div>
           )}

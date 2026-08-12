@@ -47,15 +47,15 @@ export default function SearchResultGridCard({ restaurant }) {
       onKeyDown={(e) => {
         if (e.key === 'Enter') goToDetail()
       }}
-      className="bg-white rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-0.5 transition-all shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)]"
+      className="group bg-white rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-0.5 transition-all shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)]"
     >
-      <div className="relative aspect-[4/3]">
+      <div className="relative aspect-[4/3] overflow-hidden">
         {restaurant.image ? (
           <img
             src={restaurant.image}
             alt={restaurant.name}
             loading="lazy"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
             onError={(e) => {
               e.currentTarget.style.display = 'none'
               e.currentTarget.nextElementSibling.style.display = 'flex'
@@ -70,11 +70,11 @@ export default function SearchResultGridCard({ restaurant }) {
         </div>
 
         <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-          <span className="text-[11px] font-bold text-status-open bg-white/90 px-2 py-1 rounded-full">
+          <span className="inline-flex items-center h-[22px] leading-none text-[11px] font-bold text-status-open bg-white/90 px-2 rounded-full">
             현지인 {restaurant.localRatio}%
           </span>
           <span
-            className={`text-[11px] font-bold bg-white/90 px-2 py-1 rounded-full ${
+            className={`inline-flex items-center h-[22px] leading-none text-[11px] font-bold bg-white/90 px-2 rounded-full ${
               STATUS_CHIP_STYLE[restaurant.status] ?? 'text-gray-700'
             }`}
           >

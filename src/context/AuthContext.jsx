@@ -3,6 +3,8 @@ import { createContext, useContext, useEffect, useState } from 'react'
 // 뼈대 단계 — 실제로는 Supabase Auth(이메일/비밀번호)를 사용합니다.
 // 지금은 로그인 상태와 저장한 맛집(saved_places 대응)을 localStorage로 흉내만 냅니다.
 
+const DEMO_SAVED_IDS = ['sushi-masa', 'ichiran-osaka', 'okonomiyaki-mizuno']
+
 export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -12,7 +14,7 @@ export function AuthProvider({ children }) {
   })
   const [savedIds, setSavedIds] = useState(() => {
     const saved = localStorage.getItem('gurume_saved_ids')
-    return saved ? JSON.parse(saved) : []
+    return saved ? JSON.parse(saved) : DEMO_SAVED_IDS
   })
 
   useEffect(() => {
@@ -33,6 +35,14 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  function updateNickname(nickname) {
+    setUser((prev) => (prev ? { ...prev, nickname } : prev))
+  }
+
+  function updateAvatar(avatarDataUrl) {
+    setUser((prev) => (prev ? { ...prev, avatar: avatarDataUrl } : prev))
+  }
+
   function toggleSave(restaurantId) {
     setSavedIds((prev) =>
       prev.includes(restaurantId)
@@ -41,7 +51,7 @@ export function AuthProvider({ children }) {
     )
   }
 
-  const value = { user, login, logout, savedIds, toggleSave }
+  const value = { user, login, logout, updateNickname, updateAvatar, savedIds, toggleSave }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

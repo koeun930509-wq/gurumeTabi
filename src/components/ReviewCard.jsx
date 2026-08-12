@@ -1,7 +1,11 @@
 export default function ReviewCard({ review }) {
   const isNaver = review.source === 'naver'
   return (
-    <div className="rounded-xl p-3 bg-white border border-brand-peach-dark flex flex-col gap-1.5">
+    <div
+      className={`rounded-xl p-3 bg-white border border-[#ddd] flex flex-col gap-1.5 cursor-pointer transition-colors ${
+        isNaver ? 'hover:border-status-open hover:bg-status-open/10' : 'hover:border-brand-navy hover:bg-brand-navy/10'
+      }`}
+    >
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-bold inline-flex items-center gap-1.5">
           <span

@@ -60,6 +60,10 @@ export default function SearchResultsPage() {
   const sortMenuRef = useRef(null)
 
   useEffect(() => {
+    setPendingQ(q)
+  }, [q])
+
+  useEffect(() => {
     function handleClickOutside(e) {
       if (sortMenuRef.current && !sortMenuRef.current.contains(e.target)) {
         setSortMenuOpen(false)
@@ -136,7 +140,7 @@ export default function SearchResultsPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <Header active="search" />
+      <Header active="search" showSearch={false} />
 
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[230px_1fr] gap-4 p-4">
         <aside className="bg-white rounded-2xl p-5 flex flex-col gap-5 h-full overflow-y-auto pretty-scroll">
@@ -151,7 +155,7 @@ export default function SearchResultsPage() {
                   type="button"
                   onClick={() => toggle(f.key)}
                   aria-pressed={filters[f.key]}
-                  className={`inline-flex items-center gap-1 text-[13px] font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                  className={`inline-flex items-center gap-1 text-[13px] font-semibold px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${
                     filters[f.key]
                       ? 'bg-brand-coral text-white border-brand-coral'
                       : 'bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy'
@@ -174,7 +178,7 @@ export default function SearchResultsPage() {
                   type="button"
                   onClick={() => toggle(f.key)}
                   aria-pressed={filters[f.key]}
-                  className={`inline-flex items-center gap-1 text-[13px] font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                  className={`inline-flex items-center gap-1 text-[13px] font-semibold px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${
                     filters[f.key]
                       ? 'bg-brand-coral text-white border-brand-coral'
                       : 'bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy'
@@ -263,153 +267,183 @@ export default function SearchResultsPage() {
           </div>
           <button
             onClick={resetFilters}
-            className="mt-auto text-xs font-bold text-gray-500 hover:text-brand-navy border border-gray-300 hover:border-brand-navy rounded-lg py-2 text-center transition-colors"
+            className="mt-auto text-xs font-bold text-gray-500 hover:text-brand-navy border border-gray-300 hover:border-brand-navy rounded-lg py-2 text-center cursor-pointer transition-colors"
           >
             필터 초기화
           </button>
         </aside>
 
         <div className="h-full overflow-y-auto pretty-scroll pr-4">
-          {!q ? (
-            <div className="h-full text-base text-[#333] rounded-2xl p-10 flex flex-col items-center justify-center gap-4">
-              <span className="inline-flex items-center gap-1.5">
-                <IconSearch className="w-4 h-4 flex-none" />
-                아직 검색을 안 하셨어요 — 지역이나 음식 종류를 입력해보세요.
-              </span>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  navigate(pendingQ ? `/search?q=${encodeURIComponent(pendingQ)}` : '/search')
-                }}
-                className="relative w-full max-w-sm"
-              >
-                <SearchAutocompleteInput
-                  value={pendingQ}
-                  onChange={setPendingQ}
-                  onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
-                  placeholder="예: 오사카 라멘"
-                  inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
-                />
-                <button
-                  type="submit"
-                  aria-label="검색"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-gradient-to-br from-brand-coral to-brand-coral-dark hover:bg-gradient-to-br hover:from-brand-navy hover:to-brand-navy-dark text-white rounded-full shadow-[0_6px_16px_-4px_rgba(126,34,206,0.55)] hover:shadow-[0_8px_20px_-4px_rgba(76,29,149,0.7)] hover:scale-105 transition-all"
-                >
-                  <IconSearch className="w-5 h-5" />
-                </button>
-              </form>
-            </div>
-          ) : results.length === 0 ? (
-            <div className="h-full text-base text-gray-400 bg-white rounded-2xl p-6 flex items-center justify-center text-center">
-              조건에 맞는 맛집이 없어요 — 필터를 다시 설정해보세요.
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <h1 className="font-bold text-xl text-gray-900 pl-2">
-                    {q ? `"${q}" 검색 결과` : '전체 카테고리'}
-                  </h1>
+          <div className="h-full flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <h1 className="text-xl text-gray-900 pl-2">
+                  {q ? (
+                    <>
+                      <span className="font-bold">"{q}"</span> 검색 결과
+                    </>
+                  ) : (
+                    <span className="font-bold">검색</span>
+                  )}
+                </h1>
+                {q && results.length > 0 && (
                   <div className="text-sm text-white">
                     {hiddenCount > 0
                       ? `${matchedResults.length}곳 중 신뢰도 상위 ${results.length}곳`
                       : `${results.length}곳`}{' '}
                     · 광고 의심 리뷰 엄격 제외 적용
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2 flex-none">
-                  <div className="relative" ref={sortMenuRef}>
-                    <button
-                      type="button"
-                      onClick={() => setSortMenuOpen((v) => !v)}
-                      aria-haspopup="listbox"
-                      aria-expanded={sortMenuOpen}
-                      className="flex items-center gap-1.5 bg-white text-sm font-semibold text-gray-700 rounded-full pl-4 pr-3 py-2 outline-none cursor-pointer hover:text-brand-navy transition-colors"
-                    >
-                      {SORT_OPTIONS.find((o) => o.key === sortBy).label}
-                      <IconChevronDown
-                        className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
-                          sortMenuOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    {sortMenuOpen && (
-                      <ul
-                        role="listbox"
-                        className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-20"
-                      >
-                        {SORT_OPTIONS.map((o) => (
-                          <li key={o.key}>
-                            <button
-                              type="button"
-                              role="option"
-                              aria-selected={sortBy === o.key}
-                              onClick={() => {
-                                setSortBy(o.key)
-                                setSortMenuOpen(false)
-                              }}
-                              className={`w-full text-left text-sm px-4 py-2 transition-colors ${
-                                sortBy === o.key
-                                  ? 'bg-brand-coral/10 text-brand-coral-dark font-bold'
-                                  : 'text-gray-600 hover:bg-gray-50'
-                              }`}
-                            >
-                              {o.label}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1 bg-white rounded-full p-1">
-                    <button
-                      type="button"
-                      onClick={() => setViewMode('grid')}
-                      aria-label="그리드 보기"
-                      aria-pressed={viewMode === 'grid'}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                        viewMode === 'grid'
-                          ? 'bg-brand-coral text-white'
-                          : 'text-gray-400 hover:text-brand-navy'
-                      }`}
-                    >
-                      <IconGrid className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setViewMode('list')}
-                      aria-label="리스트 보기"
-                      aria-pressed={viewMode === 'list'}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                        viewMode === 'list'
-                          ? 'bg-brand-coral text-white'
-                          : 'text-gray-400 hover:text-brand-navy'
-                      }`}
-                    >
-                      <IconList className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+                )}
               </div>
 
-              {viewMode === 'list' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {results.map((r) => (
-                    <SearchResultCard key={r.id} restaurant={r} />
-                  ))}
+              <div className="flex items-center gap-2 flex-none">
+                {q && (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      navigate(pendingQ ? `/search?q=${encodeURIComponent(pendingQ)}` : '/search')
+                    }}
+                    className="flex items-center gap-1.5 h-10 rounded-full border border-transparent focus-within:border-[#9993e2] bg-white px-3 min-w-[170px]"
+                  >
+                    <SearchAutocompleteInput
+                      value={pendingQ}
+                      onChange={setPendingQ}
+                      onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
+                      placeholder="지역·음식 검색"
+                      inputClassName="bg-transparent outline-none text-sm text-gray-600 w-full placeholder:text-xs"
+                      wrapperClassName="relative flex-1"
+                      listClassName="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-30 overflow-hidden"
+                    />
+                    <IconSearch className="w-3.5 h-3.5 text-gray-400 flex-none" />
+                  </form>
+                )}
+
+                <div className="relative" ref={sortMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setSortMenuOpen((v) => !v)}
+                    aria-haspopup="listbox"
+                    aria-expanded={sortMenuOpen}
+                    className={`flex items-center gap-1.5 h-10 bg-white text-xs leading-[1.25rem] font-semibold text-gray-700 rounded-full pl-4 pr-3 border outline-none cursor-pointer hover:text-brand-navy transition-colors focus-visible:border-[#9993e2] ${
+                      sortMenuOpen ? 'border-[#9993e2]' : 'border-transparent'
+                    }`}
+                  >
+                    {SORT_OPTIONS.find((o) => o.key === sortBy).label}
+                    <IconChevronDown
+                      className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
+                        sortMenuOpen ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {sortMenuOpen && (
+                    <ul
+                      role="listbox"
+                      className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-20"
+                    >
+                      {SORT_OPTIONS.map((o) => (
+                        <li key={o.key}>
+                          <button
+                            type="button"
+                            role="option"
+                            aria-selected={sortBy === o.key}
+                            onClick={() => {
+                              setSortBy(o.key)
+                              setSortMenuOpen(false)
+                            }}
+                            className={`w-full text-left text-xs leading-[1.25rem] px-4 py-2 transition-colors ${
+                              sortBy === o.key
+                                ? 'bg-brand-coral/10 text-brand-coral-dark font-bold'
+                                : 'text-gray-600 hover:bg-gray-50'
+                            }`}
+                          >
+                            {o.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {results.map((r) => (
-                    <SearchResultGridCard key={r.id} restaurant={r} />
-                  ))}
+
+                <div className="relative flex items-center gap-1 h-10 bg-white rounded-full p-1">
+                  <div
+                    className={`absolute top-1 left-1 w-8 h-8 rounded-full bg-brand-coral transition-transform duration-200 ease-out ${
+                      viewMode === 'list' ? 'translate-x-[calc(100%+0.25rem)]' : 'translate-x-0'
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('grid')}
+                    aria-label="그리드 보기"
+                    aria-pressed={viewMode === 'grid'}
+                    className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+                      viewMode === 'grid' ? 'text-white' : 'text-gray-400 hover:text-brand-navy'
+                    }`}
+                  >
+                    <IconGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    aria-label="리스트 보기"
+                    aria-pressed={viewMode === 'list'}
+                    className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
+                      viewMode === 'list' ? 'text-white' : 'text-gray-400 hover:text-brand-navy'
+                    }`}
+                  >
+                    <IconList className="w-4 h-4" />
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
-          )}
+
+            {!q ? (
+              <div className="flex-1 min-h-0 text-base text-[#333] rounded-2xl p-10 flex flex-col items-center justify-center gap-4">
+                <span className="inline-flex items-center gap-1.5">
+                  <IconSearch className="w-4 h-4 flex-none" />
+                  아직 검색을 안 하셨어요 — 지역이나 음식 종류를 입력해보세요.
+                </span>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    navigate(pendingQ ? `/search?q=${encodeURIComponent(pendingQ)}` : '/search')
+                  }}
+                  className="relative w-full max-w-sm"
+                >
+                  <SearchAutocompleteInput
+                    value={pendingQ}
+                    onChange={setPendingQ}
+                    onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
+                    placeholder="예: 오사카 라멘"
+                    inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    aria-label="검색"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center bg-gradient-to-br from-brand-coral to-brand-coral-dark hover:bg-gradient-to-br hover:from-brand-navy hover:to-brand-navy-dark text-white rounded-full shadow-[0_6px_16px_-4px_rgba(126,34,206,0.55)] hover:shadow-[0_8px_20px_-4px_rgba(76,29,149,0.7)] hover:scale-105 transition-all"
+                  >
+                    <IconSearch className="w-5 h-5" />
+                  </button>
+                </form>
+              </div>
+            ) : results.length === 0 ? (
+              <div className="flex-1 min-h-0 text-base text-gray-400 bg-white rounded-2xl p-6 flex items-center justify-center text-center">
+                조건에 맞는 맛집이 없어요 — 필터를 다시 설정해보세요.
+              </div>
+            ) : viewMode === 'list' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {results.map((r) => (
+                  <SearchResultCard key={r.id} restaurant={r} />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {results.map((r) => (
+                  <SearchResultGridCard key={r.id} restaurant={r} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

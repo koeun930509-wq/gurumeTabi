@@ -29,7 +29,7 @@ export default function SearchResultCard({ restaurant }) {
   return (
     <Link
       to={`/place/${restaurant.id}`}
-      className="flex gap-4 bg-white rounded-2xl p-4 shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] hover:-translate-y-0.5 transition-all"
+      className="group flex gap-4 bg-white rounded-2xl p-4 shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] hover:-translate-y-0.5 transition-all"
     >
       <div className="relative w-28 h-28 flex-none rounded-xl overflow-hidden">
         {restaurant.image ? (
@@ -37,7 +37,7 @@ export default function SearchResultCard({ restaurant }) {
             src={restaurant.image}
             alt={restaurant.name}
             loading="lazy"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
             onError={(e) => {
               e.currentTarget.style.display = 'none'
               e.currentTarget.nextElementSibling.style.display = 'flex'
