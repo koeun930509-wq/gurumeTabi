@@ -57,6 +57,8 @@ npm run lint     # oxlint
 - **로그인 보호**: `/mypage`는 `ProtectedRoute` 컴포넌트로 감싸져 있어 비로그인 접근 시 `/login`으로 리다이렉트, 로그인 후 원래 경로로 복귀
 - **홈 검색창 포커스 애니메이션**: 커서를 두면 브랜드 보라(navy)·로고 벚꽃 분홍 2색 `conic-gradient`가 4px 두께로 회전하는 보더가 나타남(`index.css`의 `.gradient-border-input`)
 - **마이페이지 프로필 관리**: 닉네임과 프로필 사진을 `NicknameModal`에서 수정 가능. 사진은 jpg/png/webp·500KB 이하만 허용, `FileReader`로 base64 변환 후 `AuthContext.updateAvatar`를 통해 `localStorage`에 저장(실제 파일 업로드/스토리지 없음)
+- **Footer**: `src/components/Footer.jsx` 공용 컴포넌트가 "Copyright(c)2026 GurumeTabi. All rights reserved." 문구를 4개 화면(홈·검색·저장한맛집·마이페이지) 하단에 표시. 화면마다 색상·정렬·여백만 다르게 적용(홈은 흰색 70% 투명도, 검색은 회색 `#999`, 저장한맛집·마이페이지는 흰색)
+- **검색 결과 스크롤 안정화**: `/search` 결과 영역은 그리드/리스트 뷰를 전환해도 스크롤바가 항상 표시되도록 처리해, 콘텐츠 높이 변화로 카드 폭이 흔들리는 현상을 방지함
 
 ## 아직 안 된 것 (다음 단계)
 

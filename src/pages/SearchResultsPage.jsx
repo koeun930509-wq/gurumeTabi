@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 import SearchResultCard from '../components/SearchResultCard'
 import SearchResultGridCard from '../components/SearchResultGridCard'
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck } from '../components/icons'
@@ -273,8 +274,8 @@ export default function SearchResultsPage() {
           </button>
         </aside>
 
-        <div className="h-full overflow-y-auto pretty-scroll pr-4">
-          <div className="h-full flex flex-col gap-4">
+        <div className="h-full overflow-y-scroll pretty-scroll pr-4">
+          <div className="min-h-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
               <div className="flex items-baseline gap-2 flex-wrap">
                 <h1 className="text-xl text-gray-900 pl-2">
@@ -443,6 +444,8 @@ export default function SearchResultsPage() {
                 ))}
               </div>
             )}
+
+            <Footer className="mt-auto text-center text-[#999] pt-3 pb-4 translate-y-[14px]" />
           </div>
         </div>
       </div>

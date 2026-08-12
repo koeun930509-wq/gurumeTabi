@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
+import Footer from '../components/Footer'
 import SearchResultGridCard from '../components/SearchResultGridCard'
 import AccountActions from '../components/AccountActions'
 import { IconSearch, IconStar } from '../components/icons'
@@ -21,15 +22,15 @@ export default function SavedPlacesPage() {
           <Header active="saved" />
         </div>
 
-        <div className="p-6 md:p-8 w-full flex-1 flex flex-col gap-6">
-          <div className="flex items-center justify-between">
+        <div className="p-6 pb-0 md:p-8 md:pb-0 w-full flex-1 flex flex-col gap-6">
+          <div className="flex items-center justify-between md:pr-2">
             <h1 className="font-bold text-2xl text-gray-900 flex items-baseline gap-[10px]">
               저장한 맛집
               <span className="font-normal text-sm text-white">
                 총 <span className="text-brand-navy font-bold text-lg">{saved.length}</span>개
               </span>
             </h1>
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-6">
               <AccountActions />
             </div>
           </div>
@@ -56,6 +57,8 @@ export default function SavedPlacesPage() {
               ))}
             </div>
           )}
+
+          <Footer className="text-center text-white pt-3 pb-4" />
         </div>
       </div>
     </div>

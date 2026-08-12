@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
 import AccountActions from "../components/AccountActions";
 import { IconUserCircle, IconEdit, IconChevronRight, IconFileText, IconShield, IconClose } from "../components/icons";
 import { useAuth } from "../context/AuthContext";
@@ -283,7 +284,7 @@ export default function MyPage() {
         </div>
 
         {/* 모바일 레이아웃 */}
-        <div className="md:hidden max-w-md w-full p-6 flex flex-col gap-6">
+        <div className="md:hidden max-w-md w-full p-6 pb-0 flex flex-col gap-6">
           <h1 className="font-bold text-lg text-brand-navy">마이페이지</h1>
 
           {/* 프로필 */}
@@ -384,13 +385,15 @@ export default function MyPage() {
               </div>
             </div>
           </section>
+
+          <Footer className="text-center text-white pt-3 pb-4" />
         </div>
 
         {/* PC 레이아웃 */}
-        <div className="hidden md:flex flex-col w-full p-8 gap-6">
-          <div className="flex items-center justify-between">
+        <div className="hidden md:flex flex-col w-full p-8 pb-0 gap-6">
+          <div className="flex items-center justify-between md:pr-2">
             <h1 className="font-bold text-2xl text-gray-900">마이페이지</h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <AccountActions />
             </div>
           </div>
@@ -543,6 +546,8 @@ export default function MyPage() {
               <span className="text-xs text-gray-400">v0.1.0 (뼈대)</span>
             </div>
           </section>
+
+          <Footer className="text-center text-white pt-3 pb-4" />
         </div>
       </div>
 

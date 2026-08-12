@@ -100,7 +100,6 @@ export default function RestaurantDetailPage() {
           {/* 사이드바: 모바일에서는 리뷰보다 먼저, 데스크톱에서는 오른쪽 */}
           <aside className="order-1 md:order-2 md:col-span-1 flex flex-col gap-3 h-fit">
             <div className="flex flex-col gap-2.5">
-              <h4 className="text-[11px] tracking-wider text-gray-400 font-bold">가게 정보</h4>
               <div className="text-sm text-gray-600 inline-flex items-start gap-1.5">
                 <IconPin className="w-4 h-4 flex-none mt-0.5" />
                 {restaurant.address}

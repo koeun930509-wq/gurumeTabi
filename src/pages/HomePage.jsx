@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 import { IconSearch } from '../components/icons'
 
 const POPULAR = ['오사카', '도쿄', '돈카츠', '라멘', '이자카야', '스시', '우동', '오코노미야키']
@@ -96,6 +97,8 @@ export default function HomePage() {
           */}
         </section>
       )}
+
+      <Footer className="relative flex-none text-center text-white/70 pt-3 pb-1 -translate-y-4" />
     </div>
   )
 }

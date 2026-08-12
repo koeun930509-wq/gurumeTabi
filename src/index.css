@@ -36,7 +36,7 @@ body {
 
 .pretty-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.15);
 }
 
 .pretty-scroll::-webkit-scrollbar {
@@ -44,7 +44,7 @@ body {
 }
 
 .pretty-scroll::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .pretty-scroll::-webkit-scrollbar-thumb {
