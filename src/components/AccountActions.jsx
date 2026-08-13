@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { IconLogout, IconUser, IconUserCircle } from './icons'
 
-export default function AccountActions() {
+export default function AccountActions({ showLogout = true }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -35,17 +35,19 @@ export default function AccountActions() {
           </span>
         )}
       </button>
-      <button
-        onClick={() => {
-          logout()
-          navigate('/')
-        }}
-        aria-label="로그아웃"
-        title="로그아웃"
-        className="text-gray-500 hover:text-brand-navy transition-colors cursor-pointer"
-      >
-        <IconLogout className="w-7 h-7" />
-      </button>
+      {showLogout && (
+        <button
+          onClick={() => {
+            logout()
+            navigate('/')
+          }}
+          aria-label="로그아웃"
+          title="로그아웃"
+          className="text-gray-500 hover:text-brand-navy transition-colors cursor-pointer"
+        >
+          <IconLogout className="w-7 h-7" />
+        </button>
+      )}
     </>
   )
 }

@@ -33,11 +33,11 @@ export function normalizeJapaneseTranscription(str) {
     .join('')
 }
 
-export function suggestFoodTypes(input, limit = 5) {
+export function suggestSearchTerms(input, limit = 5) {
   const query = input.trim()
   if (!query) return []
   const normalizedQuery = normalizeJapaneseTranscription(query)
-  return FOOD_TYPES.filter((food) =>
-    normalizeJapaneseTranscription(food).includes(normalizedQuery)
-  ).slice(0, limit)
+  return [...REGIONS, ...FOOD_TYPES]
+    .filter((term) => normalizeJapaneseTranscription(term).includes(normalizedQuery))
+    .slice(0, limit)
 }

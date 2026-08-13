@@ -3,6 +3,16 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { IconLock, IconMail } from "../components/icons";
 
+function loginErrorMessage(error) {
+  if (error.message === "Invalid login credentials") {
+    return "이메일 또는 비밀번호가 올바르지 않습니다.";
+  }
+  if (error.message === "Email not confirmed") {
+    return "이메일 인증이 필요합니다. 가입하신 이메일의 확인 링크를 눌러주세요.";
+  }
+  return error.message;
+}
+
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -10,17 +20,25 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!email || !password) {
       setError("이메일과 비밀번호를 입력해주세요.");
       return;
     }
-    // 뼈대 단계 — 실제로는 Supabase Auth(이메일/비밀번호)로 검증합니다.
-    login(email);
-    const redirectTo = location.state?.from?.pathname ?? "/";
-    navigate(redirectTo, { replace: true });
+    setError("");
+    setSubmitting(true);
+    try {
+      await login(email, password);
+      const redirectTo = location.state?.from?.pathname ?? "/";
+      navigate(redirectTo, { replace: true });
+    } catch (err) {
+      setError(loginErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -66,9 +84,10 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white font-bold text-base rounded-lg py-2.5 mt-2 shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)]"
+          disabled={submitting}
+          className="bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white font-bold text-base rounded-lg py-2.5 mt-2 shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] disabled:opacity-60"
         >
-          로그인
+          {submitting ? "로그인 중..." : "로그인"}
         </button>
 
         <div className="text-xs text-gray-500 text-center mt-1">
@@ -82,7 +101,7 @@ export default function LoginPage() {
       <div className="relative text-xs text-white/80 text-center drop-shadow">
         광고 없는 찐맛집 · 일본 여행 전용
         <br />
-        (뼈대 단계 — Supabase Auth 이메일/비밀번호. 구글 로그인은 추후 도입)
+        (Supabase Auth 이메일/비밀번호. 구글 로그인은 추후 도입)
       </div>
     </div>
   );

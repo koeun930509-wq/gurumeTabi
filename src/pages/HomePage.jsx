@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import { IconSearch } from '../components/icons'
+import SearchAutocompleteInput from '../components/SearchAutocompleteInput'
+import { IconSearch, IconClose } from '../components/icons'
 
 const POPULAR = ['오사카', '도쿄', '돈카츠', '라멘', '이자카야', '스시', '우동', '오코노미야키']
 const RECENT = []
@@ -41,12 +42,25 @@ export default function HomePage() {
           </div>
 
           <form onSubmit={handleSearch} className="gradient-border-input relative w-full max-w-2xl">
-            <input
+            <SearchAutocompleteInput
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={setQ}
+              onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
               placeholder="지역 · 음식 종류로 검색 (예: 오사카 라멘)"
-              className="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] focus:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.6)] transition-shadow"
+              inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-28 py-5 outline-none shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] focus:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.6)] transition-shadow"
+              wrapperClassName="relative w-full"
+              listClassName="absolute left-0 right-0 top-full mt-2 bg-white/90 rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-30 overflow-hidden text-left"
             />
+            {q && (
+              <button
+                type="button"
+                aria-label="검색어 지우기"
+                onClick={() => setQ('')}
+                className="absolute right-[70px] top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full cursor-pointer"
+              >
+                <IconClose className="w-4 h-4" />
+              </button>
+            )}
             <button
               type="submit"
               aria-label="검색"

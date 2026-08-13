@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { IconPhone, IconPin, IconStar } from './icons'
 
@@ -21,17 +21,28 @@ function extractArea(address) {
 }
 
 export default function SearchResultCard({ restaurant }) {
-  const { savedIds } = useAuth()
-  const isSaved = savedIds.includes(restaurant.id)
+  const navigate = useNavigate()
+  const { user, scrapIds, toggleScrap } = useAuth()
+  const isSaved = scrapIds.includes(restaurant.id)
   const adFilteredCount = restaurant.reviews.filter((r) => r.isAdFiltered).length
   const area = extractArea(restaurant.address)
+
+  function handleSaveClick(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    toggleScrap(restaurant.id)
+  }
 
   return (
     <Link
       to={`/place/${restaurant.id}`}
-      className="group flex gap-4 bg-white rounded-2xl p-4 shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] hover:-translate-y-0.5 transition-all"
+      className="group flex gap-4 bg-white rounded-2xl overflow-hidden shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] hover:-translate-y-0.5 transition-all"
     >
-      <div className="relative w-28 h-28 flex-none rounded-xl overflow-hidden">
+      <div className="relative w-[150px] self-stretch flex-none overflow-hidden">
         {restaurant.image ? (
           <img
             src={restaurant.image}
@@ -50,24 +61,33 @@ export default function SearchResultCard({ restaurant }) {
         >
           image ph.
         </div>
-        <span
-          className={`absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center bg-white/90 ${
+        <button
+          onClick={handleSaveClick}
+          aria-label={isSaved ? '저장 해제' : '저장'}
+          className={`group absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center bg-white/90 cursor-pointer ${
             isSaved ? 'text-brand-coral' : 'text-gray-300'
           }`}
         >
-          <IconStar className="w-3.5 h-3.5" fill={isSaved ? 'currentColor' : 'none'} />
-        </span>
+          <IconStar
+            className="w-3.5 h-3.5 group-hover:stroke-brand-coral"
+            fill={isSaved ? 'currentColor' : 'none'}
+          />
+        </button>
       </div>
 
-      <div className="flex-1 min-w-0 flex flex-col gap-1">
+      <div className="flex-1 min-w-0 flex flex-col gap-1 py-4 pr-4">
         <div className="flex items-start justify-between gap-2">
           <div className="font-bold text-base text-gray-900 truncate">{restaurant.name}</div>
           <div className="flex-none text-sm font-bold text-brand-coral-dark">★{restaurant.rating}</div>
         </div>
+        <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-status-open">
+          <span>#{restaurant.region}</span>
+          <span>#{restaurant.category}</span>
+          {restaurant.localRatio >= 60 && <span>#현지인방문다수</span>}
+          {!restaurant.hasRudeReview && <span>#불친절후기없음</span>}
+        </div>
         <div className="text-xs text-gray-500 truncate">
-          {[restaurant.category, area && `${area} 도보 ${restaurant.walkMinutes}분`]
-            .filter(Boolean)
-            .join(' · ')}
+          {area && `${area} 도보 ${restaurant.walkMinutes}분`}
         </div>
         <div className="flex items-center gap-3 text-xs text-gray-400">
           <span className="inline-flex items-center gap-1 min-w-0 truncate">

@@ -20,7 +20,7 @@ const POLICY_CONTENT = {
     title: "개인정보처리방침",
     body: [
       "Gurume Tabi(이하 '회사')는 이용자의 개인정보를 중요시하며, 관련 법령을 준수하기 위해 노력합니다. 본 방침은 예시 화면 구성을 위한 더미 텍스트입니다.",
-      "1. 수집하는 개인정보 항목: 이메일 주소, 저장한 맛집 목록, 검색 기록\n2. 수집 목적: 서비스 제공 및 맞춤 추천, 부정 이용 방지\n3. 보유 및 이용 기간: 회원 탈퇴 시까지",
+      "1. 수집하는 개인정보 항목: 이메일 주소, 스크랩 목록, 검색 기록\n2. 수집 목적: 서비스 제공 및 맞춤 추천, 부정 이용 방지\n3. 보유 및 이용 기간: 회원 탈퇴 시까지",
       "실제 서비스 운영 시에는 법무 검토를 거친 정식 개인정보처리방침으로 대체되어야 합니다.",
     ],
   },
@@ -87,17 +87,40 @@ function RecentSearchesModal({ open, onClose }) {
 }
 
 function PasswordModal({ open, onClose }) {
+  const { changePassword } = useAuth();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   if (!open) return null;
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setSubmitted(true);
+    if (newPassword !== newPasswordConfirm) {
+      setError("새 비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    setError("");
+    setSubmitting(true);
+    try {
+      await changePassword(currentPassword, newPassword);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleClose() {
     setSubmitted(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setNewPasswordConfirm("");
+    setError("");
     onClose();
   }
 
@@ -114,7 +137,7 @@ function PasswordModal({ open, onClose }) {
 
         {submitted ? (
           <div className="p-6 flex flex-col items-center gap-3 text-center">
-            <p className="text-sm text-gray-600">비밀번호가 변경되었어요. (예시 화면, 실제로 저장되지 않습니다)</p>
+            <p className="text-sm text-gray-600">비밀번호가 변경되었어요.</p>
             <button
               onClick={handleClose}
               className="mt-1 bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white text-sm font-bold px-5 py-2.5 rounded-xl cursor-pointer"
@@ -129,6 +152,8 @@ function PasswordModal({ open, onClose }) {
               <input
                 type="password"
                 required
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
                 className="border border-[#ddd] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-navy"
               />
             </div>
@@ -137,6 +162,8 @@ function PasswordModal({ open, onClose }) {
               <input
                 type="password"
                 required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 className="border border-[#ddd] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-navy"
               />
             </div>
@@ -145,14 +172,18 @@ function PasswordModal({ open, onClose }) {
               <input
                 type="password"
                 required
+                value={newPasswordConfirm}
+                onChange={(e) => setNewPasswordConfirm(e.target.value)}
                 className="border border-[#ddd] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-navy"
               />
             </div>
+            {error && <div className="text-sm text-status-soldout">{error}</div>}
             <button
               type="submit"
-              className="mt-1.5 w-full bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white text-sm font-bold py-3 rounded-xl hover:brightness-105 transition-all cursor-pointer"
+              disabled={submitting}
+              className="mt-1.5 w-full bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white text-sm font-bold py-3 rounded-xl hover:brightness-105 transition-all cursor-pointer disabled:opacity-60"
             >
-              변경하기
+              {submitting ? "변경 중..." : "변경하기"}
             </button>
           </form>
         )}
@@ -168,6 +199,8 @@ function NicknameModal({ open, currentNickname, currentAvatar, onSave, onSaveAva
   const [nickname, setNickname] = useState(currentNickname);
   const [avatarPreview, setAvatarPreview] = useState(currentAvatar ?? null);
   const [avatarError, setAvatarError] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -199,11 +232,19 @@ function NicknameModal({ open, currentNickname, currentAvatar, onSave, onSaveAva
     reader.readAsDataURL(file);
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onSave(nickname.trim());
-    onSaveAvatar(avatarPreview);
-    onClose();
+    setSaveError("");
+    setSaving(true);
+    try {
+      await onSave(nickname.trim());
+      onSaveAvatar(avatarPreview);
+      onClose();
+    } catch (err) {
+      setSaveError(err.message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -247,11 +288,13 @@ function NicknameModal({ open, currentNickname, currentAvatar, onSave, onSaveAva
               className="border border-[#ddd] rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-navy"
             />
           </div>
+          {saveError && <div className="text-sm text-status-soldout">{saveError}</div>}
           <button
             type="submit"
-            className="mt-1.5 w-full bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white text-sm font-bold py-3 rounded-xl hover:brightness-105 transition-all cursor-pointer"
+            disabled={saving}
+            className="mt-1.5 w-full bg-gradient-to-b from-brand-coral to-brand-coral-dark text-white text-sm font-bold py-3 rounded-xl hover:brightness-105 transition-all cursor-pointer disabled:opacity-60"
           >
-            저장하기
+            {saving ? "저장 중..." : "저장하기"}
           </button>
         </form>
       </div>
@@ -260,7 +303,7 @@ function NicknameModal({ open, currentNickname, currentAvatar, onSave, onSaveAva
 }
 
 export default function MyPage() {
-  const { user, logout, updateNickname, updateAvatar, savedIds } = useAuth();
+  const { user, logout, updateNickname, updateAvatar, scrapIds } = useAuth();
   const navigate = useNavigate();
   const [notifyOn, setNotifyOn] = useState(true);
   const [reviewAlertOn, setReviewAlertOn] = useState(false);
@@ -275,14 +318,20 @@ export default function MyPage() {
   }
 
   return (
-    <div className="min-h-full flex">
+    <div className="h-screen flex overflow-hidden">
       <Sidebar active="mypage" />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="relative flex-1 flex flex-col min-w-0 h-full">
         <div className="md:hidden">
           <Header active="mypage" />
         </div>
 
+        {/* 데스크톱 — 계정 아이콘을 Header와 동일한 위치·크기로, 콘텐츠 위에 겹쳐서 배치 */}
+        <div className="absolute top-0 right-0 z-20 hidden md:flex items-center gap-6 px-4 sm:px-6 py-6">
+          <AccountActions />
+        </div>
+
+        <div className="flex-1 min-h-0 overflow-y-scroll pretty-scroll">
         {/* 모바일 레이아웃 */}
         <div className="md:hidden max-w-md w-full p-6 pb-0 flex flex-col gap-6">
           <h1 className="font-bold text-lg text-brand-navy">마이페이지</h1>
@@ -314,10 +363,13 @@ export default function MyPage() {
           <section>
             <h4 className="text-[11px] tracking-wider text-gray-400 font-sans mb-2.5">활동</h4>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-3.5 text-center">
-                <div className="text-xl font-extrabold text-brand-navy">{savedIds.length}</div>
-                <div className="text-xs text-gray-500 mt-0.5">저장한 맛집</div>
-              </div>
+              <button
+                onClick={() => navigate("/scrap")}
+                className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-3.5 text-center cursor-pointer"
+              >
+                <div className="text-xl font-extrabold text-brand-navy">{scrapIds.length}</div>
+                <div className="text-xs text-gray-500 mt-0.5">스크랩</div>
+              </button>
               <button
                 onClick={() => setPolicyModal("recentSearch")}
                 className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-3.5 text-center cursor-pointer"
@@ -339,7 +391,7 @@ export default function MyPage() {
               <div className="flex items-center justify-between p-3.5">
                 <div className="flex flex-col">
                   <span className="text-base font-semibold">새 리뷰 업데이트 알림</span>
-                  <span className="text-xs text-gray-400">저장한 맛집에 새 리뷰가 등록되면 알림</span>
+                  <span className="text-xs text-gray-400">스크랩에 새 리뷰가 등록되면 알림</span>
                 </div>
                 <Toggle checked={reviewAlertOn} onChange={() => setReviewAlertOn((v) => !v)} />
               </div>
@@ -391,12 +443,7 @@ export default function MyPage() {
 
         {/* PC 레이아웃 */}
         <div className="hidden md:flex flex-col w-full p-8 pb-0 gap-6">
-          <div className="flex items-center justify-between md:pr-2">
-            <h1 className="font-bold text-2xl text-gray-900">마이페이지</h1>
-            <div className="flex items-center gap-6">
-              <AccountActions />
-            </div>
-          </div>
+          <h1 className="font-bold text-2xl text-gray-900">마이페이지</h1>
 
           {/* 계정 정보 */}
           <section className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-6 flex flex-col gap-4">
@@ -447,7 +494,7 @@ export default function MyPage() {
                 <div className="flex items-center justify-between py-3.5">
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold">새 리뷰 업데이트 알림</span>
-                    <span className="text-xs text-gray-400">저장한 맛집에서 새 리뷰가 등록되면 알림을 받습니다.</span>
+                    <span className="text-xs text-gray-400">스크랩에서 새 리뷰가 등록되면 알림을 받습니다.</span>
                   </div>
                   <Toggle checked={reviewAlertOn} onChange={() => setReviewAlertOn((v) => !v)} />
                 </div>
@@ -497,14 +544,14 @@ export default function MyPage() {
             <section className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-5 flex flex-col">
               <h4 className="text-base font-bold text-gray-900 mb-3">검색 통계</h4>
               <div className="flex-1 grid grid-cols-2 divide-x divide-brand-peach/40 items-center">
-                <div className="text-center px-2">
-                  <div className="text-xs text-gray-500 mb-2">저장한 맛집</div>
+                <button onClick={() => navigate("/scrap")} className="text-center px-2 cursor-pointer">
+                  <div className="text-xs text-gray-500 mb-2">스크랩</div>
                   <div className="text-2xl font-extrabold text-brand-navy">
-                    {savedIds.length}
+                    {scrapIds.length}
                     <span className="text-sm font-semibold text-gray-400 ml-0.5">개</span>
                   </div>
-                  <div className="text-xs text-gray-500 mt-2">내가 저장한 맛집 수</div>
-                </div>
+                  <div className="text-xs text-gray-500 mt-2">내가 스크랩한 맛집 수</div>
+                </button>
                 <button onClick={() => setPolicyModal("recentSearch")} className="text-center px-2 cursor-pointer">
                   <div className="text-xs text-gray-500 mb-2">최근 검색</div>
                   <div className="text-2xl font-extrabold text-brand-navy">
@@ -548,6 +595,7 @@ export default function MyPage() {
           </section>
 
           <Footer className="text-center text-white pt-3 pb-4" />
+        </div>
         </div>
       </div>
 

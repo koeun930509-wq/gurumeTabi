@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Supabase env vars (anon key — not secret, but keep out of git by convention)
+.env
+.env.local
+
+# 수동 백업 스냅샷 (실제 코드에서 쓰이지 않음)
+*.jsx.bak
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

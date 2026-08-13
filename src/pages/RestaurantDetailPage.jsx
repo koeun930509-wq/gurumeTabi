@@ -19,7 +19,7 @@ const STATUS_PILL = {
 export default function RestaurantDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, savedIds, toggleSave } = useAuth()
+  const { user, scrapIds, toggleScrap } = useAuth()
   const restaurant = getRestaurantById(id)
 
   if (!restaurant) {
@@ -31,7 +31,7 @@ export default function RestaurantDetailPage() {
     )
   }
 
-  const isSaved = savedIds.includes(restaurant.id)
+  const isSaved = scrapIds.includes(restaurant.id)
   const backup = getBackupPlan(restaurant.id)
 
   function handleSaveClick() {
@@ -39,7 +39,7 @@ export default function RestaurantDetailPage() {
       navigate('/login')
       return
     }
-    toggleSave(restaurant.id)
+    toggleScrap(restaurant.id)
   }
 
   return (
@@ -159,8 +159,18 @@ export default function RestaurantDetailPage() {
           <div className="order-2 md:order-1 md:col-span-3 flex flex-col gap-3">
             <div>
               <div className="flex flex-wrap gap-2.5 mb-2.5">
-                <span className="text-xs font-medium text-status-open">#{restaurant.region}</span>
-                <span className="text-xs font-medium text-status-open">#{restaurant.category}</span>
+                <button
+                  onClick={() => navigate(`/search?q=${encodeURIComponent(restaurant.region)}`)}
+                  className="text-xs font-medium text-status-open hover:underline cursor-pointer"
+                >
+                  #{restaurant.region}
+                </button>
+                <button
+                  onClick={() => navigate(`/search?q=${encodeURIComponent(restaurant.category)}`)}
+                  className="text-xs font-medium text-status-open hover:underline cursor-pointer"
+                >
+                  #{restaurant.category}
+                </button>
                 {restaurant.localRatio >= 60 && (
                   <span className="text-xs font-medium text-status-open">#현지인방문다수</span>
                 )}

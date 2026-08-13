@@ -4,7 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import SearchResultCard from '../components/SearchResultCard'
 import SearchResultGridCard from '../components/SearchResultGridCard'
-import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck } from '../components/icons'
+import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose } from '../components/icons'
 import { mockRestaurants } from '../data/mockRestaurants'
 import { FOOD_TYPES, REGIONS, normalizeJapaneseTranscription } from '../utils/searchTerms'
 import SearchAutocompleteInput from '../components/SearchAutocompleteInput'
@@ -315,6 +315,16 @@ export default function SearchResultsPage() {
                       wrapperClassName="relative flex-1"
                       listClassName="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-30 overflow-hidden"
                     />
+                    {pendingQ && (
+                      <button
+                        type="button"
+                        aria-label="검색어 지우기"
+                        onClick={() => setPendingQ('')}
+                        className="flex-none text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <IconClose className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                     <IconSearch className="w-3.5 h-3.5 text-gray-400 flex-none" />
                   </form>
                 )}
@@ -416,8 +426,18 @@ export default function SearchResultsPage() {
                     onChange={setPendingQ}
                     onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
                     placeholder="예: 오사카 라멘"
-                    inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-16 py-5 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
+                    inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-24 py-5 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
                   />
+                  {pendingQ && (
+                    <button
+                      type="button"
+                      aria-label="검색어 지우기"
+                      onClick={() => setPendingQ('')}
+                      className="absolute right-16 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full cursor-pointer"
+                    >
+                      <IconClose className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                   <button
                     type="submit"
                     aria-label="검색"

@@ -1,23 +1,38 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { IconClose, IconMenu, IconSearch } from './icons'
+import { IconClose, IconMenu, IconSearch, IconStar, IconUser, IconLogout, IconLogin } from './icons'
 import SearchAutocompleteInput from './SearchAutocompleteInput'
 import AccountActions from './AccountActions'
+import { useAuth } from '../context/AuthContext'
 
 const navLinkClass = (isActive) =>
   `text-lg font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
 
-const mobileNavLinkClass = (isActive) =>
-  `px-4 py-3 text-lg font-semibold border-b border-gray-100 ${isActive ? 'text-brand-navy' : 'text-gray-600'}`
+const MOBILE_MENU = [
+  { to: '/search', key: 'search', label: '검색', Icon: IconSearch },
+  { to: '/scrap', key: 'scrap', label: '스크랩 맛집', Icon: IconStar },
+  { to: '/mypage', key: 'mypage', label: '마이페이지', Icon: IconUser },
+]
+
+function mobileNavLinkClass(isActive) {
+  return `flex items-center gap-3 px-4 py-2.5 text-base font-semibold border-b border-gray-100 transition-colors ${
+    isActive ? 'bg-brand-peach/40 text-brand-navy' : 'text-gray-600'
+  }`
+}
 
 export default function Header({ active, showSearch = true }) {
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
 
   function handleSearch(e) {
     e.preventDefault()
     navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
+  }
+
+  function closeMenu() {
+    setMenuOpen(false)
   }
 
   return (
@@ -31,8 +46,8 @@ export default function Header({ active, showSearch = true }) {
         <Link to="/search" className={navLinkClass(active === 'search')}>
           검색
         </Link>
-        <Link to="/saved" className={navLinkClass(active === 'saved')}>
-          저장한 맛집
+        <Link to="/scrap" className={navLinkClass(active === 'scrap')}>
+          스크랩 맛집
         </Link>
         <Link to="/mypage" className={navLinkClass(active === 'mypage')}>
           마이페이지
@@ -59,7 +74,17 @@ export default function Header({ active, showSearch = true }) {
         </form>
       )}
 
-      <AccountActions />
+      {/* 데스크톱 — 아바타 + 로그아웃 아이콘 */}
+      <div className="hidden md:flex items-center gap-6">
+        <AccountActions />
+      </div>
+
+      {/* 모바일 — 메뉴 닫혀 있을 때만 아바타 표시(로그아웃은 드롭다운 안으로 이동) */}
+      {!menuOpen && (
+        <div className="md:hidden flex items-center">
+          <AccountActions showLogout={false} />
+        </div>
+      )}
 
       {/* 햄버거 버튼 — 모바일 전용 */}
       <button
@@ -68,33 +93,41 @@ export default function Header({ active, showSearch = true }) {
         aria-expanded={menuOpen}
         className="md:hidden text-brand-navy"
       >
-        {menuOpen ? <IconClose className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
+        {menuOpen ? <IconClose className="w-7 h-7" /> : <IconMenu className="w-7 h-7" />}
       </button>
 
       {/* 모바일 드롭다운 메뉴 */}
       {menuOpen && (
-        <div className="absolute top-full left-0 right-0 md:hidden bg-white border-b border-gray-200 shadow-md z-20 flex flex-col">
-          <Link
-            to="/search"
-            onClick={() => setMenuOpen(false)}
-            className={mobileNavLinkClass(active === 'search')}
-          >
-            검색
-          </Link>
-          <Link
-            to="/saved"
-            onClick={() => setMenuOpen(false)}
-            className={mobileNavLinkClass(active === 'saved')}
-          >
-            저장한 맛집
-          </Link>
-          <Link
-            to="/mypage"
-            onClick={() => setMenuOpen(false)}
-            className={mobileNavLinkClass(active === 'mypage')}
-          >
-            마이페이지
-          </Link>
+        <div className="absolute top-full left-0 right-0 md:hidden bg-white border-b border-gray-200 shadow-md z-20 flex flex-col min-h-[calc(100vh-92px)]">
+          {MOBILE_MENU.map(({ to, key, label, Icon }) => (
+            <Link key={key} to={to} onClick={closeMenu} className={mobileNavLinkClass(active === key)}>
+              <Icon className="w-[18px] h-[18px] flex-none" />
+              {label}
+            </Link>
+          ))}
+
+          {user ? (
+            <button
+              onClick={() => {
+                logout()
+                navigate('/')
+                closeMenu()
+              }}
+              className="mt-auto flex items-center gap-3 px-4 py-3.5 text-base font-semibold text-gray-600 bg-brand-peach/30 border-t border-gray-100 cursor-pointer"
+            >
+              <IconLogout className="w-[18px] h-[18px] flex-none" />
+              로그아웃
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              onClick={closeMenu}
+              className="mt-auto flex items-center gap-3 px-4 py-3.5 text-base font-semibold text-gray-600 bg-brand-peach/30 border-t border-gray-100"
+            >
+              <IconLogin className="w-[18px] h-[18px] flex-none" />
+              로그인
+            </Link>
+          )}
         </div>
       )}
     </nav>

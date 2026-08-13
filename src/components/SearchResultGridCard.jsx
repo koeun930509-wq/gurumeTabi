@@ -23,8 +23,8 @@ function amenityLabel(acceptsCard, acceptsReservation) {
 
 export default function SearchResultGridCard({ restaurant }) {
   const navigate = useNavigate()
-  const { user, savedIds, toggleSave } = useAuth()
-  const isSaved = savedIds.includes(restaurant.id)
+  const { user, scrapIds, toggleScrap } = useAuth()
+  const isSaved = scrapIds.includes(restaurant.id)
 
   function goToDetail() {
     navigate(`/place/${restaurant.id}`)
@@ -36,7 +36,7 @@ export default function SearchResultGridCard({ restaurant }) {
       navigate('/login')
       return
     }
-    toggleSave(restaurant.id)
+    toggleScrap(restaurant.id)
   }
 
   return (
@@ -85,11 +85,14 @@ export default function SearchResultGridCard({ restaurant }) {
         <button
           onClick={handleSaveClick}
           aria-label={isSaved ? '저장 해제' : '저장'}
-          className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center bg-white/90 ${
+          className={`group absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center bg-white/90 cursor-pointer ${
             isSaved ? 'text-brand-coral' : 'text-gray-400'
           }`}
         >
-          <IconStar className="w-3.5 h-3.5" fill={isSaved ? 'currentColor' : 'none'} />
+          <IconStar
+            className="w-3.5 h-3.5 group-hover:stroke-brand-coral"
+            fill={isSaved ? 'currentColor' : 'none'}
+          />
         </button>
       </div>
 
@@ -98,6 +101,12 @@ export default function SearchResultGridCard({ restaurant }) {
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-bold text-brand-coral-dark">★{restaurant.rating}</span>
           <span className="text-xs text-gray-400">({restaurant.reviewCount})</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-status-open">
+          <span>#{restaurant.region}</span>
+          <span>#{restaurant.category}</span>
+          {restaurant.localRatio >= 60 && <span>#현지인방문다수</span>}
+          {!restaurant.hasRudeReview && <span>#불친절후기없음</span>}
         </div>
         <div className="text-xs text-gray-500 truncate">{restaurant.tagline}</div>
         <div className="flex items-center gap-2.5 text-xs text-gray-400 mt-1">
