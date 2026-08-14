@@ -9,53 +9,87 @@ import { mockRestaurants } from '../data/mockRestaurants'
 import { FOOD_TYPES, REGIONS, normalizeJapaneseTranscription } from '../utils/searchTerms'
 import SearchAutocompleteInput from '../components/SearchAutocompleteInput'
 
-const TRUST_FILTERS = [
-  { key: 'rating35', label: '구글 평점 3.5+' },
-  { key: 'noRude', label: '불친절 후기 제외' },
-  { key: 'local60', label: '현지인 비율 60%+' },
-  { key: 'openNow', label: '지금 영업중' },
+const RATING_OPTIONS = [
+  { value: 0, label: '전체' },
+  { value: 3.0, label: '3.0+' },
+  { value: 3.5, label: '3.5+' },
+  { value: 4.0, label: '4.0+' },
+]
+
+const LOCAL_RATIO_OPTIONS = [
+  { value: 0, label: '전체' },
+  { value: 40, label: '40%+' },
+  { value: 60, label: '60%+' },
+  { value: 80, label: '80%+' },
+]
+
+const OPEN_STATUS_OPTIONS = [
+  { value: 'all', label: '전체' },
+  { value: 'open', label: '영업중' },
+  { value: 'closed', label: '영업종료' },
 ]
 
 const PRACTICAL_FILTERS = [
   { key: 'card', label: '카드 결제 가능' },
-  { key: 'walk10', label: '역에서 도보 10분 이내' },
   { key: 'reservation', label: '예약 가능' },
+  { key: 'walk10', label: '역에서 도보 10분 이내' },
 ]
 
-const DEFAULT_FILTERS = {
-  rating35: true,
-  noRude: true,
-  local60: false,
-  openNow: false,
+const DEFAULT_FILTER_STATE = {
+  ratingMin: 0,
+  localMin: 0,
+  openStatus: 'all',
   card: false,
   walk10: false,
   reservation: false,
+  foods: [],
+  regions: [],
 }
 
 const MAX_RESULTS = 15
 
-function trustScore(r) {
-  const ratingScore = (r.rating / 5) * 50
-  const localScore = (r.localRatio / 100) * 30
-  const rudeScore = r.hasRudeReview ? 0 : 20
-  return ratingScore + localScore + rudeScore
-}
-
 const SORT_OPTIONS = [
-  { key: 'recommended', label: '추천순', sorter: (a, b) => trustScore(b) - trustScore(a) },
-  { key: 'rating', label: '평점순', sorter: (a, b) => b.rating - a.rating },
-  { key: 'local', label: '현지인비율순', sorter: (a, b) => b.localRatio - a.localRatio },
+  { key: 'rating', label: '평점 높은 순', sorter: (a, b) => b.rating - a.rating },
+  { key: 'local', label: '현지인 비율 높은 순', sorter: (a, b) => b.localRatio - a.localRatio },
+  { key: 'reviews', label: '리뷰 많은 순', sorter: (a, b) => b.reviewCount - a.reviewCount },
 ]
+
+function FilterSegmentGroup({ title, options, value, onChange }) {
+  return (
+    <div>
+      <h4 className="text-[11px] tracking-wider text-gray-400 mb-2">{title}</h4>
+      <div className="flex flex-nowrap gap-2">
+        {options.map((opt) => {
+          const active = value === opt.value
+          return (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              aria-pressed={active}
+              className={`flex-none whitespace-nowrap text-[11px] font-semibold px-1.5 py-1 rounded-md border cursor-pointer transition-colors ${
+                active
+                  ? 'bg-brand-coral text-white border-brand-coral'
+                  : 'bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy'
+              }`}
+            >
+              {opt.label}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const q = searchParams.get('q') ?? ''
   const [pendingQ, setPendingQ] = useState('')
-  const [filters, setFilters] = useState(DEFAULT_FILTERS)
-  const [selectedFoods, setSelectedFoods] = useState([])
-  const [selectedRegions, setSelectedRegions] = useState([])
-  const [sortBy, setSortBy] = useState('recommended')
+  const [draft, setDraft] = useState(DEFAULT_FILTER_STATE)
+  const [applied, setApplied] = useState(DEFAULT_FILTER_STATE)
+  const [sortBy, setSortBy] = useState('rating')
   const [viewMode, setViewMode] = useState('grid')
   const [sortMenuOpen, setSortMenuOpen] = useState(false)
   const sortMenuRef = useRef(null)
@@ -74,26 +108,37 @@ export default function SearchResultsPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  function toggle(key) {
-    setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+  function setDraftValue(key, value) {
+    setDraft((prev) => ({ ...prev, [key]: value }))
+  }
+
+  function toggleDraftBool(key) {
+    setDraft((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  function toggleDraftFood(food) {
+    setDraft((prev) => ({
+      ...prev,
+      foods: prev.foods.includes(food) ? prev.foods.filter((f) => f !== food) : [...prev.foods, food],
+    }))
+  }
+
+  function toggleDraftRegion(region) {
+    setDraft((prev) => ({
+      ...prev,
+      regions: prev.regions.includes(region)
+        ? prev.regions.filter((r) => r !== region)
+        : [...prev.regions, region],
+    }))
+  }
+
+  function applyFilters() {
+    setApplied(draft)
   }
 
   function resetFilters() {
-    setFilters(DEFAULT_FILTERS)
-    setSelectedFoods([])
-    setSelectedRegions([])
-  }
-
-  function toggleFood(food) {
-    setSelectedFoods((prev) =>
-      prev.includes(food) ? prev.filter((f) => f !== food) : [...prev, food]
-    )
-  }
-
-  function toggleRegion(region) {
-    setSelectedRegions((prev) =>
-      prev.includes(region) ? prev.filter((r) => r !== region) : [...prev, region]
-    )
+    setDraft(DEFAULT_FILTER_STATE)
+    setApplied(DEFAULT_FILTER_STATE)
   }
 
   const queryTokens = useMemo(() => q.split(/\s+/).filter(Boolean), [q])
@@ -102,10 +147,10 @@ export default function SearchResultsPage() {
   // 매칭에서 제외하고 음식/가게명 토큰만 사용 — 필터가 검색어보다 우선한다.
   const matchTokens = useMemo(
     () =>
-      selectedRegions.length > 0
+      applied.regions.length > 0
         ? queryTokens.filter((token) => !REGIONS.includes(token))
         : queryTokens,
-    [queryTokens, selectedRegions]
+    [queryTokens, applied.regions]
   )
 
   const matchedResults = useMemo(() => {
@@ -122,19 +167,20 @@ export default function SearchResultsPage() {
           })
         )
           return false
-        if (filters.rating35 && r.rating < 3.5) return false
-        if (filters.noRude && r.hasRudeReview) return false
-        if (filters.local60 && r.localRatio < 60) return false
-        if (filters.openNow && r.status !== 'open') return false
-        if (filters.card && !r.acceptsCard) return false
-        if (filters.walk10 && r.walkMinutes > 10) return false
-        if (filters.reservation && !r.acceptsReservation) return false
-        if (selectedFoods.length > 0 && !selectedFoods.includes(r.category)) return false
-        if (selectedRegions.length > 0 && !selectedRegions.includes(r.region)) return false
+        if (r.hasRudeReview) return false
+        if (r.rating < applied.ratingMin) return false
+        if (r.localRatio < applied.localMin) return false
+        if (applied.openStatus === 'open' && r.status !== 'open') return false
+        if (applied.openStatus === 'closed' && r.status === 'open') return false
+        if (applied.card && !r.acceptsCard) return false
+        if (applied.walk10 && r.walkMinutes > 10) return false
+        if (applied.reservation && !r.acceptsReservation) return false
+        if (applied.foods.length > 0 && !applied.foods.includes(r.category)) return false
+        if (applied.regions.length > 0 && !applied.regions.includes(r.region)) return false
         return true
       })
       .sort(SORT_OPTIONS.find((o) => o.key === sortBy).sorter)
-  }, [filters, matchTokens, sortBy, selectedFoods, selectedRegions])
+  }, [applied, matchTokens, sortBy])
 
   const results = matchedResults.slice(0, MAX_RESULTS)
   const hiddenCount = matchedResults.length - results.length
@@ -144,94 +190,74 @@ export default function SearchResultsPage() {
       <Header active="search" showSearch={false} />
 
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[230px_1fr] gap-4 p-4">
-        <aside className="bg-white rounded-2xl p-5 flex flex-col gap-5 h-full overflow-y-auto pretty-scroll">
-          <div>
-            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2.5">
-              필터 · 신뢰도
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {TRUST_FILTERS.map((f) => (
-                <button
-                  key={f.key}
-                  type="button"
-                  onClick={() => toggle(f.key)}
-                  aria-pressed={filters[f.key]}
-                  className={`inline-flex items-center gap-1 text-[13px] font-semibold px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${
-                    filters[f.key]
-                      ? 'bg-brand-coral text-white border-brand-coral'
-                      : 'bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy'
-                  }`}
-                >
-                  {filters[f.key] && <IconCheck className="w-3 h-3 flex-none" />}
-                  {f.label}
-                </button>
-              ))}
-            </div>
+        <aside className="bg-white rounded-2xl p-5 flex flex-col gap-4 h-full overflow-y-auto pretty-scroll">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-gray-900">필터</h3>
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="text-xs text-gray-400 hover:text-brand-navy cursor-pointer transition-colors"
+            >
+              초기화
+            </button>
           </div>
+
+          <FilterSegmentGroup
+            title="평점"
+            options={RATING_OPTIONS}
+            value={draft.ratingMin}
+            onChange={(v) => setDraftValue('ratingMin', v)}
+          />
+
+          <FilterSegmentGroup
+            title="현지인 비율"
+            options={LOCAL_RATIO_OPTIONS}
+            value={draft.localMin}
+            onChange={(v) => setDraftValue('localMin', v)}
+          />
+
+          <FilterSegmentGroup
+            title="영업 상태"
+            options={OPEN_STATUS_OPTIONS}
+            value={draft.openStatus}
+            onChange={(v) => setDraftValue('openStatus', v)}
+          />
+
           <div>
-            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2.5">
-              필터 · 여행자 실용정보
-            </h4>
-            <div className="flex flex-wrap gap-2">
+            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2">추가 필터</h4>
+            <div className="flex flex-wrap gap-1.5">
               {PRACTICAL_FILTERS.map((f) => (
                 <button
                   key={f.key}
                   type="button"
-                  onClick={() => toggle(f.key)}
-                  aria-pressed={filters[f.key]}
-                  className={`inline-flex items-center gap-1 text-[13px] font-semibold px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${
-                    filters[f.key]
+                  onClick={() => toggleDraftBool(f.key)}
+                  aria-pressed={draft[f.key]}
+                  className={`flex-none whitespace-nowrap flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-md border cursor-pointer transition-colors ${
+                    draft[f.key]
                       ? 'bg-brand-coral text-white border-brand-coral'
                       : 'bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy'
                   }`}
                 >
-                  {filters[f.key] && <IconCheck className="w-3 h-3 flex-none" />}
+                  {draft[f.key] && <IconCheck className="w-3 h-3 flex-none" />}
                   {f.label}
                 </button>
               ))}
             </div>
           </div>
-          {/* 음식 종류 필터 — 칩 버전 (체크박스 버전과 비교 중, 잠시 주석처리)
-          <div>
-            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2.5">
-              필터 · 음식 종류
-            </h4>
-            <div className="flex flex-wrap gap-2 max-h-[180px] overflow-y-auto pretty-scroll pr-1">
-              {FOOD_TYPES.map((food) => (
-                <button
-                  key={food}
-                  type="button"
-                  onClick={() => toggleFood(food)}
-                  aria-pressed={selectedFoods.includes(food)}
-                  className={`inline-flex items-center gap-1 text-[13px] font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-                    selectedFoods.includes(food)
-                      ? 'bg-brand-coral text-white border-brand-coral'
-                      : 'bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy'
-                  }`}
-                >
-                  {selectedFoods.includes(food) && <IconCheck className="w-3 h-3 flex-none" />}
-                  {food}
-                </button>
-              ))}
-            </div>
-          </div>
-          */}
 
           <div className="flex flex-col min-h-0">
-            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2.5">
-              필터 · 음식 종류
-            </h4>
+            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2">음식종류</h4>
             <div className="relative min-h-0">
               <div className="h-[120px] flex flex-col gap-1 overflow-y-auto pretty-scroll-light pr-2">
                 {FOOD_TYPES.map((food) => (
                   <label
                     key={food}
-                    className="flex items-center gap-2 text-[13px] text-gray-700 py-1 cursor-pointer hover:text-brand-navy"
+                    className="flex items-center gap-2 text-[13px] text-gray-700 py-0.5 cursor-pointer hover:text-brand-navy"
                   >
                     <input
                       type="checkbox"
-                      checked={selectedFoods.includes(food)}
-                      onChange={() => toggleFood(food)}
+                      checked={draft.foods.includes(food)}
+                      onChange={() => toggleDraftFood(food)}
                       className="w-4 h-4 accent-brand-coral rounded flex-none"
                     />
                     {food}
@@ -243,20 +269,18 @@ export default function SearchResultsPage() {
           </div>
 
           <div className="flex flex-col min-h-0">
-            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2.5">
-              필터 · 지역
-            </h4>
+            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2">지역</h4>
             <div className="relative min-h-0">
               <div className="h-[120px] flex flex-col gap-1 overflow-y-auto pretty-scroll-light pr-2">
                 {REGIONS.map((region) => (
                   <label
                     key={region}
-                    className="flex items-center gap-2 text-[13px] text-gray-700 py-1 cursor-pointer hover:text-brand-navy"
+                    className="flex items-center gap-2 text-[13px] text-gray-700 py-0.5 cursor-pointer hover:text-brand-navy"
                   >
                     <input
                       type="checkbox"
-                      checked={selectedRegions.includes(region)}
-                      onChange={() => toggleRegion(region)}
+                      checked={draft.regions.includes(region)}
+                      onChange={() => toggleDraftRegion(region)}
                       className="w-4 h-4 accent-brand-coral rounded flex-none"
                     />
                     {region}
@@ -266,11 +290,13 @@ export default function SearchResultsPage() {
               <div className="pointer-events-none absolute bottom-0 left-0 right-2 h-6 bg-gradient-to-t from-white to-transparent" />
             </div>
           </div>
+
           <button
-            onClick={resetFilters}
-            className="mt-auto text-xs font-bold text-gray-500 hover:text-brand-navy border border-gray-300 hover:border-brand-navy rounded-lg py-2 text-center cursor-pointer transition-colors"
+            type="button"
+            onClick={applyFilters}
+            className="mt-auto w-full text-sm font-bold text-brand-navy bg-brand-peach hover:bg-brand-peach-dark rounded-xl py-3 text-center cursor-pointer transition-colors"
           >
-            필터 초기화
+            필터 적용하기
           </button>
         </aside>
 
@@ -290,7 +316,7 @@ export default function SearchResultsPage() {
                 {q && results.length > 0 && (
                   <div className="text-sm text-white">
                     {hiddenCount > 0
-                      ? `${matchedResults.length}곳 중 신뢰도 상위 ${results.length}곳`
+                      ? `${matchedResults.length}곳 중 상위 ${results.length}곳`
                       : `${results.length}곳`}{' '}
                     · 광고 의심 리뷰 엄격 제외 적용
                   </div>

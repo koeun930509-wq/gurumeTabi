@@ -56,21 +56,22 @@ export default function SearchResultCard({ restaurant }) {
           />
         ) : null}
         <div
-          className="w-full h-full items-center justify-center text-[10px] text-gray-400 bg-[repeating-linear-gradient(45deg,#e5e7eb_0,#e5e7eb_4px,transparent_4px,transparent_8px)]"
+          className="w-full h-full items-center justify-center bg-[#f9f8fc]"
           style={{ display: restaurant.image ? 'none' : 'flex' }}
         >
-          image ph.
+          <img src="/noImage.png" alt="" className="w-28 h-28 object-contain" />
         </div>
         <button
           onClick={handleSaveClick}
           aria-label={isSaved ? '저장 해제' : '저장'}
-          className={`group absolute top-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center bg-white/90 cursor-pointer ${
+          className={`group/star absolute top-1.5 left-1.5 flex items-center justify-center cursor-pointer ${
             isSaved ? 'text-brand-coral' : 'text-gray-300'
           }`}
         >
           <IconStar
-            className="w-3.5 h-3.5 group-hover:stroke-brand-coral"
+            className="w-6 h-6 group-hover/star:stroke-brand-coral"
             fill={isSaved ? 'currentColor' : 'none'}
+            strokeWidth={1}
           />
         </button>
       </div>

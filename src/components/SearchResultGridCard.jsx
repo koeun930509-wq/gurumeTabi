@@ -63,14 +63,18 @@ export default function SearchResultGridCard({ restaurant }) {
           />
         ) : null}
         <div
-          className="w-full h-full items-center justify-center text-xs text-gray-400 bg-[repeating-linear-gradient(45deg,#e5e7eb_0,#e5e7eb_4px,transparent_4px,transparent_8px)]"
+          className="w-full h-full flex-col items-center justify-center gap-2 bg-[#f9f8fc]"
           style={{ display: restaurant.image ? 'none' : 'flex' }}
         >
-          image ph.
+          <img src="/noImage.png" alt="" className="w-32 h-32 object-contain" />
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-sm font-bold text-[#666]">사진 준비중</span>
+            <span className="text-xs text-gray-400">조금만 기다려주세요!</span>
+          </div>
         </div>
 
         <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-          <span className="inline-flex items-center h-[22px] leading-none text-[11px] font-bold text-status-open bg-white/90 px-2 rounded-full">
+          <span className="inline-flex items-center h-[22px] leading-none text-[11px] font-bold text-brand-navy bg-white/90 px-2 rounded-full">
             현지인 {restaurant.localRatio}%
           </span>
           <span
@@ -85,13 +89,14 @@ export default function SearchResultGridCard({ restaurant }) {
         <button
           onClick={handleSaveClick}
           aria-label={isSaved ? '저장 해제' : '저장'}
-          className={`group absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center bg-white/90 cursor-pointer ${
+          className={`group/star absolute top-2.5 right-2.5 flex items-center justify-center cursor-pointer ${
             isSaved ? 'text-brand-coral' : 'text-gray-400'
           }`}
         >
           <IconStar
-            className="w-3.5 h-3.5 group-hover:stroke-brand-coral"
+            className="w-6 h-6 group-hover/star:stroke-brand-coral"
             fill={isSaved ? 'currentColor' : 'none'}
+            strokeWidth={1}
           />
         </button>
       </div>

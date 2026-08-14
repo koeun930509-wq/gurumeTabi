@@ -52,20 +52,24 @@ export default function RestaurantDetailPage() {
           <img
             src={restaurant.image}
             alt={restaurant.name}
-            className="w-full aspect-[32/7] sm:aspect-[32/5] object-cover"
+            className="w-full aspect-[32/7] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
             onError={(e) => {
               e.currentTarget.style.display = 'none'
               e.currentTarget.nextElementSibling.style.display = 'block'
             }}
           />
         ) : null}
-        <div
-          className="w-full aspect-[32/7] sm:aspect-[32/5] bg-[repeating-linear-gradient(45deg,#FFE4D3_0,#FFE4D3_5px,#FFF3EA_5px,#FFF3EA_10px)]"
-          style={restaurant.image ? { display: 'none' } : undefined}
+        <img
+          src="/defaultHero.png"
+          alt=""
+          className="w-full aspect-[32/7] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+          style={{ objectPosition: 'center calc(50% - 200px)', ...(restaurant.image ? { display: 'none' } : {}) }}
         />
-        <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+        {restaurant.image && (
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
+        )}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="text-white font-bold text-3xl text-center px-6">{restaurant.name}</h1>
+          <h1 className="text-[#fff] font-bold text-3xl text-center px-6">{restaurant.name}</h1>
         </div>
         <button
           onClick={() => navigate(-1)}
@@ -80,9 +84,12 @@ export default function RestaurantDetailPage() {
         {/* 제목 영역 */}
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="font-bold text-2xl">{restaurant.name}</span>
-          <span className="inline-flex items-center gap-1 text-sm font-bold text-status-open bg-status-open/10 px-2.5 py-1 rounded-full">
+          <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-coral bg-brand-coral/10 px-2.5 py-1 rounded-full">
             <IconStar className="w-3.5 h-3.5" />
             {restaurant.rating}
+          </span>
+          <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-navy bg-brand-navy/10 px-2.5 py-1 rounded-full">
+            현지인 {restaurant.localRatio}%
           </span>
           <span
             className={`inline-flex items-center gap-1 text-sm px-2.5 py-1 rounded-full ${

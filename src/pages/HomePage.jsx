@@ -37,8 +37,13 @@ export default function HomePage() {
       {/* 헤드라인 → 검색창 → 인기 태그 순으로 정중앙 배치 */}
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 min-h-0 gap-5">
         <div className="flex flex-col items-center gap-5 w-full -mt-[60px]">
-          <div className="text-xs font-sans tracking-widest text-white/70">
-            광고 없는 찐맛집 · 일본 여행 전용
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="font-jua text-4xl sm:text-5xl md:text-6xl text-white leading-tight">
+              광고 없는 <span className="text-brand-coral">찐맛집,</span>
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl text-white">
+              일본 미식여행을 위한 맛집 검색
+            </p>
           </div>
 
           <form onSubmit={handleSearch} className="gradient-border-input relative w-full max-w-2xl">
@@ -76,7 +81,7 @@ export default function HomePage() {
             <button
               key={tag}
               onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-              className="text-sm text-white font-medium hover:underline"
+              className="text-sm text-white hover:underline"
             >
               #{tag}
             </button>
