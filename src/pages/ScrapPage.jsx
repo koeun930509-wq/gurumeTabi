@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
@@ -5,13 +6,25 @@ import Footer from '../components/Footer'
 import SearchResultGridCard from '../components/SearchResultGridCard'
 import AccountActions from '../components/AccountActions'
 import { IconSearch, IconStar } from '../components/icons'
-import { mockRestaurants } from '../data/mockRestaurants'
+import { fetchRestaurants } from '../lib/restaurants'
 import { useAuth } from '../context/AuthContext'
 
 export default function ScrapPage() {
   const { scrapIds } = useAuth()
   const navigate = useNavigate()
-  const saved = mockRestaurants.filter((r) => scrapIds.includes(r.id))
+  const [restaurants, setRestaurants] = useState([])
+
+  useEffect(() => {
+    let cancelled = false
+    fetchRestaurants().then((data) => {
+      if (!cancelled) setRestaurants(data)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const saved = restaurants.filter((r) => scrapIds.includes(r.id))
 
   return (
     <div className="h-screen flex overflow-hidden">

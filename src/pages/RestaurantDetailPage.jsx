@@ -1,13 +1,14 @@
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Header from '../components/Header'
 import ReviewCard from '../components/ReviewCard'
 import { IconArrowLeft, IconPhone, IconPin, IconStar } from '../components/icons'
-import { getBackupPlan, getRestaurantById } from '../data/mockRestaurants'
+import { fetchBackupPlan, fetchRestaurantById } from '../lib/restaurants'
 import { useAuth } from '../context/AuthContext'
 
-function osmEmbedSrc(lat, lng, delta = 0.006) {
-  const bbox = [lng - delta, lat - delta, lng + delta, lat + delta].join('%2C')
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`
+function googleMapEmbedSrc(lat, lng, zoom = 16) {
+  const key = import.meta.env.VITE_GOOGLE_MAPS_EMBED_API_KEY
+  return `https://www.google.com/maps/embed/v1/view?key=${key}&center=${lat}%2C${lng}&zoom=${zoom}`
 }
 
 const STATUS_PILL = {
@@ -20,7 +21,35 @@ export default function RestaurantDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, scrapIds, toggleScrap } = useAuth()
-  const restaurant = getRestaurantById(id)
+  const [restaurant, setRestaurant] = useState(null)
+  const [backup, setBackup] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    fetchRestaurantById(id)
+      .then((data) => {
+        if (cancelled) return
+        setRestaurant(data)
+        if (data) return fetchBackupPlan(data).then((b) => !cancelled && setBackup(b))
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="min-h-full flex flex-col">
+        <Header active="search" />
+        <div className="p-10 text-center text-gray-400">불러오는 중이에요...</div>
+      </div>
+    )
+  }
 
   if (!restaurant) {
     return (
@@ -32,7 +61,6 @@ export default function RestaurantDetailPage() {
   }
 
   const isSaved = scrapIds.includes(restaurant.id)
-  const backup = getBackupPlan(restaurant.id)
 
   function handleSaveClick() {
     if (!user) {
@@ -121,7 +149,7 @@ export default function RestaurantDetailPage() {
               title={`${restaurant.name} 위치 지도`}
               className="aspect-[4/3] w-full rounded-2xl border-0"
               loading="lazy"
-              src={osmEmbedSrc(restaurant.lat, restaurant.lng)}
+              src={googleMapEmbedSrc(restaurant.lat, restaurant.lng)}
             />
 
             <button
@@ -134,7 +162,11 @@ export default function RestaurantDetailPage() {
 
             <div className="flex gap-3">
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${restaurant.lat}%2C${restaurant.lng}`}
+                href={
+                  restaurant.googlePlaceId
+                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name)}&query_place_id=${restaurant.googlePlaceId}`
+                    : `https://www.google.com/maps/search/?api=1&query=${restaurant.lat}%2C${restaurant.lng}`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 inline-flex items-center justify-center text-sm font-bold text-brand-navy border border-brand-navy rounded-xl py-3 hover:bg-brand-navy/5 transition-colors"
@@ -158,7 +190,7 @@ export default function RestaurantDetailPage() {
 
             <div className="text-[11px] text-gray-500 bg-[#f8f8f8] rounded-xl p-3 leading-relaxed">
               <strong className="block text-gray-600 font-bold mb-1">표기 원칙</strong>
-              현지인 비율·협찬 판정은 자동 추정 결과입니다. 영업 상태는 실시간 소스 확정 전까지 참고용으로 표기합니다.
+              현지인 비율·협찬 판정은 자동 추정 결과입니다. 영업 상태는 실시간 소스 확정 전까지 참고용으로 표기합니다. 백업 플랜은 거리상 가까운 같은 메뉴의 가게로 추천됩니다.
             </div>
           </aside>
 
@@ -192,7 +224,7 @@ export default function RestaurantDetailPage() {
               ) : (
                 <div className="flex flex-col gap-2.5 max-h-[600px] overflow-y-auto pretty-scroll pr-1">
                   {restaurant.reviews.map((rv, i) => (
-                    <ReviewCard key={i} review={rv} />
+                    <ReviewCard key={i} review={rv} googlePlaceId={restaurant.googlePlaceId} />
                   ))}
                 </div>
               )}

@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { IconStar } from './icons'
+import { IconStar, IconChevronRight } from './icons'
 
 const STATUS_LABEL = {
   open: '영업중',
@@ -25,6 +26,8 @@ export default function SearchResultGridCard({ restaurant }) {
   const navigate = useNavigate()
   const { user, scrapIds, toggleScrap } = useAuth()
   const isSaved = scrapIds.includes(restaurant.id)
+  const images = restaurant.images?.length ? restaurant.images : restaurant.image ? [restaurant.image] : []
+  const [photoIndex, setPhotoIndex] = useState(0)
 
   function goToDetail() {
     navigate(`/place/${restaurant.id}`)
@@ -39,6 +42,16 @@ export default function SearchResultGridCard({ restaurant }) {
     toggleScrap(restaurant.id)
   }
 
+  function showPrevPhoto(e) {
+    e.stopPropagation()
+    setPhotoIndex((i) => (i - 1 + images.length) % images.length)
+  }
+
+  function showNextPhoto(e) {
+    e.stopPropagation()
+    setPhotoIndex((i) => (i + 1) % images.length)
+  }
+
   return (
     <div
       role="link"
@@ -50,9 +63,10 @@ export default function SearchResultGridCard({ restaurant }) {
       className="group bg-white rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-0.5 transition-all shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        {restaurant.image ? (
+        {images.length > 0 ? (
           <img
-            src={restaurant.image}
+            key={photoIndex}
+            src={images[photoIndex]}
             alt={restaurant.name}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
@@ -64,7 +78,7 @@ export default function SearchResultGridCard({ restaurant }) {
         ) : null}
         <div
           className="w-full h-full flex-col items-center justify-center gap-2 bg-[#f9f8fc]"
-          style={{ display: restaurant.image ? 'none' : 'flex' }}
+          style={{ display: images.length > 0 ? 'none' : 'flex' }}
         >
           <img src="/noImage.png" alt="" className="w-32 h-32 object-contain" />
           <div className="flex flex-col items-center gap-0.5">
@@ -72,6 +86,35 @@ export default function SearchResultGridCard({ restaurant }) {
             <span className="text-xs text-gray-400">조금만 기다려주세요!</span>
           </div>
         </div>
+
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={showPrevPhoto}
+              aria-label="이전 사진"
+              className="absolute top-1/2 left-1.5 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            >
+              <IconChevronRight className="w-4 h-4 rotate-180" />
+            </button>
+            <button
+              onClick={showNextPhoto}
+              aria-label="다음 사진"
+              className="absolute top-1/2 right-1.5 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            >
+              <IconChevronRight className="w-4 h-4" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1">
+              {images.map((_, i) => (
+                <span
+                  key={i}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                    i === photoIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
           <span className="inline-flex items-center h-[22px] leading-none text-[11px] font-bold text-brand-navy bg-white/90 px-2 rounded-full">
@@ -115,7 +158,16 @@ export default function SearchResultGridCard({ restaurant }) {
         </div>
         <div className="text-xs text-gray-500 truncate">{restaurant.tagline}</div>
         <div className="flex items-center gap-2.5 text-xs text-gray-400 mt-1">
-          <span>역 도보 {restaurant.walkMinutes}분</span>
+          {restaurant.walkMinutes != null && (
+            <span>
+              {restaurant.nearestStation
+                ? restaurant.nearestStation.endsWith('역')
+                  ? restaurant.nearestStation
+                  : `${restaurant.nearestStation}역`
+                : '역'}{' '}
+              도보 {restaurant.walkMinutes}분
+            </span>
+          )}
           <span>{amenityLabel(restaurant.acceptsCard, restaurant.acceptsReservation)}</span>
         </div>
       </div>

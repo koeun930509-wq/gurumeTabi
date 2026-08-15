@@ -103,7 +103,7 @@
 | Depth 1 | Depth 2 | 포함 기능 |
 |---|---|---|
 | 홈 | 키워드/필터 검색바, 서브 페이지 헤더 검색폼 | 지역·음식 종류 검색 진입 (지도 없음) |
-| 검색 결과 | 필터 바, 검증 맛집 리스트, 정렬/보기 전환 | 평점·현지인 비율·영업 상태는 단계별 값 중 하나만 고르는 단일 선택 세그먼트(전체/3.0+/3.5+/4.0+ 등) + 실용정보 필터(카드 결제·예약 가능·역에서 도보 10분 이내, 다중선택) + 음식 종류 필터(스시·라멘 등 20종) + 지역 필터(도쿄·오사카·후쿠오카·나고야·삿포로·오키나와·기타 7종) — 둘 다 체크박스·다중선택·고정 높이(4줄) 내부 스크롤. 검색창은 음식 종류+지역 통합 자동완성(예: "오"만 입력해도 "오사카"·"오코노미야키"가 함께 추천) 및 키보드 방향키/Enter 선택 지원, 텍스트 입력 시 지우기(X) 버튼 노출, 일본어 음차 표기 흔들림(오코노미야키/오꼬노미야끼 등) 자동 정규화 매칭. 지역 필터를 직접 선택하면 검색어의 지역명 토큰보다 필터가 우선 적용. 필터는 선택 즉시 반영되지 않고 하단 "필터 적용하기"를 눌러야 결과에 반영되며(상단 "초기화"는 즉시 반영), 불친절 후기 제외는 토글 없이 항상 적용되는 기본 동작. 정렬(평점 높은 순·현지인 비율 높은 순·리뷰 많은 순)·그리드/리스트 보기 전환은 검색 여부와 무관하게 항상 노출되며, 검색을 실행한 뒤에는 정렬 드롭다운 옆에 검색창이 추가로 나타남. 결과 카드(그리드·리스트 공통)에 `#지역 #음식종류` 해시태그 노출, 사진 없는 가게는 기본 아이콘 placeholder로 대체 |
+| 검색 결과 | 필터 바, 검증 맛집 리스트, 정렬/보기 전환 | 평점·현지인 비율·영업 상태는 단계별 값 중 하나만 고르는 단일 선택 세그먼트(전체/3.0+/3.5+/4.0+ 등) + 실용정보 필터(카드 결제·예약 가능·역에서 도보 10분 이내, 다중선택) + 음식 종류 필터(스시·라멘 등 20종, 체크박스·다중선택·내부 스크롤). **지역 필터는 없음** — 검색어와 지역 필터가 동시에 있으면 서로 다른 지역을 고를 때 결과가 뒤엉키는 문제가 있어 제거했고, 지역은 검색창(자연어)으로만 다룸. 검색창은 음식 종류+지역 통합 자동완성(예: "오"만 입력해도 "오사카"·"오코노미야키"가 함께 추천) 및 키보드 방향키/Enter 선택 지원, 텍스트 입력 시 지우기(X) 버튼 노출, 일본어 음차 표기 흔들림(오코노미야키/오꼬노미야끼 등) 자동 정규화 매칭. 필터는 선택 즉시 반영되지 않고 하단 "필터 적용하기"를 눌러야 결과에 반영되며(상단 "초기화"는 즉시 반영), 불친절 후기 제외는 토글 없이 항상 적용되는 기본 동작. 정렬(평점 높은 순·현지인 비율 높은 순·리뷰 많은 순)·그리드/리스트 보기 전환은 검색 여부와 무관하게 항상 노출되며, 검색을 실행한 뒤에는 정렬 드롭다운 옆에 검색창이 추가로 나타남. 결과는 처음 8개만 보이고 "더 보기" 버튼으로 추가 로드. 결과 카드(그리드·리스트 공통)에 `#지역 #음식종류` 해시태그 노출, 그리드 카드는 사진 여러 장을 화살표로 넘겨보는 캐러셀 지원, 사진 없는 가게는 기본 아이콘 placeholder로 대체 |
 | 맛집 상세 | 히어로 배너, 리뷰 요약, 위치 지도 + 백업 플랜, 저장 버튼 | 히어로 이미지(사진 없으면 기본 배경 이미지로 대체)에 어두운 오버레이(사진이 있을 때만) 위로 가게 이름을 중앙 표시. 평점·현지인 비율·영업 상태 배지 + 지역·음식 종류·현지인 방문 다수·불친절 후기 없음 해시태그, 주소·전화번호, 네이버 블로그+구글 리뷰(출처별 hover 강조색 구분), 구글 지도 바로가기 버튼, 휴무/소진 시에만 백업 플랜 지도 노출 |
 | 스크랩 | 저장 리스트, 총 개수 표시 | 로그인 필요(ProtectedRoute로 접근 제한, scraps 기반). 타이틀 옆 "총 N개" 카운트. 목록 그리드는 화면 폭을 꽉 채우며 반응형(모바일 1열~xl 4열), 검색 결과와 동일한 카드 컴포넌트 재사용. 검색 결과 화면과 동일하게 페이지 자체는 고정 높이(스크롤 없음)이고 콘텐츠 영역만 내부 스크롤되며 스크롤바가 항상 표시됨(그리드/리스트 전환·콘텐츠 길이 변화에도 레이아웃이 흔들리지 않도록) |
 | 로그인 | 이메일/비밀번호 | Supabase Auth (구글 로그인은 추후 도입). 로그인 성공 시 원래 접근하려던 화면으로 리다이렉트 |
@@ -163,12 +163,12 @@ https://claude.ai/code/artifact/b2aa2e21-ea95-4376-b332-f06f53530b39
 | 테이블 | 주요 컬럼 | 제약·관계 | 비고 |
 |---|---|---|---|
 | `profiles` | id(uuid, PK), email, nickname, avatar_url, is_admin(boolean, 기본 false) | id는 `auth.users(id)` 참조 FK, ON DELETE CASCADE. `auth.users` insert 시 `handle_new_user` 트리거로 자동 생성 | 이메일 로그인(Supabase Auth) 실제 연동 완료 — nickname은 마이페이지에서 실제로 갱신됨. avatar_url은 Supabase Storage 업로드 후 공개 URL 저장 예정 — 현재는 업로드한 이미지를 base64로 변환해 localStorage에만 저장(브라우저 새로고침 시에도 유지되나 기기 간 동기화 불가, 실제 파일 업로드는 백엔드 작업 시 구현). is_admin은 관리자 계정 구분용으로 추가했으나 이를 검사하는 관리자 화면/로직은 아직 없음 |
-| `restaurants` | id(uuid, PK), name, address, phone, lat, lng, google_place_id | google_place_id 유니크(중복 등록 방지) | 주소·전화번호는 맛집 상세 화면에 표시. 테이블은 생성됐으나 아직 데이터 없음(화면은 여전히 `mockRestaurants.js` 사용) |
-| `reviews_cache` | id(uuid, PK), restaurant_id(FK), source('naver'\|'google'), author, snippet, rating, fetched_at, is_ad_filtered | restaurant_id → restaurants.id FK, ON DELETE CASCADE | 구글 리뷰는 fetched_at 기준 만료 시 재조회(영구 캐싱 금지 대응). is_ad_filtered는 LLM 협찬 판별 결과 |
+| `restaurants` | id(uuid, PK), name, address, phone, lat, lng, google_place_id, category, region, image_url, image_urls(배열), rating, review_count, tagline, status, local_ratio, has_rude_review, accepts_card, walk_minutes, nearest_station, accepts_reservation, updated_at | google_place_id 유니크(중복 등록 방지) | **실제로 Google Places 데이터가 채워져 있음**(14개 지역 × 6개 카테고리, 약 1,400여 곳). 최초 설계보다 컬럼이 대폭 늘어남 — `local_ratio`/`has_rude_review`/`accepts_card`/`walk_minutes`/`accepts_reservation`은 Google API가 직접 안 주는 값이라 일부만 채워짐(아래 10.1 참고) |
+| `reviews_cache` | id(uuid, PK), restaurant_id(FK), source('naver'\|'google'), author, snippet, rating, fetched_at, is_ad_filtered | restaurant_id → restaurants.id FK, ON DELETE CASCADE | **Google 리뷰가 실제로 채워져 있음**(가게당 최대 5개, 약 6,000여 건). `source`는 현재 전부 `'google'`이고 `is_ad_filtered`도 전부 `false`(Google 리뷰는 원천이 실 방문자라 광고 판별 대상이 아님) — 네이버 쪽은 아직 미연동 |
 | `scraps` | id(uuid, PK), user_id(FK), restaurant_id(FK) | user_id+restaurant_id 조합 유니크 | "스크랩" 기능. 테이블은 생성됐으나 프론트는 아직 localStorage(`scrapIds`)만 사용 |
 | `search_history` | id(uuid, PK), user_id(FK), keyword, searched_at | user_id → profiles.id FK, ON DELETE CASCADE | 마이페이지 "최근 검색" 카운트·목록 및 클릭 시 재검색 기능용. 현재 프론트 뼈대는 더미 검색어 3개만 하드코딩 표시, 실제 검색 시점 기록·저장은 백엔드 작업 시 구현 |
 
-**RLS 적용 완료**: `profiles`·`scraps`·`search_history`는 로그인한 본인 행만 SELECT/INSERT(profiles는 UPDATE도) 허용하는 정책이 실제 적용됨. `restaurants`·`reviews_cache`는 조회는 전체 공개하되, 쓰기(INSERT/UPDATE)는 아직 어떤 클라이언트 role에도 허용되지 않음 — Flask 백엔드(서비스 role) 연동 시 구현 예정.
+**RLS 적용 완료**: `profiles`·`scraps`·`search_history`는 로그인한 본인 행만 SELECT/INSERT(profiles는 UPDATE도) 허용하는 정책이 실제 적용됨. `restaurants`·`reviews_cache`는 조회가 전체 공개(`select using (true)`)로 되어 있어 프론트가 익명 사용자로도 직접 SELECT 가능함. 쓰기(INSERT/UPDATE)는 서비스 role(Edge Function)만 하고 있고 클라이언트에는 허용 안 됨.
 
 ---
 
@@ -177,37 +177,48 @@ https://claude.ai/code/artifact/b2aa2e21-ea95-4376-b332-f06f53530b39
 | 구분 | 기술 | 역할 |
 |---|---|---|
 | 프론트엔드 | React, Vite | UI 구현, 개발 서버/빌드 |
-| 스타일링 | Tailwind CSS | 디자인 시스템(주색 `#1E3A5F` · 강조색 `#FF6B4A`) 적용 |
+| 스타일링 | Tailwind CSS v4 | 디자인 시스템(주색 `#6D28D9` brand-navy · 강조색 `#A855F7` brand-coral) 적용, `tailwind.config.js` 없이 `src/index.css`의 `@theme`로 설정 |
 | 프론트 언어 | JavaScript | React 컴포넌트 로직 |
-| 백엔드 | Flask (Python) | 네이버 블로그·구글 Places API 호출, 리뷰 LLM 필터링 로직 처리 (API 키 보호) |
-| 데이터/인증 | Supabase | DB(위 5개 테이블, 실제 생성 완료) + Auth(이메일/비밀번호 로그인, 프론트에서 `@supabase/supabase-js`로 실제 연동 완료), RLS로 접근 제어 |
+| 데이터 수집 백엔드 | **Supabase Edge Functions** (Deno/TypeScript) | 당초 계획했던 Flask 대신 채택 — 네이버 블로그·구글 Places API 호출, 리뷰 필터링 로직을 여기서 처리(아래 아키텍처 절 참고) |
+| 데이터/인증 | Supabase | DB(위 5개 테이블, 실제 생성 완료, `restaurants`/`reviews_cache`는 실데이터로 채워짐) + Auth(이메일/비밀번호 로그인, 프론트에서 `@supabase/supabase-js`로 실제 연동 완료), RLS로 접근 제어 |
+| 지도 | Google Maps Embed API | 맛집 상세 페이지 위치 지도 |
 
-**아키텍처 흐름**
+**실제 아키텍처 흐름 (Flask 대신 Supabase Edge Function 채택)**
 ```
-React (Vite) ──API 요청──> Flask 백엔드 (Python)
-                              ├─ Supabase: Auth + DB (RLS로 프론트 직접 접근도 가능)
-                              ├─ 네이버 블로그 검색 API (서버에서 호출, 키 보호)
-                              └─ 구글 Places API (서버에서 호출, 빌링 키 보호 → reviews_cache에 캐싱)
+React (Vite) ──SELECT (anon key, RLS)──> Supabase DB (restaurants, reviews_cache 등)
+                                              ▲
+                                              │ upsert (service role)
+                                              │
+                          Supabase Edge Functions (Deno/TS)
+                              ├─ sync-restaurants: 구글 Places Text Search 호출 → restaurants/reviews_cache에 저장
+                              ├─ flag-rude-reviews: reviews_cache를 스캔해 has_rude_review 갱신
+                              ├─ fill-walk-minutes: Places Nearby Search로 도보거리 계산
+                              └─ translate-restaurant-names: Cloud Translation API로 상호명 보정
 ```
-Supabase는 anon key가 RLS로 보호되어 프론트에서 직접 호출해도 안전하지만, 네이버·구글 API 키는 클라이언트에 노출되면 안 되므로 Flask 백엔드가 대신 호출한다. 리뷰 협찬 문구를 걸러내는 LLM 판별도 Flask에서 실행한 뒤 결과(`is_ad_filtered`)만 Supabase에 저장한다.
+당초 문서(7단계 워크시트까지)는 Flask 백엔드가 API 키를 보호하며 요청을 대신 처리하는 구조를 계획했으나, 실제 구현 단계에서는 **Supabase Edge Function이 그 역할을 그대로 대신함**(서버리스라 별도 배포·호스팅 관리가 필요 없고, 이미 Supabase 프로젝트에 통합돼 있어 채택). Google Places/Translation API 키는 Edge Function의 secret으로만 저장되고 프론트에는 절대 노출되지 않는다. 프론트는 Edge Function을 직접 호출하지 않고, Edge Function이 미리 채워둔 `restaurants`/`reviews_cache`를 anon key로 SELECT만 한다 — 즉 **사용자가 검색할 때마다 Google API가 호출되는 구조가 아니라, 관리자가 주기적으로(월 1회 권장) 수집을 실행해 DB를 갱신하는 배치 방식**이다. 네이버 블로그 API는 아직 이 파이프라인에 연동되지 않았다(10.1 참고).
 
-> 배포 환경(호스팅)은 아직 미정 — 추후 논의에서 확정.
+> 배포 환경(프론트 호스팅)은 아직 미정 — 추후 논의에서 확정.
 
 ---
 
 ## 10. 외부 연동
 
 ### 10.1 리뷰 데이터 (Must-have: 광고성 리뷰 자동 필터링)
-| 소스 | 방식 | 비용 | 주요 제약 |
+| 소스 | 방식 | 상태 | 주요 제약 |
 |---|---|---|---|
-| 네이버 블로그 검색 API | 리뷰 텍스트를 LLM으로 분류(협찬 표기어·과도한 칭찬 패턴 탐지) | 무료(일일 호출 한도 있음, MVP 트래픽엔 충분) | 검색 스니펫만 제공 — 본문 전체는 blog.naver.com 개별 글 추가 수집 필요(별도 약관 확인). 키워드 기반이라 동명 매장 오탐 가능 |
-| 구글 Places API (Place Details) | reviews 필드로 구글 리뷰 병행 수집, PRD 원안의 "복수 소스 교차 비교" 구현 | Google Cloud 빌링(카드) 등록 필수, 월 무료 크레딧 초과 시 과금 | 가게당 리뷰 최대 5개, 영구 캐싱 금지(주기적 재조회 필요), 화면에 Google 출처 표기 의무 |
+| 구글 Places API (Text Search + Place Details) | `sync-restaurants` Edge Function이 지역×음식종류 조합으로 검색해 가게 정보·평점·사진·리뷰(reviews 필드)를 `restaurants`/`reviews_cache`에 upsert | ✅ **실제 연동 완료** — 14개 지역 × 6개 카테고리, 가게당 리뷰 최대 5개까지 수집됨(약 1,400여 곳, 리뷰 약 6,000여 건) | 가게당 리뷰 최대 5개, 영구 캐싱 금지 원칙에 따라 재수집 시 기존 google 리뷰를 지우고 새로 씀. 화면에 "Powered by Google" 출처 표기함(상세 페이지 리뷰 섹션 하단). Text Search가 순수 한글 지명을 잘 인식 못 해 지역명을 영어로 변환해서 보냄. 쇼핑몰/건물, 일본 밖 결과는 수집 단계에서 자동 제외(2026-08-15부터 국가 필터 추가 — 그 전 수집분엔 소재지가 다른 나라인 오염 데이터가 섞였던 이력 있음, 발견 시 삭제 완료) |
+| 네이버 블로그 검색 API | 리뷰 텍스트를 LLM으로 분류(협찬 표기어·과도한 칭찬 패턴 탐지) | ❌ **미연동** — `reviews_cache.source`는 현재 전부 `'google'`이고 네이버 리뷰는 아직 하나도 없음 | 검색 스니펫만 제공 — 본문 전체는 blog.naver.com 개별 글 추가 수집 필요(별도 약관 확인). 키워드 기반이라 동명 매장 오탐 가능 |
+
+**"광고성 리뷰 필터링"의 현재 상태**: Google 리뷰는 실제 방문자 리뷰라 애초에 협찬/광고 판별 대상이 아니므로 `is_ad_filtered`는 전부 `false`로 저장됨. 대신 "불친절 후기 제외"라는 인접 기능이 구현되어 있음 — `flag-rude-reviews` Edge Function이 리뷰 중 별점 2점 이하 + 부정적 키워드(불친절/무례/짜증 등)가 있으면 그 가게 전체를 검색 결과에서 제외(`has_rude_review`). 네이버 리뷰가 연동되면 그때 원래 계획한 LLM 협찬 판별이 필요해짐.
 
 ### 10.2 현지인 비율 판별
-직접적인 국적 데이터 확보가 어려워, 리뷰어의 작성 언어·방문 빈도 등 간접 지표로 추정. 정확도가 검증되지 않았으므로 화면에 '추정값'임을 명시할지 별도 결정 필요.
+Google Places API는 리뷰어 국적/언어 데이터를 제공하지 않아 아직 미구현 — `restaurants.local_ratio`는 현재 전부 `null`(프론트에서는 `0`으로 기본 표시). 판별 방법은 여전히 미정.
 
 ### 10.3 실시간 근처 백업 플랜 추천
-현재 위치 기준 반경 내 유사 카테고리·평점의 맛집을 순위화. 각 매장의 실시간 영업상태(휴무·재료소진)를 어디서 받아올지는 미정 — 지도/위치 API 검토 필요.
+✅ **구현 완료** — `fetchBackupPlan`(`src/lib/restaurants.js`)이 같은 지역 + 같은 음식종류 후보 중 위경도 기준 하버사인 거리로 가장 가까운 곳을 실제로 추천함(실시간 위치가 아니라 원래 가게의 좌표 기준). 각 매장의 실시간 영업상태는 Google Places의 `businessStatus`(OPERATIONAL/CLOSED_TEMPORARILY/CLOSED_PERMANENTLY)를 그대로 반영하며, 수집 시점 스냅샷이라 실시간은 아님(재수집 주기에 의존).
+
+### 10.4 역까지 도보 거리
+PRD 원안에는 없었으나 실제 구현에서 추가된 기능. `fill-walk-minutes` Edge Function이 Places Nearby Search로 가게 좌표 기준 가장 가까운 기차역을 찾아 직선거리를 도보 분으로 환산(`walk_minutes`)하고 역 이름(`nearest_station`)도 저장함. 오키나와는 본토와 철도로 연결되지 않아 이 필드를 항상 비워둠(관광객 대부분 렌터카 이동).
 
 ---
 
@@ -263,15 +274,15 @@ Supabase는 anon key가 RLS로 보호되어 프론트에서 직접 호출해도 
 
 ## 16. 완료 기준 체크리스트 (Definition of Done)
 
-- [ ] 홈 → 검색 결과 → 맛집 상세까지 Must-have 기능 3개가 모두 3탭 이내로 도달 가능
-- [ ] 검색 결과 필터(신뢰도 4종 + 실용정보 3종) 정상 동작
-- [ ] 맛집 상세에 주소·전화번호·⭐ 저장 버튼·영업 상태 배지 노출
-- [ ] 네이버 블로그 리뷰(협찬 필터링 배지 포함) + 구글 리뷰(Google 출처 표기 포함) 병행 노출
-- [ ] 휴무/재료소진 상태일 때만 지도 + 백업 플랜 CTA 노출, 위치 권한도 이 시점에만 요청
+- [x] 홈 → 검색 결과 → 맛집 상세까지 Must-have 기능 3개가 모두 3탭 이내로 도달 가능
+- [x] 검색 결과 필터(평점·현지인비율·영업상태 + 실용정보 3종 + 음식종류) 정상 동작 — 단, 지역 필터는 설계 변경으로 삭제됨(검색창으로 대체)
+- [x] 맛집 상세에 주소·전화번호·⭐ 저장 버튼·영업 상태 배지 노출
+- [ ] 네이버 블로그 리뷰(협찬 필터링 배지 포함) + 구글 리뷰(Google 출처 표기 포함) 병행 노출 — **구글 리뷰만 완료**, 네이버는 미연동
+- [x] 휴무/재료소진 상태일 때만 지도 + 백업 플랜 CTA 노출 — 단, 위치 권한 요청은 아직 없음(백업 플랜이 사용자 실시간 위치가 아니라 원래 가게 좌표 기준으로 동작해서 권한 자체가 불필요해짐)
 - [x] 이메일/비밀번호 로그인(Supabase Auth) 정상 동작, 비로그인 시 보호된 화면(마이페이지) 접근 시 로그인으로 분기 후 원래 화면 복귀 — 실제 Supabase Auth 연동 완료(회원가입·로그인·로그아웃·비밀번호 변경)
-- [ ] 스크랩 목록에서 추가/삭제 정상 동작 (`scraps`)
-- [ ] Supabase RLS로 본인 데이터만 조회/수정 가능한지 확인
-- [ ] Flask 백엔드에서만 외부 API(네이버·구글) 키 사용, 클라이언트에 노출되지 않음
+- [ ] 스크랩 목록에서 추가/삭제 정상 동작 (`scraps`) — UI는 동작하나 여전히 localStorage 기반, `scraps` 테이블 미연동
+- [x] Supabase RLS로 본인 데이터만 조회/수정 가능한지 확인 — `profiles`/`scraps`/`search_history`는 본인만, `restaurants`/`reviews_cache`는 의도적으로 전체 공개 조회 허용
+- [x] 외부 API(구글) 키는 Supabase Edge Function의 secret으로만 저장, 클라이언트에 노출되지 않음 — 단 Flask가 아니라 Edge Function으로 구현됨(9절 참고). 네이버 API는 아직 연동 전이라 해당 없음
 
 ---
 

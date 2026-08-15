@@ -48,7 +48,7 @@ export default function SearchResultCard({ restaurant }) {
             src={restaurant.image}
             alt={restaurant.name}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
             onError={(e) => {
               e.currentTarget.style.display = 'none'
               e.currentTarget.nextElementSibling.style.display = 'flex'
@@ -88,9 +88,9 @@ export default function SearchResultCard({ restaurant }) {
           {!restaurant.hasRudeReview && <span>#불친절후기없음</span>}
         </div>
         <div className="text-xs text-gray-500 truncate">
-          {area && `${area} 도보 ${restaurant.walkMinutes}분`}
+          {area && restaurant.walkMinutes != null && `${area} 도보 ${restaurant.walkMinutes}분`}
         </div>
-        <div className="flex items-center gap-3 text-xs text-gray-400">
+        <div className="flex flex-col gap-0.5 text-xs text-gray-400">
           <span className="inline-flex items-center gap-1 min-w-0 truncate">
             <IconPin className="w-3 h-3 flex-none" />
             <span className="truncate">{restaurant.address}</span>
