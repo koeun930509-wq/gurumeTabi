@@ -264,10 +264,14 @@ export default function SearchResultsPage() {
             overflow-y-auto, 자체 패딩)과 하단 고정 영역(flex-none, 자체 패딩)으로 분리함. sticky를 패딩이 있는
             컨테이너에 직접 걸면 sticky 기준이 padding box가 아니라 border box라 버튼 아래 패딩만큼 카드 밖으로
             비어져 보이는 문제가 있었음 — 그래서 sticky 대신 버튼을 아예 스크롤 영역 밖 별도 flex-none 블록으로
-            분리해 항상 카드 안에 있도록 함. PC(md+)는 기존과 동일하게 항상 펼쳐진 사이드바로 렌더링됨. */}
+            분리해 항상 카드 안에 있도록 함. PC(md+)는 기존과 동일하게 항상 펼쳐진 사이드바로 렌더링됨.
+            하단(bottom)만 top/left/right(1rem)보다 훨씬 크게(2rem) 잡은 이유: 카카오톡 인앱 브라우저 같은
+            모바일 웹뷰는 100vh를 주소창 포함 전체 높이로 계산해 fixed 요소가 실제 화면 하단 시스템 제스처
+            바보다 낮게 배치되는 문제가 있었음(env(safe-area-inset-bottom)도 이런 웹뷰에서는 0으로 무효화됨) —
+            inset-4 대신 개별 방향 지정으로 최하단에 물리적 여유 공간을 고정 확보함. */}
         <aside
-          className={`bg-white rounded-2xl overflow-hidden flex-col h-full md:p-5 md:gap-4 md:flex ${
-            mobileFilterOpen ? "fixed inset-4 z-30 flex" : "hidden"
+          className={`bg-white rounded-2xl overflow-hidden flex-col md:h-full md:p-5 md:gap-4 md:flex ${
+            mobileFilterOpen ? "fixed top-4 left-4 right-4 bottom-8 z-30 flex" : "hidden"
           }`}
         >
           <div className="flex-1 min-h-0 overflow-y-auto pretty-scroll p-5 pb-0 md:p-0 md:contents flex flex-col gap-4 md:gap-0">
