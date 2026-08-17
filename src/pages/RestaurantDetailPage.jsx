@@ -80,7 +80,7 @@ export default function RestaurantDetailPage() {
           <img
             src={restaurant.image}
             alt={restaurant.name}
-            className="w-full aspect-[32/7] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+            className="w-full aspect-[32/14] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
             onError={(e) => {
               e.currentTarget.style.display = 'none'
               e.currentTarget.nextElementSibling.style.display = 'block'
@@ -90,7 +90,7 @@ export default function RestaurantDetailPage() {
         <img
           src="/defaultHero.png"
           alt=""
-          className="w-full aspect-[32/7] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+          className="w-full aspect-[32/14] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
           style={{ objectPosition: 'center calc(50% - 200px)', ...(restaurant.image ? { display: 'none' } : {}) }}
         />
         {restaurant.image && (
