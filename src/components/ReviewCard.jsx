@@ -114,7 +114,7 @@ export default function ReviewCard({ review, googlePlaceId }) {
       <p
         ref={snippetRef}
         aria-hidden="true"
-        className="text-base leading-relaxed line-clamp-5 md:line-clamp-3 invisible absolute left-3 right-3 -z-10 pointer-events-none"
+        className="text-sm md:text-base leading-normal md:leading-relaxed line-clamp-5 md:line-clamp-3 invisible absolute left-3 right-3 -z-10 pointer-events-none"
       >
         {review.snippet}
       </p>
@@ -123,11 +123,11 @@ export default function ReviewCard({ review, googlePlaceId }) {
       <p
         ref={measureRef}
         aria-hidden="true"
-        className="text-base leading-relaxed invisible absolute left-3 right-12 -z-10 pointer-events-none"
+        className="text-sm md:text-base leading-normal md:leading-relaxed invisible absolute left-3 right-12 -z-10 pointer-events-none"
       />
-      {!isClamped && <p className="text-base text-gray-600 leading-relaxed">{review.snippet}</p>}
+      {!isClamped && <p className="text-sm md:text-base text-gray-600 leading-normal md:leading-relaxed">{review.snippet}</p>}
       {isClamped && !expanded && truncatedLength !== null && (
-        <p className="text-base text-gray-600 leading-relaxed">
+        <p className="text-sm md:text-base text-gray-600 leading-normal md:leading-relaxed">
           {toGraphemes(review.snippet).slice(0, truncatedLength).join('')}
           {ELLIPSIS_SUFFIX}{' '}
           <button
@@ -144,7 +144,7 @@ export default function ReviewCard({ review, googlePlaceId }) {
         </p>
       )}
       {isClamped && expanded && (
-        <p className="text-base text-gray-600 leading-relaxed">
+        <p className="text-sm md:text-base text-gray-600 leading-normal md:leading-relaxed">
           {review.snippet}{' '}
           <button
             type="button"
