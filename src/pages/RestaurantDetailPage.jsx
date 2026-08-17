@@ -74,43 +74,41 @@ export default function RestaurantDetailPage() {
     <div className="min-h-full flex flex-col">
       <Header active="search" />
 
-      {/* 히어로 이미지 — 검색 결과 페이지와 동일한 좌우 여백(모바일 12px)을 주기 위해 px-3을 추가함.
-          Header는 항상 화면 전체 폭이어야 해서 이 패딩 밖(위)에 두고, 히어로부터 그 아래 본문까지만
-          감쌈. 모바일에서는 히어로 이미지도 화면 끝까지 안 붙고 카드처럼 둥근 모서리로 여백 안쪽에 들어옴. */}
-      <div className="flex flex-col px-3 md:px-0">
-        <div className="relative w-full rounded-2xl md:rounded-none overflow-hidden md:overflow-visible">
-          {restaurant.image ? (
-            <img
-              src={restaurant.image}
-              alt={restaurant.name}
-              className="w-full aspect-[32/14] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-                e.currentTarget.nextElementSibling.style.display = 'block'
-              }}
-            />
-          ) : null}
+      {/* 히어로 이미지 — Header와 동일하게 항상 화면 전체 폭(모바일 포함)으로 꽉 채움. */}
+      <div className="relative w-full">
+        {restaurant.image ? (
           <img
-            src="/defaultHero.png"
-            alt=""
+            src={restaurant.image}
+            alt={restaurant.name}
             className="w-full aspect-[32/14] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
-            style={{ objectPosition: 'center calc(50% - 200px)', ...(restaurant.image ? { display: 'none' } : {}) }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+              e.currentTarget.nextElementSibling.style.display = 'block'
+            }}
           />
-          {restaurant.image && (
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
-          )}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <h1 className="text-[#fff] font-bold text-3xl text-center px-6 translate-y-4">{restaurant.name}</h1>
-          </div>
-          <button
-            onClick={() => navigate(-1)}
-            className="absolute top-4 left-6 inline-flex items-center gap-1.5 bg-white/80 backdrop-blur text-xs font-normal text-gray-700 rounded-full px-4 py-2 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
-          >
-            <IconArrowLeft className="w-4 h-4" />
-            검색결과
-          </button>
+        ) : null}
+        <img
+          src="/defaultHero.png"
+          alt=""
+          className="w-full aspect-[32/14] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+          style={{ objectPosition: 'center calc(50% - 200px)', ...(restaurant.image ? { display: 'none' } : {}) }}
+        />
+        {restaurant.image && (
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
+        )}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <h1 className="text-[#fff] font-bold text-3xl text-center px-6 translate-y-4">{restaurant.name}</h1>
         </div>
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-4 left-6 inline-flex items-center gap-1.5 bg-white/80 backdrop-blur text-xs font-normal text-gray-700 rounded-full px-4 py-2 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
+        >
+          <IconArrowLeft className="w-4 h-4" />
+          검색결과
+        </button>
+      </div>
 
+      <div className="flex flex-col px-3 md:px-0">
         <div className="relative z-10 -mt-3 md:mx-6 bg-white rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-6 flex flex-col gap-5">
           {/* 제목 영역 */}
           <div className="flex flex-wrap items-center gap-2.5">
