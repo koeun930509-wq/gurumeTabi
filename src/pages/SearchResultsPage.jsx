@@ -524,10 +524,7 @@ export default function SearchResultsPage() {
 
             {!q ? (
               <div className="flex-1 min-h-0 text-base text-[#333] rounded-2xl p-10 flex flex-col items-center justify-center gap-4">
-                <span className="inline-flex items-center gap-1.5">
-                  <IconSearch className="w-4 h-4 flex-none" />
-                  아직 검색을 안 하셨어요 — 지역이나 음식 종류를 입력해보세요.
-                </span>
+                <span className="text-center">아직 검색을 안 하셨어요 — 지역이나 음식 종류를 입력해보세요.</span>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -599,7 +596,7 @@ export default function SearchResultsPage() {
               </div>
             )}
 
-            {hasMore && (
+            {q && hasMore && (
               <button
                 type="button"
                 onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
