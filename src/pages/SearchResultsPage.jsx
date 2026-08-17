@@ -384,7 +384,7 @@ export default function SearchResultsPage() {
           <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
         )}
 
-        <div className="h-full overflow-y-scroll pretty-scroll pr-2 md:pr-4">
+        <div className="h-full overflow-y-scroll pretty-scroll md:pr-4">
           <div className="min-h-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
               <div className="flex items-baseline gap-2 flex-wrap">
