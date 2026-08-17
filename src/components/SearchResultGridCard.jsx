@@ -102,7 +102,6 @@ export default function SearchResultGridCard({ restaurant }) {
       <div className="relative aspect-[4/3] overflow-hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {images.length > 0 ? (
           <img
-            key={photoIndex}
             src={images[photoIndex]}
             alt={restaurant.name}
             loading="lazy"
