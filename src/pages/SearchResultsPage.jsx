@@ -537,7 +537,7 @@ export default function SearchResultsPage() {
                     onChange={setPendingQ}
                     onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
                     placeholder="예: 오사카 라멘"
-                    inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-24 py-5 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
+                    inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-24 py-4 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
                   />
                   {pendingQ && (
                     <button
