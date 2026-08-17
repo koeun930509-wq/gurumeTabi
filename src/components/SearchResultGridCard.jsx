@@ -101,16 +101,33 @@ export default function SearchResultGridCard({ restaurant }) {
     >
       <div className="relative aspect-[4/3] overflow-hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {images.length > 0 ? (
-          <img
-            src={images[photoIndex]}
-            alt={restaurant.name}
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-110"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-              e.currentTarget.nextElementSibling.style.display = 'flex'
-            }}
-          />
+          // 사진 전체를 필름스트립처럼 가로로 나란히 두고 컨테이너를 translateX로 밀어서 슬라이드 애니메이션을 만든다.
+          // <img src>만 바꾸는 방식은 전환 시 즉시 바뀌어 밀리는 느낌이 없었고, <img key={photoIndex}>로 매번
+          // 엘리먼트를 새로 만드는 방식은 재마운트 때문에 깜빡였음 — 이 방식은 엘리먼트를 그대로 유지한 채
+          // transform만 애니메이션하므로 깜빡임 없이 부드럽게 슬라이드된다.
+          <div
+            className="flex h-full transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${photoIndex * 100}%)` }}
+          >
+            {images.map((src, i) => (
+              <img
+                key={src}
+                src={src}
+                alt={restaurant.name}
+                loading="lazy"
+                className="w-full h-full flex-none object-cover group-hover:scale-110 transition-transform duration-300 ease-out"
+                onError={(e) => {
+                  // 대표 사진(첫 장)이 아예 못 뜨면 필름스트립 전체를 숨기고 placeholder("사진 준비중")를
+                  // 보여준다. 나머지 장이 실패하는 경우는 흔치 않고 스와이프해서 넘어갈 때 빈 프레임만
+                  // 보이는 정도라 별도 처리하지 않음.
+                  if (i === 0) {
+                    e.currentTarget.parentElement.style.display = 'none'
+                    e.currentTarget.parentElement.nextElementSibling.style.display = 'flex'
+                  }
+                }}
+              />
+            ))}
+          </div>
         ) : null}
         <div
           className="w-full h-full flex-col items-center justify-center gap-2 bg-[#f9f8fc]"
