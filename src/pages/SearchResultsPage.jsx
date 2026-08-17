@@ -405,6 +405,41 @@ export default function SearchResultsPage() {
                 )}
               </div>
 
+              {/* 재검색 input(min-w-[170px])이 필터·정렬·보기토글과 한 줄(flex-none)에 강제로 끼워지면서
+                  모바일 좁은 화면에서 가로 스크롤이 생기던 문제 — 재검색 폼을 별도 블록으로 분리해서
+                  모바일은 항상 다음 줄에 w-full로 내려가게 하고, PC(md+)는 order로 원래처럼 같은 줄
+                  우측(정렬·보기토글 앞)에 자연스럽게 이어지도록 함. */}
+              {q && (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    navigate(pendingQ ? `/search?q=${encodeURIComponent(pendingQ)}` : "/search");
+                  }}
+                  className="order-3 md:order-none w-full md:w-auto flex items-center gap-1.5 h-10 rounded-full border border-transparent focus-within:border-[#9993e2] bg-white px-3 md:min-w-[170px]"
+                >
+                  <SearchAutocompleteInput
+                    value={pendingQ}
+                    onChange={setPendingQ}
+                    onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
+                    placeholder="지역·음식 검색"
+                    inputClassName="bg-transparent outline-none text-sm text-gray-600 w-full placeholder:text-xs"
+                    wrapperClassName="relative flex-1"
+                    listClassName="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-30 overflow-hidden"
+                  />
+                  {pendingQ && (
+                    <button
+                      type="button"
+                      aria-label="검색어 지우기"
+                      onClick={() => setPendingQ("")}
+                      className="flex-none text-gray-400 hover:text-gray-600 cursor-pointer"
+                    >
+                      <IconClose className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <IconSearch className="w-3.5 h-3.5 text-gray-400 flex-none" />
+                </form>
+              )}
+
               <div className="flex items-center gap-2 flex-none">
                 <button
                   type="button"
@@ -418,36 +453,6 @@ export default function SearchResultsPage() {
                     </span>
                   )}
                 </button>
-                {q && (
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      navigate(pendingQ ? `/search?q=${encodeURIComponent(pendingQ)}` : "/search");
-                    }}
-                    className="flex items-center gap-1.5 h-10 rounded-full border border-transparent focus-within:border-[#9993e2] bg-white px-3 min-w-[170px]"
-                  >
-                    <SearchAutocompleteInput
-                      value={pendingQ}
-                      onChange={setPendingQ}
-                      onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
-                      placeholder="지역·음식 검색"
-                      inputClassName="bg-transparent outline-none text-sm text-gray-600 w-full placeholder:text-xs"
-                      wrapperClassName="relative flex-1"
-                      listClassName="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-30 overflow-hidden"
-                    />
-                    {pendingQ && (
-                      <button
-                        type="button"
-                        aria-label="검색어 지우기"
-                        onClick={() => setPendingQ("")}
-                        className="flex-none text-gray-400 hover:text-gray-600 cursor-pointer"
-                      >
-                        <IconClose className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                    <IconSearch className="w-3.5 h-3.5 text-gray-400 flex-none" />
-                  </form>
-                )}
 
                 <div className="relative" ref={sortMenuRef}>
                   <button
