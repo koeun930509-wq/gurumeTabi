@@ -219,7 +219,7 @@ export default function RestaurantDetailPage() {
                 {/* 구글 리뷰 카드마다 반복되던 안내 문구를 이 태그 라인 오른쪽에 한 번만 표시하도록 옮김 —
                     구글 리뷰(googlePlaceId 있음)가 있을 때만 의미가 있어 그 경우에만 렌더링 */}
                 {restaurant.googlePlaceId && (
-                  <span className="ml-auto text-[11px] text-gray-400 text-right">
+                  <span className="ml-auto mr-2 text-[11px] text-gray-400 text-right">
                     클릭하면 구글맵 가게 페이지로 이동해요 — 상단 '리뷰' 탭을 눌러 전체 리뷰를 확인하세요
                   </span>
                 )}
