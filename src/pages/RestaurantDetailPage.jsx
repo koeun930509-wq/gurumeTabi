@@ -97,7 +97,7 @@ export default function RestaurantDetailPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
         )}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="text-[#fff] font-bold text-3xl text-center px-6 translate-y-8 md:translate-y-4">{restaurant.name}</h1>
+          <h1 className="text-[#fff] font-bold text-2xl md:text-3xl text-center px-6 translate-y-4">{restaurant.name}</h1>
         </div>
         <button
           onClick={() => navigate(-1)}
