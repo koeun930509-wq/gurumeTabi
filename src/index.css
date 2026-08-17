@@ -84,6 +84,18 @@ body {
   background-color: rgba(109, 40, 217, 0.55);
 }
 
+/* 안드로이드 제스처 네비게이션 바처럼 화면 하단을 가리는 실기기 시스템 UI를 피해 여백을 추가한다 —
+   env()가 없는 기기/브라우저에서는 fallback으로 0이 적용되어 안전함(SearchResultsPage 모바일 필터 버튼용). */
+.mobile-safe-bottom {
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .mobile-safe-bottom {
+    padding-bottom: 0;
+  }
+}
+
 /* 검색 input 포커스 시 브랜드 컬러 그라데이션이 회전하는 2px 보더 */
 @keyframes gradient-border-spin {
   to {

@@ -362,7 +362,11 @@ export default function SearchResultsPage() {
             </div>
           </div>
 
-          <div className="flex-none p-5 pt-4 md:p-0 md:pt-4">
+          {/* 안드로이드 제스처 네비게이션 바처럼 화면 하단을 가리는 시스템 UI가 있는 실기기에서, fixed 위치의
+              카드는 그 안전 영역(safe area)을 자동으로 피하지 않아 버튼이 그 바로 위에 붙어 잘려 보이는 문제가
+              있었음(데스크톱 브라우저 에뮬레이션에는 이 UI가 없어서 재현이 안 됐음) — mobile-safe-bottom 클래스
+              (index.css)로 env(safe-area-inset-bottom)만큼 하단 패딩을 모바일에서만 추가 확보함. */}
+          <div className="flex-none p-5 pt-4 md:p-0 md:pt-4 mobile-safe-bottom">
             <button
               type="button"
               onClick={applyFilters}
