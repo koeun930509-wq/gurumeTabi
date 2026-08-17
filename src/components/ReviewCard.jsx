@@ -159,11 +159,6 @@ export default function ReviewCard({ review, googlePlaceId }) {
           </button>
         </p>
       )}
-      {isClickable && (
-        <p className="text-[11px] text-gray-400">
-          클릭하면 구글맵 가게 페이지로 이동해요 — 상단 '리뷰' 탭을 눌러 전체 리뷰를 확인하세요
-        </p>
-      )}
     </Wrapper>
   )
 }

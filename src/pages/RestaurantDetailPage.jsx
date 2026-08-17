@@ -197,7 +197,7 @@ export default function RestaurantDetailPage() {
           {/* 리뷰 본문 */}
           <div className="order-2 md:order-1 md:col-span-3 flex flex-col gap-3">
             <div>
-              <div className="flex flex-wrap gap-2.5 mb-2.5">
+              <div className="flex flex-wrap items-center gap-2.5 mb-2.5">
                 <button
                   onClick={() => navigate(`/search?q=${encodeURIComponent(restaurant.region)}`)}
                   className="text-xs font-medium text-status-open hover:underline cursor-pointer"
@@ -215,6 +215,13 @@ export default function RestaurantDetailPage() {
                 )}
                 {!restaurant.hasRudeReview && (
                   <span className="text-xs font-medium text-status-open">#불친절후기없음</span>
+                )}
+                {/* 구글 리뷰 카드마다 반복되던 안내 문구를 이 태그 라인 오른쪽에 한 번만 표시하도록 옮김 —
+                    구글 리뷰(googlePlaceId 있음)가 있을 때만 의미가 있어 그 경우에만 렌더링 */}
+                {restaurant.googlePlaceId && (
+                  <span className="ml-auto text-[11px] text-gray-400 text-right">
+                    클릭하면 구글맵 가게 페이지로 이동해요 — 상단 '리뷰' 탭을 눌러 전체 리뷰를 확인하세요
+                  </span>
                 )}
               </div>
               {restaurant.reviews.length === 0 ? (
