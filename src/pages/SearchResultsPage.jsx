@@ -256,7 +256,7 @@ export default function SearchResultsPage() {
     <div className="h-screen flex flex-col overflow-hidden">
       <Header active="search" showSearch={false} />
 
-      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[230px_1fr] gap-4 p-2 md:p-4">
+      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[230px_1fr] gap-4 p-3 md:p-4">
         {/* 모바일(md 미만)에서는 필터 패널이 항상 펼쳐진 채 전체 폭을 차지해 결과가 안 보이던 문제가 있었음 —
             기본은 숨기고(hidden md:flex), "필터" 토글 버튼을 누르면 전체화면 오버레이로 띄우는 방식으로 변경.
             PC(md+)에서는 기존과 동일하게 항상 보이는 좌측 사이드바로 렌더링됨. */}

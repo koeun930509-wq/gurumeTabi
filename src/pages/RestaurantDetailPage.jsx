@@ -71,10 +71,10 @@ export default function RestaurantDetailPage() {
   }
 
   return (
-    <div className="min-h-full flex flex-col px-2 md:px-0">
+    <div className="min-h-full flex flex-col px-3 md:px-0">
       <Header active="search" />
 
-      {/* 히어로 이미지 — 검색 결과 페이지와 동일한 좌우 여백(모바일 8px)을 주기 위해 부모에 px-2를 추가함.
+      {/* 히어로 이미지 — 검색 결과 페이지와 동일한 좌우 여백(모바일 12px)을 주기 위해 부모에 px-3을 추가함.
           모바일에서는 히어로 이미지도 화면 끝까지 안 붙고 카드처럼 둥근 모서리로 여백 안쪽에 들어옴. */}
       <div className="relative w-full rounded-2xl md:rounded-none overflow-hidden md:overflow-visible">
         {restaurant.image ? (
