@@ -71,11 +71,12 @@ export default function RestaurantDetailPage() {
   }
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-full flex flex-col px-2 md:px-0">
       <Header active="search" />
 
-      {/* 히어로 이미지 */}
-      <div className="relative w-full">
+      {/* 히어로 이미지 — 검색 결과 페이지와 동일한 좌우 여백(모바일 8px)을 주기 위해 부모에 px-2를 추가함.
+          모바일에서는 히어로 이미지도 화면 끝까지 안 붙고 카드처럼 둥근 모서리로 여백 안쪽에 들어옴. */}
+      <div className="relative w-full rounded-2xl md:rounded-none overflow-hidden md:overflow-visible">
         {restaurant.image ? (
           <img
             src={restaurant.image}
@@ -97,7 +98,7 @@ export default function RestaurantDetailPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
         )}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="text-[#fff] font-bold text-3xl text-center px-6">{restaurant.name}</h1>
+          <h1 className="text-[#fff] font-bold text-3xl text-center px-6 translate-y-4">{restaurant.name}</h1>
         </div>
         <button
           onClick={() => navigate(-1)}
@@ -108,7 +109,7 @@ export default function RestaurantDetailPage() {
         </button>
       </div>
 
-      <div className="relative z-10 -mt-3 mx-6 bg-white rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-6 flex flex-col gap-5">
+      <div className="relative z-10 -mt-3 md:mx-6 bg-white rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-6 flex flex-col gap-5">
         {/* 제목 영역 */}
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="font-bold text-2xl">{restaurant.name}</span>
@@ -235,10 +236,10 @@ export default function RestaurantDetailPage() {
                   ))}
                 </div>
               )}
-              <h4 className="text-right text-[11px] tracking-wider text-gray-400 font-sans mt-2.5 mb-1">
+              <h4 className="text-right mr-2 text-[11px] tracking-wider text-gray-400 font-sans mt-2.5 mb-1">
                 필터링된 검증 리뷰 · 출처: 네이버 블로그 + 구글
               </h4>
-              <div className="text-right text-[10px] text-gray-400">
+              <div className="text-right mr-2 text-[10px] text-gray-400">
                 Powered by Google · 리뷰 최대 5개
               </div>
             </div>
