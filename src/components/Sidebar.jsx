@@ -23,8 +23,9 @@ export default function Sidebar({ active }) {
 
   return (
     <aside className="hidden md:flex flex-col w-60 flex-none min-h-screen bg-white/70 backdrop-blur-sm border-r border-brand-peach/60 gap-6">
-      {/* 로고 위치·크기를 Header와 동일하게 맞춤(px-4 sm:px-6 py-6, h-12) */}
-      <Link to="/" className="flex-none px-4 sm:px-6 py-6">
+      {/* 로고 위치·크기를 Header와 동일하게 맞춤(px-4 sm:px-6 py-4 sm:py-6, h-12) — Sidebar 자체가
+          hidden md:flex라 항상 sm 이상에서만 렌더링되므로 실질적으로는 항상 py-6이 적용됨(표기만 통일) */}
+      <Link to="/" className="flex-none px-4 sm:px-6 py-4 sm:py-6">
         <img src="/logo.png" alt="Gurume Tabi" className="h-[43.2px] sm:h-12 w-auto" />
       </Link>
 

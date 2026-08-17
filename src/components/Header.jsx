@@ -36,7 +36,7 @@ export default function Header({ active, showSearch = true }) {
   }
 
   return (
-    <nav className="relative flex items-center gap-6 px-4 sm:px-6 py-6 bg-white shadow-[0_4px_16px_-4px_rgba(109,40,217,0.15)] z-10">
+    <nav className="relative flex items-center gap-6 px-4 sm:px-6 py-4 sm:py-6 bg-white shadow-[0_4px_16px_-4px_rgba(109,40,217,0.15)] z-10">
       <Link to="/" className="flex-none">
         <img src="/logo.png" alt="Gurume Tabi" className="h-[43.2px] sm:h-12 w-auto" />
       </Link>
