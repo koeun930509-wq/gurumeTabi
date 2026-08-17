@@ -327,7 +327,7 @@ export default function SearchResultsPage() {
                     type="button"
                     onClick={() => toggleDraftBool(f.key)}
                     aria-pressed={draft[f.key]}
-                    className={`flex-none whitespace-nowrap flex items-center gap-1 text-xs md:text-[11px] font-semibold px-1 py-2.5 md:px-2.5 md:py-1.5 rounded-md border cursor-pointer transition-colors ${
+                    className={`flex-none whitespace-nowrap flex items-center gap-1 text-xs md:text-[11px] font-semibold px-1.5 py-2.5 md:px-2.5 md:py-1.5 rounded-md border cursor-pointer transition-colors ${
                       draft[f.key]
                         ? "bg-brand-coral text-white border-brand-coral"
                         : "bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy"
