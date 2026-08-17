@@ -222,7 +222,7 @@ export default function RestaurantDetailPage() {
                   아직 검증된 리뷰가 없어요.
                 </div>
               ) : (
-                <div className="flex flex-col gap-2.5 max-h-[600px] overflow-y-auto pretty-scroll pr-1">
+                <div className="flex flex-col gap-2.5 max-h-[600px] overflow-y-auto pretty-scroll pr-1 pb-1">
                   {restaurant.reviews.map((rv, i) => (
                     <ReviewCard key={i} review={rv} googlePlaceId={restaurant.googlePlaceId} />
                   ))}

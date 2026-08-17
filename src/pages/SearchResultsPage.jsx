@@ -45,6 +45,34 @@ const DEFAULT_FILTER_STATE = {
   foods: [],
 };
 
+// applied 필터를 URL 쿼리(?ratingMin=&localMin=&openStatus=&card=&walk10=&reservation=&foods=)로 직렬화/복원한다.
+// 상세 페이지 이동 후 navigate(-1)로 돌아왔을 때 SearchResultsPage가 재마운트되며 draft/applied가 기본값으로
+// 리셋되던 버그(예: 후쿠오카 검색 + 라멘 필터 → 상세 진입 후 뒤로가기 시 라멘 필터만 사라짐)를 URL 기반 복원으로 해결.
+function filterStateFromSearchParams(searchParams) {
+  const foods = searchParams.get("foods");
+  return {
+    ratingMin: Number(searchParams.get("ratingMin") ?? DEFAULT_FILTER_STATE.ratingMin),
+    localMin: Number(searchParams.get("localMin") ?? DEFAULT_FILTER_STATE.localMin),
+    openStatus: searchParams.get("openStatus") ?? DEFAULT_FILTER_STATE.openStatus,
+    card: searchParams.get("card") === "1",
+    walk10: searchParams.get("walk10") === "1",
+    reservation: searchParams.get("reservation") === "1",
+    foods: foods ? foods.split(",").filter(Boolean) : DEFAULT_FILTER_STATE.foods,
+  };
+}
+
+function filterStateToSearchParamEntries(filterState) {
+  const entries = [];
+  if (filterState.ratingMin !== DEFAULT_FILTER_STATE.ratingMin) entries.push(["ratingMin", String(filterState.ratingMin)]);
+  if (filterState.localMin !== DEFAULT_FILTER_STATE.localMin) entries.push(["localMin", String(filterState.localMin)]);
+  if (filterState.openStatus !== DEFAULT_FILTER_STATE.openStatus) entries.push(["openStatus", filterState.openStatus]);
+  if (filterState.card) entries.push(["card", "1"]);
+  if (filterState.walk10) entries.push(["walk10", "1"]);
+  if (filterState.reservation) entries.push(["reservation", "1"]);
+  if (filterState.foods.length > 0) entries.push(["foods", filterState.foods.join(",")]);
+  return entries;
+}
+
 const MAX_RESULTS = 100;
 const RESULTS_PAGE_SIZE = 8;
 
@@ -57,7 +85,7 @@ const SORT_OPTIONS = [
 function FilterSegmentGroup({ title, options, value, onChange }) {
   return (
     <div>
-      <h4 className="text-[11px] tracking-wider text-gray-400 mb-2">{title}</h4>
+      <h4 className="text-xs md:text-[11px] tracking-wider text-gray-400 mb-2">{title}</h4>
       <div className="flex flex-nowrap gap-2">
         {options.map((opt) => {
           const active = value === opt.value;
@@ -67,7 +95,7 @@ function FilterSegmentGroup({ title, options, value, onChange }) {
               type="button"
               onClick={() => onChange(opt.value)}
               aria-pressed={active}
-              className={`flex-none whitespace-nowrap text-[11px] font-semibold px-1.5 py-1 rounded-md border cursor-pointer transition-colors ${
+              className={`flex-none whitespace-nowrap text-xs md:text-[11px] font-semibold px-2.5 py-2 md:px-1.5 md:py-1 rounded-md border cursor-pointer transition-colors ${
                 active
                   ? "bg-brand-coral text-white border-brand-coral"
                   : "bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy"
@@ -83,12 +111,13 @@ function FilterSegmentGroup({ title, options, value, onChange }) {
 }
 
 export default function SearchResultsPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const q = searchParams.get("q") ?? "";
   const [pendingQ, setPendingQ] = useState("");
-  const [draft, setDraft] = useState(DEFAULT_FILTER_STATE);
-  const [applied, setApplied] = useState(DEFAULT_FILTER_STATE);
+  const initialFilterState = useMemo(() => filterStateFromSearchParams(searchParams), []);
+  const [draft, setDraft] = useState(initialFilterState);
+  const [applied, setApplied] = useState(initialFilterState);
   const [sortBy, setSortBy] = useState("rating");
   const [viewMode, setViewMode] = useState("grid");
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
@@ -96,6 +125,7 @@ export default function SearchResultsPage() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(RESULTS_PAGE_SIZE);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     setPendingQ(q);
@@ -148,12 +178,33 @@ export default function SearchResultsPage() {
 
   function applyFilters() {
     setApplied(draft);
+    const next = new URLSearchParams(searchParams);
+    Object.keys(DEFAULT_FILTER_STATE).forEach((key) => next.delete(key));
+    filterStateToSearchParamEntries(draft).forEach(([key, value]) => next.set(key, value));
+    setSearchParams(next, { replace: true });
+    setMobileFilterOpen(false);
   }
 
   function resetFilters() {
     setDraft(DEFAULT_FILTER_STATE);
     setApplied(DEFAULT_FILTER_STATE);
+    const next = new URLSearchParams(searchParams);
+    ["ratingMin", "localMin", "openStatus", "card", "walk10", "reservation", "foods"].forEach((key) => next.delete(key));
+    setSearchParams(next, { replace: true });
   }
+
+  // 모바일 필터 버튼에 표시할 배지 — 몇 개의 필터가 현재 결과에 실제로 적용(applied) 중인지 센다.
+  const appliedFilterCount = useMemo(() => {
+    let count = 0;
+    if (applied.ratingMin !== DEFAULT_FILTER_STATE.ratingMin) count += 1;
+    if (applied.localMin !== DEFAULT_FILTER_STATE.localMin) count += 1;
+    if (applied.openStatus !== DEFAULT_FILTER_STATE.openStatus) count += 1;
+    if (applied.card) count += 1;
+    if (applied.walk10) count += 1;
+    if (applied.reservation) count += 1;
+    count += applied.foods.length;
+    return count;
+  }, [applied]);
 
   const matchTokens = useMemo(() => q.split(/\s+/).filter(Boolean), [q]);
 
@@ -206,80 +257,124 @@ export default function SearchResultsPage() {
       <Header active="search" showSearch={false} />
 
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[230px_1fr] gap-4 p-4">
-        <aside className="bg-white rounded-2xl p-5 flex flex-col gap-4 h-full overflow-y-auto pretty-scroll">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-gray-900">필터</h3>
-            <button type="button" onClick={resetFilters} className="text-xs text-gray-400 hover:text-brand-navy cursor-pointer transition-colors">
-              초기화
-            </button>
-          </div>
-
-          <FilterSegmentGroup title="평점" options={RATING_OPTIONS} value={draft.ratingMin} onChange={(v) => setDraftValue("ratingMin", v)} />
-
-          <FilterSegmentGroup
-            title="현지인 비율"
-            options={LOCAL_RATIO_OPTIONS}
-            value={draft.localMin}
-            onChange={(v) => setDraftValue("localMin", v)}
-          />
-
-          <FilterSegmentGroup
-            title="영업 상태"
-            options={OPEN_STATUS_OPTIONS}
-            value={draft.openStatus}
-            onChange={(v) => setDraftValue("openStatus", v)}
-          />
-
-          <div>
-            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2">추가 필터</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {PRACTICAL_FILTERS.map((f) => (
+        {/* 모바일(md 미만)에서는 필터 패널이 항상 펼쳐진 채 전체 폭을 차지해 결과가 안 보이던 문제가 있었음 —
+            기본은 숨기고(hidden md:flex), "필터" 토글 버튼을 누르면 전체화면 오버레이로 띄우는 방식으로 변경.
+            PC(md+)에서는 기존과 동일하게 항상 보이는 좌측 사이드바로 렌더링됨. */}
+        {/* 모바일 오버레이 구조: aside 자체는 패딩 없는 껍데기(고정 위치)이고, 내부를 스크롤 콘텐츠 영역(flex-1
+            overflow-y-auto, 자체 패딩)과 하단 고정 영역(flex-none, 자체 패딩)으로 분리함. sticky를 패딩이 있는
+            컨테이너에 직접 걸면 sticky 기준이 padding box가 아니라 border box라 버튼 아래 패딩만큼 카드 밖으로
+            비어져 보이는 문제가 있었음 — 그래서 sticky 대신 버튼을 아예 스크롤 영역 밖 별도 flex-none 블록으로
+            분리해 항상 카드 안에 있도록 함. PC(md+)는 기존과 동일하게 항상 펼쳐진 사이드바로 렌더링됨. */}
+        <aside
+          className={`bg-white rounded-2xl overflow-hidden flex-col h-full md:p-5 md:gap-4 md:flex ${
+            mobileFilterOpen ? "fixed inset-4 z-30 flex" : "hidden"
+          }`}
+        >
+          <div className="flex-1 min-h-0 overflow-y-auto pretty-scroll p-5 pb-0 md:p-0 md:contents flex flex-col gap-4 md:gap-0">
+            <div className="flex items-center justify-between md:mb-4">
+              <h3 className="text-lg md:text-base font-bold text-gray-900">필터</h3>
+              <div className="flex items-center gap-3">
                 <button
-                  key={f.key}
                   type="button"
-                  onClick={() => toggleDraftBool(f.key)}
-                  aria-pressed={draft[f.key]}
-                  className={`flex-none whitespace-nowrap flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-md border cursor-pointer transition-colors ${
-                    draft[f.key]
-                      ? "bg-brand-coral text-white border-brand-coral"
-                      : "bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy"
-                  }`}
+                  onClick={resetFilters}
+                  className="text-sm md:text-xs text-gray-400 hover:text-brand-navy cursor-pointer transition-colors"
                 >
-                  {draft[f.key] && <IconCheck className="w-3 h-3 flex-none" />}
-                  {f.label}
+                  초기화
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(false)}
+                  aria-label="필터 닫기"
+                  className="md:hidden text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <IconClose className="w-[22.4px] h-[22.4px]" />
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 flex flex-col min-h-0">
-            <h4 className="text-[11px] tracking-wider text-gray-400 mb-2">음식종류</h4>
-            <div className="relative flex-1 min-h-0">
-              <div className="h-full flex flex-col gap-2 overflow-y-auto pretty-scroll-light pr-2">
-                {FOOD_TYPES.map((food) => (
-                  <label key={food} className="flex items-center gap-2 text-[13px] text-gray-700 py-0.5 cursor-pointer hover:text-brand-navy">
-                    <input
-                      type="checkbox"
-                      checked={draft.foods.includes(food)}
-                      onChange={() => toggleDraftFood(food)}
-                      className="w-4 h-4 accent-brand-coral rounded flex-none"
-                    />
-                    {food}
-                  </label>
+            <div className="md:mb-4">
+              <FilterSegmentGroup title="평점" options={RATING_OPTIONS} value={draft.ratingMin} onChange={(v) => setDraftValue("ratingMin", v)} />
+            </div>
+
+            <div className="md:mb-4">
+              <FilterSegmentGroup
+                title="현지인 비율"
+                options={LOCAL_RATIO_OPTIONS}
+                value={draft.localMin}
+                onChange={(v) => setDraftValue("localMin", v)}
+              />
+            </div>
+
+            <div className="md:mb-4">
+              <FilterSegmentGroup
+                title="영업 상태"
+                options={OPEN_STATUS_OPTIONS}
+                value={draft.openStatus}
+                onChange={(v) => setDraftValue("openStatus", v)}
+              />
+            </div>
+
+            <div className="md:mb-4">
+              <h4 className="text-xs md:text-[11px] tracking-wider text-gray-400 mb-2">추가 필터</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {PRACTICAL_FILTERS.map((f) => (
+                  <button
+                    key={f.key}
+                    type="button"
+                    onClick={() => toggleDraftBool(f.key)}
+                    aria-pressed={draft[f.key]}
+                    className={`flex-none whitespace-nowrap flex items-center gap-1 text-xs md:text-[11px] font-semibold px-3.5 py-2.5 md:px-2.5 md:py-1.5 rounded-md border cursor-pointer transition-colors ${
+                      draft[f.key]
+                        ? "bg-brand-coral text-white border-brand-coral"
+                        : "bg-white text-gray-500 border-gray-300 hover:border-brand-navy hover:text-brand-navy"
+                    }`}
+                  >
+                    {draft[f.key] && <IconCheck className="w-3 h-3 flex-none" />}
+                    {f.label}
+                  </button>
                 ))}
               </div>
-              <div className="pointer-events-none absolute bottom-0 left-0 right-2 h-6 bg-gradient-to-t from-white to-transparent" />
+            </div>
+
+            <div className="pb-4 md:pb-0 md:flex-1 flex flex-col md:min-h-0">
+              <h4 className="text-xs md:text-[11px] tracking-wider text-gray-400 mb-2">음식종류</h4>
+              {/* 모바일은 2열 그리드로 배치해 세로 길이를 절반으로 줄이고, 카드 자체 스크롤에 맡김(고정/가변 높이
+                  계산 없음). PC(md+)는 기존처럼 1열 세로 목록 + 사이드바 남는 공간을 자체 스크롤로 채우는 방식 유지. */}
+              <div className="relative md:flex-1 md:min-h-0">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 md:flex md:flex-col md:gap-2 md:h-full md:overflow-y-auto pretty-scroll-light md:pr-2">
+                  {FOOD_TYPES.map((food) => (
+                    <label
+                      key={food}
+                      className="flex items-center gap-2 text-sm md:text-[13px] text-gray-700 py-1.5 md:py-0.5 cursor-pointer hover:text-brand-navy"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={draft.foods.includes(food)}
+                        onChange={() => toggleDraftFood(food)}
+                        className="w-4 h-4 accent-brand-coral rounded flex-none"
+                      />
+                      {food}
+                    </label>
+                  ))}
+                </div>
+                <div className="hidden md:block pointer-events-none absolute bottom-0 left-0 right-2 h-6 bg-gradient-to-t from-white to-transparent" />
+              </div>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={applyFilters}
-            className="mt-auto w-full text-sm font-bold text-brand-navy bg-brand-peach hover:bg-brand-peach-dark rounded-xl py-3 text-center cursor-pointer transition-colors"
-          >
-            필터 적용하기
-          </button>
+          <div className="flex-none p-5 pt-4 md:p-0 md:pt-4">
+            <button
+              type="button"
+              onClick={applyFilters}
+              className="w-full text-base md:text-sm font-bold text-brand-navy bg-brand-peach hover:bg-brand-peach-dark rounded-xl py-4 md:py-3 text-center cursor-pointer transition-colors"
+            >
+              필터 적용하기
+            </button>
+          </div>
         </aside>
+        {mobileFilterOpen && (
+          <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
+        )}
 
         <div className="h-full overflow-y-scroll pretty-scroll pr-4">
           <div className="min-h-full flex flex-col gap-4">
@@ -303,6 +398,18 @@ export default function SearchResultsPage() {
               </div>
 
               <div className="flex items-center gap-2 flex-none">
+                <button
+                  type="button"
+                  onClick={() => setMobileFilterOpen(true)}
+                  className="md:hidden relative flex items-center gap-1.5 h-10 bg-white text-xs font-semibold text-gray-700 rounded-full px-4 cursor-pointer hover:text-brand-navy transition-colors"
+                >
+                  필터
+                  {appliedFilterCount > 0 && (
+                    <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-brand-coral text-white text-[10px] font-bold">
+                      {appliedFilterCount}
+                    </span>
+                  )}
+                </button>
                 {q && (
                   <form
                     onSubmit={(e) => {

@@ -34,3 +34,5 @@ dist-ssr
 *.docx
 drive-download-*.zip
 __pycache__/
+.vercel
+.env*
