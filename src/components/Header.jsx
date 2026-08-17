@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { IconClose, IconMenu, IconSearch, IconStar, IconUser, IconLogout, IconLogin } from './icons'
 import SearchAutocompleteInput from './SearchAutocompleteInput'
 import AccountActions from './AccountActions'
@@ -119,47 +120,55 @@ export default function Header({ active, showSearch = true }) {
         {menuOpen ? <IconClose className="w-7 h-7" /> : <IconMenu className="w-7 h-7" />}
       </button>
 
-      {/* 모바일 드롭다운 메뉴 — fixed + top(실측한 navHeight)/bottom:0으로 위치를 잡아서 화면 최하단까지
-          정확히 채움. height 대신 top+bottom 조합을 쓰는 이유: 100vh는 모바일 브라우저(특히 인앱 웹뷰)에서
-          주소창 포함 전체 높이로 계산되어 실제 화면보다 크게 잡히는 문제가 있었음(이전 필터 오버레이 버그와
-          동일 원인) — top+bottom만 지정하면 브라우저가 실제 보이는 영역 기준으로 높이를 자동 계산해 안전함.
-          z-40으로 페이지 콘텐츠(검색 결과의 정렬/보기 토글 등 z-10~z-30)보다 항상 위에 오도록 함. */}
-      {menuOpen && (
-        <div
-          className="fixed left-0 right-0 bottom-0 md:hidden bg-white border-b border-gray-200 shadow-md z-40 flex flex-col"
-          style={{ top: navHeight }}
-        >
-          {MOBILE_MENU.map(({ to, key, label, Icon }) => (
-            <Link key={key} to={to} onClick={closeMenu} className={mobileNavLinkClass(active === key)}>
-              <Icon className="w-[18px] h-[18px] flex-none" />
-              {label}
-            </Link>
-          ))}
+      {/* 모바일 드롭다운 메뉴 — document.body에 Portal로 렌더링함. nav 내부(또는 검색 결과 페이지의
+          h-screen overflow-hidden 컨테이너) 안에 그대로 두면, 일부 모바일 브라우저가 overflow:hidden인
+          조상을 position:fixed 자식의 containing block으로 취급해서 그 조상 밖으로 못 나가고 페이지의
+          다른 z-index 요소(검색 결과 그리드/리스트 토글 버튼 등)에 가려지는 실기기 전용 버그가 있었음
+          (데스크톱 브라우저 에뮬레이션에서는 재현 안 됨). body 최상위로 옮기면 어떤 조상의 overflow/
+          stacking context와도 무관하게 항상 최상단에 그려짐.
+          top(실측한 navHeight)/bottom:0으로 위치를 잡아서 화면 최하단까지 정확히 채움 — height 대신
+          top+bottom 조합을 쓰는 이유는 100vh가 모바일 브라우저(특히 인앱 웹뷰)에서 주소창 포함 전체
+          높이로 계산되어 실제 화면보다 크게 잡히는 문제가 있었기 때문(이전 필터 오버레이 버그와 동일 원인). */}
+      {menuOpen &&
+        createPortal(
+          <div
+            className={`fixed left-0 right-0 bottom-0 md:hidden bg-white border-b border-gray-200 shadow-md z-40 flex flex-col ${
+              navHeight === 0 ? 'top-[75px]' : ''
+            }`}
+            style={navHeight > 0 ? { top: navHeight } : undefined}
+          >
+            {MOBILE_MENU.map(({ to, key, label, Icon }) => (
+              <Link key={key} to={to} onClick={closeMenu} className={mobileNavLinkClass(active === key)}>
+                <Icon className="w-[18px] h-[18px] flex-none" />
+                {label}
+              </Link>
+            ))}
 
-          {user ? (
-            <button
-              onClick={() => {
-                logout()
-                navigate('/')
-                closeMenu()
-              }}
-              className="mt-auto flex items-center gap-3 px-4 py-3.5 text-base font-semibold text-gray-600 bg-brand-peach/30 border-t border-gray-100 cursor-pointer"
-            >
-              <IconLogout className="w-[18px] h-[18px] flex-none" />
-              로그아웃
-            </button>
-          ) : (
-            <Link
-              to="/login"
-              onClick={closeMenu}
-              className="mt-auto flex items-center gap-3 px-4 py-3.5 text-base font-semibold text-gray-600 bg-brand-peach/30 border-t border-gray-100"
-            >
-              <IconLogin className="w-[18px] h-[18px] flex-none" />
-              로그인
-            </Link>
-          )}
-        </div>
-      )}
+            {user ? (
+              <button
+                onClick={() => {
+                  logout()
+                  navigate('/')
+                  closeMenu()
+                }}
+                className="mt-auto flex items-center gap-3 px-4 py-3.5 text-base font-semibold text-gray-600 bg-brand-peach/30 border-t border-gray-100 cursor-pointer"
+              >
+                <IconLogout className="w-[18px] h-[18px] flex-none" />
+                로그아웃
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                onClick={closeMenu}
+                className="mt-auto flex items-center gap-3 px-4 py-3.5 text-base font-semibold text-gray-600 bg-brand-peach/30 border-t border-gray-100"
+              >
+                <IconLogin className="w-[18px] h-[18px] flex-none" />
+                로그인
+              </Link>
+            )}
+          </div>,
+          document.body,
+        )}
     </nav>
   )
 }
