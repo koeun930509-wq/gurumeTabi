@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { IconStar, IconChevronRight } from './icons'
@@ -52,17 +52,54 @@ export default function SearchResultGridCard({ restaurant }) {
     setPhotoIndex((i) => (i + 1) % images.length)
   }
 
+  // 모바일은 hover 화살표를 쓸 수 없어서, 썸네일을 좌우로 스와이프하면 사진이 넘어가도록 터치 제스처를 추가함.
+  // 카드 전체가 클릭 시 상세 페이지로 이동하는 role="link"라서, 스와이프로 판단되면(가로 이동이 세로 이동보다
+  // 크고 일정 거리 이상) goToDetail로 이어지는 클릭을 막아야 함 — touchStart 시점 좌표를 저장해뒀다가
+  // touchEnd에서 비교하는 방식.
+  const touchStartRef = useRef(null)
+  const swipedRef = useRef(false)
+
+  function handleTouchStart(e) {
+    const t = e.touches[0]
+    touchStartRef.current = { x: t.clientX, y: t.clientY }
+    swipedRef.current = false
+  }
+
+  function handleTouchEnd(e) {
+    const start = touchStartRef.current
+    if (!start || images.length < 2) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - start.x
+    const dy = t.clientY - start.y
+    if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) {
+      swipedRef.current = true
+      setPhotoIndex((i) => {
+        const delta = dx < 0 ? 1 : -1
+        return (i + delta + images.length) % images.length
+      })
+    }
+  }
+
+  function handleCardClick(e) {
+    if (swipedRef.current) {
+      e.preventDefault()
+      swipedRef.current = false
+      return
+    }
+    goToDetail()
+  }
+
   return (
     <div
       role="link"
       tabIndex={0}
-      onClick={goToDetail}
+      onClick={handleCardClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter') goToDetail()
       }}
       className="group bg-white rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-0.5 transition-all shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {images.length > 0 ? (
           <img
             key={photoIndex}
