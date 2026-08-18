@@ -5,7 +5,7 @@ import { IconPhone, IconPin, IconStar } from './icons'
 const AREA_KEYWORDS = ['도톤보리', '난바', '신사이바시', '우메다']
 
 const STATUS_NOTE = {
-  open: '영업 중 (추정)',
+  open: '영업 중',
   closed: '휴무일 가능 · 확인 필요',
   soldout: '재료 소진 · 확인 필요',
 }
@@ -105,14 +105,14 @@ export default function SearchResultCard({ restaurant }) {
             광고 {adFilteredCount}건 제외
           </span>
           <span className="text-[11px] font-semibold text-brand-coral-dark bg-brand-coral/10 px-2.5 py-1 rounded-full">
-            현지인 {restaurant.localRatio}% 추정
+            현지인 {restaurant.localRatio}%
           </span>
           <span
             className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${
               STATUS_CHIP_STYLE[restaurant.status] ?? 'text-gray-500 bg-gray-100'
             }`}
           >
-            {STATUS_NOTE[restaurant.status] ?? '영업시간 기준 추정'}
+            {STATUS_NOTE[restaurant.status] ?? '영업시간 확인 필요'}
           </span>
         </div>
       </div>
