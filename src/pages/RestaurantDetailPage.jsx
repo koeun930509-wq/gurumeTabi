@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
@@ -16,6 +16,18 @@ const STATUS_PILL = {
   closed: { label: "휴무", className: "text-status-closed bg-status-closed/10" },
   soldout: { label: "재료소진", className: "text-status-soldout bg-status-soldout/10" },
 };
+
+// 구글 리뷰가 항상 먼저, 네이버가 항상 나중에 나오던 걸 섞기 위한 Fisher-Yates 셔플 — 페이지를
+// 새로 불러올 때마다(useMemo 의존성이 리뷰 배열 자체) 한 번만 섞이고, 리렌더링 중에는 순서가
+// 유지되어 사용자가 읽던 리뷰가 갑자기 움직이지 않는다.
+function shuffle(arr) {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    ;[result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 export default function RestaurantDetailPage() {
   const { id } = useParams();
@@ -52,6 +64,10 @@ export default function RestaurantDetailPage() {
       cancelled = true;
     };
   }, [id]);
+
+  // restaurant가 바뀔 때(=페이지를 새로 불러올 때)만 다시 섞임 — 구글 리뷰가 항상 먼저, 네이버가
+  // 항상 나중에 나오던 걸 매번 다른 순서로 보여주기 위함.
+  const shuffledReviews = useMemo(() => shuffle(restaurant?.reviews ?? []), [restaurant]);
 
   if (loading) {
     return (
@@ -155,14 +171,14 @@ export default function RestaurantDetailPage() {
                   {restaurant.phone}
                 </div>
                 {/* 핫페퍼 그루메 API 보강 데이터(2026-08-18) — 위경도 거리 매칭이라 전체 가게 중 약 80%만
-                    채워져 있으므로 값이 있을 때만 조건부 렌더링. 영업시간·예산 등은 원문(일본어)이 자유
-                    텍스트라 별도 가공 없이 그대로 노출함. */}
+                    채워져 있으므로 값이 있을 때만 조건부 렌더링. 영업시간·예산·정휴일은 Edge Function에서
+                    Cloud Translation API로 이미 한글로 번역해 저장하므로 여기서 추가 가공하지 않음. */}
                 {restaurant.businessHours && (
                   <div className="text-sm text-gray-600 inline-flex items-start gap-1.5">
                     <IconClock className="w-4 h-4 flex-none mt-0.5" />
                     <span>
                       {restaurant.businessHours}
-                      {restaurant.regularHoliday && restaurant.regularHoliday !== "なし" && (
+                      {restaurant.regularHoliday && restaurant.regularHoliday !== "없음" && (
                         <span className="text-gray-400"> · 정휴일 {restaurant.regularHoliday}</span>
                       )}
                     </span>
@@ -287,11 +303,11 @@ export default function RestaurantDetailPage() {
                     </span>
                   )}
                 </div>
-                {restaurant.reviews.length === 0 ? (
+                {shuffledReviews.length === 0 ? (
                   <div className="text-base text-gray-400 bg-brand-peach/30 rounded-xl p-4 text-center">아직 검증된 리뷰가 없어요.</div>
                 ) : (
                   <div className="flex flex-col gap-2.5 max-h-[600px] overflow-y-auto pretty-scroll pr-1 pb-1">
-                    {restaurant.reviews.map((rv, i) => (
+                    {shuffledReviews.map((rv, i) => (
                       <ReviewCard key={i} review={rv} googlePlaceId={restaurant.googlePlaceId} />
                     ))}
                   </div>
