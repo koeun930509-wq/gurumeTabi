@@ -150,7 +150,7 @@ export default function HomePage() {
               type="button"
               aria-label="닫기"
               onClick={() => setMobileSearchOpen(false)}
-              className="flex-none w-9 h-9 flex items-center justify-center text-gray-600 cursor-pointer"
+              className="flex-none min-w-9 min-h-9 w-9 h-9 flex items-center justify-center text-gray-600 cursor-pointer"
             >
               <IconArrowLeft className="w-5 h-5" />
             </button>
@@ -159,9 +159,13 @@ export default function HomePage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="검색어를 입력하세요"
-              className="flex-1 text-lg outline-none placeholder:text-gray-300"
+              className="flex-1 min-w-0 text-lg outline-none placeholder:text-gray-300"
             />
-            <button type="submit" aria-label="검색" className="flex-none w-9 h-9 flex items-center justify-center text-gray-700 cursor-pointer">
+            <button
+              type="submit"
+              aria-label="검색"
+              className="flex-none min-w-9 min-h-9 w-9 h-9 flex items-center justify-center text-gray-700 cursor-pointer"
+            >
               <IconSearch className="w-5 h-5" />
             </button>
           </form>

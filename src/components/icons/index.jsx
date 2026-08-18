@@ -1,6 +1,12 @@
+// width/height를 명시적 속성으로도 지정 — 지금까지는 className(Tailwind w-*/h-*)에만 의존했는데,
+// 카카오톡 인앱 브라우저 등 일부 웹뷰에서 CSS 로딩 타이밍 문제로 SVG가 크기 0으로 렌더링되어(보이지
+// 않게) 되는 사례가 있었음(모바일 검색 오버레이의 돋보기 아이콘이 안 보이는 버그로 발견). className이
+// 뒤에 스프레드되므로 Tailwind 클래스가 있으면 그쪽이 우선 적용되고, 이 속성은 최후의 폴백 역할만 한다.
 function base(props) {
   return {
     viewBox: '0 0 24 24',
+    width: 24,
+    height: 24,
     fill: 'none',
     stroke: 'currentColor',
     strokeWidth: 2,
