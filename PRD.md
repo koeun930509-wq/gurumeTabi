@@ -225,6 +225,13 @@ Google Places API는 리뷰어 국적/언어 데이터를 제공하지 않아 �
 ### 10.4 역까지 도보 거리
 PRD 원안에는 없었으나 실제 구현에서 추가된 기능. `fill-walk-minutes` Edge Function이 Places Nearby Search로 가게 좌표 기준 가장 가까운 기차역을 찾아 직선거리를 도보 분으로 환산(`walk_minutes`)하고 역 이름(`nearest_station`)도 저장함. 오키나와는 본토와 철도로 연결되지 않아 이 필드를 항상 비워둠(관광객 대부분 렌터카 이동).
 
+### 10.5 핫페퍼 그루메 API 보강
+✅ **구현 완료**(2026-08-18) — `enrich-hotpepper` Edge Function이 리쿠르트 Hot Pepper Gourmet API(グルメサーチAPI)로 Google Places가 못 채우는 영업시간(`business_hours`)·정휴일(`regular_holiday`)·예산대(`budget_dinner`/`budget_lunch`)·핫페퍼 URL(`hotpepper_url`)을 보강. `accepts_card`는 Hot Pepper가 명시적으로 "가능"이라 할 때만 덮어씀(기존 Google 값을 약한 신호로 잘못 덮어쓰지 않기 위함).
+
+**매칭 방식이 원래 계획(가게명 매칭)에서 위경도 거리 매칭으로 변경됨**: DB에 저장된 가게명은 수집 시 자동 번역되어 한글/영문/일본어가 섞여 있는데, Hot Pepper API는 일본어 원문 이름만 반환함 — 실제로 동일한 가게인데도 문자 유사도가 0으로 나오는 걸 확인하고 전략을 변경. 대신 원래 위경도가 이미 Google Places 기준으로 정확하므로, Hot Pepper 검색 결과 중 반경 80m 이내 최근접 후보를 같은 가게로 신뢰. 전체 1,970개 가게 실행 결과 1,589곳 매칭(80.7%) — 나머지는 반경 안에 Hot Pepper 미등록이거나 실제로 없는 경우.
+
+UI 노출은 아직 안 됨(`src/lib/restaurants.js`의 뷰모델에는 매핑되어 있으나, 상세페이지에 실제로 표시할지는 별도 논의 필요).
+
 ---
 
 ## 11. 인증

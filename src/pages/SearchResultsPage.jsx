@@ -118,14 +118,32 @@ export default function SearchResultsPage() {
   const initialFilterState = useMemo(() => filterStateFromSearchParams(searchParams), []);
   const [draft, setDraft] = useState(initialFilterState);
   const [applied, setApplied] = useState(initialFilterState);
-  const [sortBy, setSortBy] = useState("rating");
-  const [viewMode, setViewMode] = useState("grid");
+  // 정렬·뷰모드도 필터와 같은 이유로 URL에 반영 — 상세 페이지 왕복 후 재마운트돼도 유지되도록 함
+  // (예: "리뷰 많은 순"으로 정렬 후 상세 진입 → 뒤로가기 시 "평점 높은 순"으로 리셋되던 버그).
+  const [sortBy, setSortByState] = useState(() => searchParams.get("sort") ?? "rating");
+  const [viewMode, setViewModeState] = useState(() => searchParams.get("view") ?? "grid");
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const sortMenuRef = useRef(null);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(RESULTS_PAGE_SIZE);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  function setSortBy(key) {
+    setSortByState(key);
+    const next = new URLSearchParams(searchParams);
+    if (key === "rating") next.delete("sort");
+    else next.set("sort", key);
+    setSearchParams(next, { replace: true });
+  }
+
+  function setViewMode(mode) {
+    setViewModeState(mode);
+    const next = new URLSearchParams(searchParams);
+    if (mode === "grid") next.delete("view");
+    else next.set("view", mode);
+    setSearchParams(next, { replace: true });
+  }
 
   useEffect(() => {
     setPendingQ(q);

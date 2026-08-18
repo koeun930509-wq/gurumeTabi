@@ -5,6 +5,7 @@ export default function SearchAutocompleteInput({
   value,
   onChange,
   onSubmit,
+  onFocus,
   placeholder,
   inputClassName,
   listClassName,
@@ -50,7 +51,10 @@ export default function SearchAutocompleteInput({
           setActiveIndex(-1)
         }}
         onKeyDown={handleKeyDown}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          setOpen(true)
+          onFocus?.()
+        }}
         onBlur={() => setOpen(false)}
         placeholder={placeholder}
         role="combobox"

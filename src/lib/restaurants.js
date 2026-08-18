@@ -26,6 +26,11 @@ function toViewModel(row) {
     walkMinutes: row.walk_minutes ?? null,
     nearestStation: row.nearest_station ?? null,
     acceptsReservation: row.accepts_reservation ?? false,
+    businessHours: row.business_hours ?? null,
+    regularHoliday: row.regular_holiday ?? null,
+    budgetDinner: row.budget_dinner ?? null,
+    budgetLunch: row.budget_lunch ?? null,
+    hotpepperUrl: row.hotpepper_url ?? null,
     reviews: (row.reviews_cache ?? []).map((rv) => ({
       source: rv.source,
       author: rv.author,
