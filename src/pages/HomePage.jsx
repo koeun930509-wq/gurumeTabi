@@ -1,49 +1,41 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import SearchAutocompleteInput from '../components/SearchAutocompleteInput'
-import { IconSearch, IconClose, IconArrowLeft } from '../components/icons'
-import { useAuth } from '../context/AuthContext'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
+import { IconSearch, IconClose, IconArrowLeft } from "../components/icons";
+import { useAuth } from "../context/AuthContext";
 
-const POPULAR = ['오사카', '도쿄', '돈카츠', '라멘', '이자카야', '스시', '우동', '오코노미야키']
-const RECENT = []
+const POPULAR = ["오사카", "도쿄", "돈카츠", "라멘", "이자카야", "스시", "우동", "오코노미야키"];
+const RECENT = [];
 
 function formatSearchedAt(iso) {
-  const d = new Date(iso)
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${mm}.${dd}.`
+  const d = new Date(iso);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${mm}.${dd}.`;
 }
 
 export default function HomePage() {
-  const [q, setQ] = useState('')
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
-  const navigate = useNavigate()
-  const { recentSearches, addRecentSearch, removeRecentSearch } = useAuth()
+  const [q, setQ] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const navigate = useNavigate();
+  const { recentSearches, addRecentSearch, removeRecentSearch } = useAuth();
 
   function runSearch(keyword) {
-    addRecentSearch(keyword)
-    navigate(keyword ? `/search?q=${encodeURIComponent(keyword)}` : '/search')
+    addRecentSearch(keyword);
+    navigate(keyword ? `/search?q=${encodeURIComponent(keyword)}` : "/search");
   }
 
   function handleSearch(e) {
-    e.preventDefault()
-    runSearch(q)
+    e.preventDefault();
+    runSearch(q);
   }
 
   return (
     <div className="relative h-screen flex flex-col overflow-hidden">
       {/* 배경 영상 + 어두운 오버레이 */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover -z-20"
-        src="/sushi.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        aria-hidden="true"
-      />
+      <video className="absolute inset-0 w-full h-full object-cover -z-20" src="/sushi.mp4" autoPlay muted loop playsInline aria-hidden="true" />
       <div className="absolute inset-0 bg-brand-navy-dark/35 -z-10" aria-hidden="true" />
 
       {/* header — 상단 고정 */}
@@ -56,9 +48,7 @@ export default function HomePage() {
             <h1 className="font-jua text-5xl sm:text-5xl md:text-6xl text-white leading-tight">
               광고 없는 <span className="text-brand-coral">찐맛집,</span>
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-white">
-              일본 미식여행을 위한 맛집 검색
-            </p>
+            <p className="text-lg sm:text-xl md:text-2xl text-white">일본 미식여행을 위한 맛집 검색</p>
           </div>
 
           <form onSubmit={handleSearch} className="gradient-border-input relative w-full max-w-2xl">
@@ -76,7 +66,7 @@ export default function HomePage() {
               <button
                 type="button"
                 aria-label="검색어 지우기"
-                onClick={() => setQ('')}
+                onClick={() => setQ("")}
                 className="absolute right-[70px] top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full cursor-pointer"
               >
                 <IconClose className="w-4 h-4" />
@@ -92,13 +82,9 @@ export default function HomePage() {
           </form>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5 leading-none sm:leading-normal">
+        <div className="flex flex-wrap justify-center gap-x-3 leading-none sm:leading-normal">
           {POPULAR.map((tag) => (
-            <button
-              key={tag}
-              onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-              className="text-sm text-white hover:underline"
-            >
+            <button key={tag} onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)} className="text-sm text-white hover:underline">
               #{tag}
             </button>
           ))}
@@ -140,9 +126,9 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 bg-white flex flex-col md:hidden">
           <form
             onSubmit={(e) => {
-              e.preventDefault()
-              runSearch(q)
-              setMobileSearchOpen(false)
+              e.preventDefault();
+              runSearch(q);
+              setMobileSearchOpen(false);
             }}
             className="flex-none flex items-center gap-2 px-3 py-3 border-b border-gray-100"
           >
@@ -179,9 +165,9 @@ export default function HomePage() {
                   key={r.id}
                   type="button"
                   onClick={() => {
-                    setQ(r.keyword)
-                    runSearch(r.keyword)
-                    setMobileSearchOpen(false)
+                    setQ(r.keyword);
+                    runSearch(r.keyword);
+                    setMobileSearchOpen(false);
                   }}
                   className="w-full flex items-center justify-between gap-3 px-4 py-4 border-b border-gray-50 text-left cursor-pointer hover:bg-gray-50"
                 >
@@ -192,8 +178,8 @@ export default function HomePage() {
                       role="button"
                       aria-label="검색 기록 삭제"
                       onClick={(e) => {
-                        e.stopPropagation()
-                        removeRecentSearch(r.id)
+                        e.stopPropagation();
+                        removeRecentSearch(r.id);
                       }}
                       className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
@@ -207,5 +193,5 @@ export default function HomePage() {
         </div>
       )}
     </div>
-  )
+  );
 }

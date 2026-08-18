@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { IconLock, IconMail } from '../components/icons'
+import { IconLock, IconMail, IconEye, IconEyeOff } from '../components/icons'
 
 function signupErrorMessage(error) {
   if (error.message === 'User already registered') {
@@ -19,6 +19,8 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState('')
@@ -98,24 +100,40 @@ export default function SignUpPage() {
           <div className="relative">
             <IconLock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="6자 이상"
-              className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
+              className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-10 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+            </button>
           </div>
 
           <label className="text-[11px] font-bold tracking-wide text-gray-500 mt-1">비밀번호 확인</label>
           <div className="relative">
             <IconLock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
-              type="password"
+              type={showPasswordConfirm ? 'text' : 'password'}
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
               placeholder="비밀번호 확인"
-              className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
+              className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-10 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
             />
+            <button
+              type="button"
+              onClick={() => setShowPasswordConfirm((v) => !v)}
+              aria-label={showPasswordConfirm ? '비밀번호 숨기기' : '비밀번호 표시'}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              {showPasswordConfirm ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+            </button>
           </div>
 
           {error && <div className="text-sm text-status-soldout">{error}</div>}
