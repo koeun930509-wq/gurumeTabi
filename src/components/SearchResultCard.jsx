@@ -24,7 +24,6 @@ export default function SearchResultCard({ restaurant }) {
   const navigate = useNavigate()
   const { user, scrapIds, toggleScrap } = useAuth()
   const isSaved = scrapIds.includes(restaurant.id)
-  const adFilteredCount = restaurant.reviews.filter((r) => r.isAdFiltered).length
   const area = extractArea(restaurant.address)
 
   function handleSaveClick(e) {
@@ -101,9 +100,6 @@ export default function SearchResultCard({ restaurant }) {
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5 mt-1">
-          <span className="text-[11px] font-semibold text-brand-coral-dark bg-brand-coral/10 px-2.5 py-1 rounded-full">
-            광고 {adFilteredCount}건 제외
-          </span>
           <span className="text-[11px] font-semibold text-brand-coral-dark bg-brand-coral/10 px-2.5 py-1 rounded-full">
             현지인 {restaurant.localRatio}%
           </span>
