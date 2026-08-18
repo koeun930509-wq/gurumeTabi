@@ -164,7 +164,7 @@ https://claude.ai/code/artifact/b2aa2e21-ea95-4376-b332-f06f53530b39
 |---|---|---|---|
 | `profiles` | id(uuid, PK), email, nickname, avatar_url, is_admin(boolean, 기본 false) | id는 `auth.users(id)` 참조 FK, ON DELETE CASCADE. `auth.users` insert 시 `handle_new_user` 트리거로 자동 생성 | 이메일 로그인(Supabase Auth) 실제 연동 완료 — nickname은 마이페이지에서 실제로 갱신됨. avatar_url은 Supabase Storage 업로드 후 공개 URL 저장 예정 — 현재는 업로드한 이미지를 base64로 변환해 localStorage에만 저장(브라우저 새로고침 시에도 유지되나 기기 간 동기화 불가, 실제 파일 업로드는 백엔드 작업 시 구현). is_admin은 관리자 계정 구분용으로 추가했으나 이를 검사하는 관리자 화면/로직은 아직 없음 |
 | `restaurants` | id(uuid, PK), name, address, phone, lat, lng, google_place_id, category, region, image_url, image_urls(배열), rating, review_count, tagline, status, local_ratio, has_rude_review, accepts_card, walk_minutes, nearest_station, accepts_reservation, updated_at | google_place_id 유니크(중복 등록 방지) | **실제로 Google Places 데이터가 채워져 있음**(14개 지역 × 6개 카테고리, 약 1,400여 곳). 최초 설계보다 컬럼이 대폭 늘어남 — `local_ratio`/`has_rude_review`/`accepts_card`/`walk_minutes`/`accepts_reservation`은 Google API가 직접 안 주는 값이라 일부만 채워짐(아래 10.1 참고) |
-| `reviews_cache` | id(uuid, PK), restaurant_id(FK), source('naver'\|'google'), author, snippet, rating, fetched_at, is_ad_filtered | restaurant_id → restaurants.id FK, ON DELETE CASCADE | **Google 리뷰가 실제로 채워져 있음**(가게당 최대 5개, 약 6,000여 건). `source`는 현재 전부 `'google'`이고 `is_ad_filtered`도 전부 `false`(Google 리뷰는 원천이 실 방문자라 광고 판별 대상이 아님) — 네이버 쪽은 아직 미연동 |
+| `reviews_cache` | id(uuid, PK), restaurant_id(FK), source('naver'\|'google'), author, snippet, rating, fetched_at, is_ad_filtered | restaurant_id → restaurants.id FK, ON DELETE CASCADE | **Google 리뷰 + 네이버 블로그 리뷰 둘 다 실제로 채워져 있음**(Google: 가게당 최대 5개 약 6,000여 건, `is_ad_filtered` 항상 `false`. 네이버: `sync-naver-reviews`로 2026-08-18 전체 수집 완료, 1,470곳 총 6,598건, 검색 스니펫의 협찬 키워드 감지로 `is_ad_filtered` 채워짐 — 11건 감지됨) |
 | `scraps` | id(uuid, PK), user_id(FK), restaurant_id(FK) | user_id+restaurant_id 조합 유니크 | "스크랩" 기능. 테이블은 생성됐으나 프론트는 아직 localStorage(`scrapIds`)만 사용 |
 | `search_history` | id(uuid, PK), user_id(FK), keyword, searched_at | user_id → profiles.id FK, ON DELETE CASCADE | 마이페이지 "최근 검색" 카운트·목록 및 클릭 시 재검색 기능용. 현재 프론트 뼈대는 더미 검색어 3개만 하드코딩 표시, 실제 검색 시점 기록·저장은 백엔드 작업 시 구현 |
 
@@ -191,11 +191,12 @@ React (Vite) ──SELECT (anon key, RLS)──> Supabase DB (restaurants, revie
                                               │
                           Supabase Edge Functions (Deno/TS)
                               ├─ sync-restaurants: 구글 Places Text Search 호출 → restaurants/reviews_cache에 저장
+                              ├─ sync-naver-reviews: NAVER API HUB 블로그 검색 → reviews_cache(source='naver')에 저장
                               ├─ flag-rude-reviews: reviews_cache를 스캔해 has_rude_review 갱신
                               ├─ fill-walk-minutes: Places Nearby Search로 도보거리 계산
                               └─ translate-restaurant-names: Cloud Translation API로 상호명 보정
 ```
-당초 문서(7단계 워크시트까지)는 Flask 백엔드가 API 키를 보호하며 요청을 대신 처리하는 구조를 계획했으나, 실제 구현 단계에서는 **Supabase Edge Function이 그 역할을 그대로 대신함**(서버리스라 별도 배포·호스팅 관리가 필요 없고, 이미 Supabase 프로젝트에 통합돼 있어 채택). Google Places/Translation API 키는 Edge Function의 secret으로만 저장되고 프론트에는 절대 노출되지 않는다. 프론트는 Edge Function을 직접 호출하지 않고, Edge Function이 미리 채워둔 `restaurants`/`reviews_cache`를 anon key로 SELECT만 한다 — 즉 **사용자가 검색할 때마다 Google API가 호출되는 구조가 아니라, 관리자가 주기적으로(월 1회 권장) 수집을 실행해 DB를 갱신하는 배치 방식**이다. 네이버 블로그 API는 아직 이 파이프라인에 연동되지 않았다(10.1 참고).
+당초 문서(7단계 워크시트까지)는 Flask 백엔드가 API 키를 보호하며 요청을 대신 처리하는 구조를 계획했으나, 실제 구현 단계에서는 **Supabase Edge Function이 그 역할을 그대로 대신함**(서버리스라 별도 배포·호스팅 관리가 필요 없고, 이미 Supabase 프로젝트에 통합돼 있어 채택). Google Places/Translation API 키는 Edge Function의 secret으로만 저장되고 프론트에는 절대 노출되지 않는다. 프론트는 Edge Function을 직접 호출하지 않고, Edge Function이 미리 채워둔 `restaurants`/`reviews_cache`를 anon key로 SELECT만 한다 — 즉 **사용자가 검색할 때마다 Google API가 호출되는 구조가 아니라, 관리자가 주기적으로(월 1회 권장) 수집을 실행해 DB를 갱신하는 배치 방식**이다. 네이버 블로그 API(`sync-naver-reviews`)도 2026-08-18부터 같은 배치 방식으로 이 파이프라인에 연동되었다(10.1 참고).
 
 > 배포 환경(프론트 호스팅)은 아직 미정 — 추후 논의에서 확정.
 
@@ -207,9 +208,9 @@ React (Vite) ──SELECT (anon key, RLS)──> Supabase DB (restaurants, revie
 | 소스 | 방식 | 상태 | 주요 제약 |
 |---|---|---|---|
 | 구글 Places API (Text Search + Place Details) | `sync-restaurants` Edge Function이 지역×음식종류 조합으로 검색해 가게 정보·평점·사진·리뷰(reviews 필드)를 `restaurants`/`reviews_cache`에 upsert | ✅ **실제 연동 완료** — 14개 지역 × 6개 카테고리, 가게당 리뷰 최대 5개까지 수집됨(약 1,400여 곳, 리뷰 약 6,000여 건) | 가게당 리뷰 최대 5개, 영구 캐싱 금지 원칙에 따라 재수집 시 기존 google 리뷰를 지우고 새로 씀. 화면에 "Powered by Google" 출처 표기함(상세 페이지 리뷰 섹션 하단). Text Search가 순수 한글 지명을 잘 인식 못 해 지역명을 영어로 변환해서 보냄. 쇼핑몰/건물, 일본 밖 결과는 수집 단계에서 자동 제외(2026-08-15부터 국가 필터 추가 — 그 전 수집분엔 소재지가 다른 나라인 오염 데이터가 섞였던 이력 있음, 발견 시 삭제 완료) |
-| 네이버 블로그 검색 API | 리뷰 텍스트를 LLM으로 분류(협찬 표기어·과도한 칭찬 패턴 탐지) | ❌ **미연동** — `reviews_cache.source`는 현재 전부 `'google'`이고 네이버 리뷰는 아직 하나도 없음 | 검색 스니펫만 제공 — 본문 전체는 blog.naver.com 개별 글 추가 수집 필요(별도 약관 확인). 키워드 기반이라 동명 매장 오탐 가능 |
+| 네이버 블로그 검색 API (NAVER API HUB) | `sync-naver-reviews` Edge Function이 가게명+지역으로 블로그를 검색해 스니펫의 협찬 키워드(협찬/제공받아/체험단 등)를 감지, `reviews_cache`에 `source='naver'`로 upsert | ✅ **실제 연동 완료**(2026-08-18) — 전체 1,748개 가게 순회 호출, 1,470곳에 리뷰 붙음(총 6,598건, 협찬 감지 11건) | 검색 스니펫만 제공 — 키워드 기반 필터라 본문 전체 LLM 정밀 분류(원래 계획)는 아직 아님. 본문 전체는 blog.naver.com 개별 글 추가 수집 필요(별도 약관 확인). 키워드 기반이라 동명 매장 오탐 가능. **주의**: developers.naver.com 검색 API는 폐지되고 NAVER API HUB(NCP)로 완전히 이전됨 — 인증 헤더도 `X-Naver-Client-Id` 대신 `X-NCP-APIGW-API-KEY-ID`/`X-NCP-APIGW-API-KEY` 사용 |
 
-**"광고성 리뷰 필터링"의 현재 상태**: Google 리뷰는 실제 방문자 리뷰라 애초에 협찬/광고 판별 대상이 아니므로 `is_ad_filtered`는 전부 `false`로 저장됨. 대신 "불친절 후기 제외"라는 인접 기능이 구현되어 있음 — `flag-rude-reviews` Edge Function이 리뷰 중 별점 2점 이하 + 부정적 키워드(불친절/무례/짜증 등)가 있으면 그 가게 전체를 검색 결과에서 제외(`has_rude_review`). 네이버 리뷰가 연동되면 그때 원래 계획한 LLM 협찬 판별이 필요해짐.
+**"광고성 리뷰 필터링"의 현재 상태**: Google 리뷰는 실제 방문자 리뷰라 애초에 협찬/광고 판별 대상이 아니므로 `is_ad_filtered`는 전부 `false`로 저장됨. 네이버 리뷰는 스니펫의 협찬 키워드 매칭으로 1차 필터링됨(원래 계획한 LLM 기반 정밀 분류는 미착수 — 본문 전체 크롤링이 필요해 범위 밖으로 유보). "불친절 후기 제외"라는 인접 기능도 구현되어 있음 — `flag-rude-reviews` Edge Function이 리뷰 중 별점 2점 이하 + 부정적 키워드(불친절/무례/짜증 등)가 있으면 그 가게 전체를 검색 결과에서 제외(`has_rude_review`).
 
 ### 10.2 현지인 비율 판별
 Google Places API는 리뷰어 국적/언어 데이터를 제공하지 않아 아직 미구현 — `restaurants.local_ratio`는 현재 전부 `null`(프론트에서는 `0`으로 기본 표시). 판별 방법은 여전히 미정.
@@ -277,12 +278,12 @@ PRD 원안에는 없었으나 실제 구현에서 추가된 기능. `fill-walk-m
 - [x] 홈 → 검색 결과 → 맛집 상세까지 Must-have 기능 3개가 모두 3탭 이내로 도달 가능
 - [x] 검색 결과 필터(평점·현지인비율·영업상태 + 실용정보 3종 + 음식종류) 정상 동작 — 단, 지역 필터는 설계 변경으로 삭제됨(검색창으로 대체)
 - [x] 맛집 상세에 주소·전화번호·⭐ 저장 버튼·영업 상태 배지 노출
-- [ ] 네이버 블로그 리뷰(협찬 필터링 배지 포함) + 구글 리뷰(Google 출처 표기 포함) 병행 노출 — **구글 리뷰만 완료**, 네이버는 미연동
+- [x] 네이버 블로그 리뷰(협찬 필터링 배지 포함) + 구글 리뷰(Google 출처 표기 포함) 병행 노출 — 2026-08-18 네이버 연동 완료(전체 1,748곳 수집, 1,470곳/6,598건)
 - [x] 휴무/재료소진 상태일 때만 지도 + 백업 플랜 CTA 노출 — 단, 위치 권한 요청은 아직 없음(백업 플랜이 사용자 실시간 위치가 아니라 원래 가게 좌표 기준으로 동작해서 권한 자체가 불필요해짐)
 - [x] 이메일/비밀번호 로그인(Supabase Auth) 정상 동작, 비로그인 시 보호된 화면(마이페이지) 접근 시 로그인으로 분기 후 원래 화면 복귀 — 실제 Supabase Auth 연동 완료(회원가입·로그인·로그아웃·비밀번호 변경)
 - [ ] 스크랩 목록에서 추가/삭제 정상 동작 (`scraps`) — UI는 동작하나 여전히 localStorage 기반, `scraps` 테이블 미연동
 - [x] Supabase RLS로 본인 데이터만 조회/수정 가능한지 확인 — `profiles`/`scraps`/`search_history`는 본인만, `restaurants`/`reviews_cache`는 의도적으로 전체 공개 조회 허용
-- [x] 외부 API(구글) 키는 Supabase Edge Function의 secret으로만 저장, 클라이언트에 노출되지 않음 — 단 Flask가 아니라 Edge Function으로 구현됨(9절 참고). 네이버 API는 아직 연동 전이라 해당 없음
+- [x] 외부 API(구글·네이버) 키는 Supabase Edge Function의 secret으로만 저장, 클라이언트에 노출되지 않음 — 단 Flask가 아니라 Edge Function으로 구현됨(9절 참고). 네이버는 `NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET` secret으로 등록됨
 
 ---
 
