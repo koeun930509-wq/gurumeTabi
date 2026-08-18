@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
-import { IconArrowLeft, IconCake, IconPhone, IconPin, IconStar } from "../components/icons";
+import { IconArrowLeft, IconCake, IconClock, IconExternalLink, IconPhone, IconPin, IconStar, IconWallet } from "../components/icons";
 import { fetchBackupPlan, fetchNearbyDessert, fetchRestaurantById } from "../lib/restaurants";
 import { useAuth } from "../context/AuthContext";
 
@@ -154,6 +154,41 @@ export default function RestaurantDetailPage() {
                   <IconPhone className="w-4 h-4 flex-none" />
                   {restaurant.phone}
                 </div>
+                {/* 핫페퍼 그루메 API 보강 데이터(2026-08-18) — 위경도 거리 매칭이라 전체 가게 중 약 80%만
+                    채워져 있으므로 값이 있을 때만 조건부 렌더링. 영업시간·예산 등은 원문(일본어)이 자유
+                    텍스트라 별도 가공 없이 그대로 노출함. */}
+                {restaurant.businessHours && (
+                  <div className="text-sm text-gray-600 inline-flex items-start gap-1.5">
+                    <IconClock className="w-4 h-4 flex-none mt-0.5" />
+                    <span>
+                      {restaurant.businessHours}
+                      {restaurant.regularHoliday && restaurant.regularHoliday !== "なし" && (
+                        <span className="text-gray-400"> · 정휴일 {restaurant.regularHoliday}</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+                {(restaurant.budgetDinner || restaurant.budgetLunch) && (
+                  <div className="text-sm text-gray-600 inline-flex items-start gap-1.5">
+                    <IconWallet className="w-4 h-4 flex-none mt-0.5" />
+                    <span>
+                      {restaurant.budgetDinner && <>디너 {restaurant.budgetDinner}</>}
+                      {restaurant.budgetDinner && restaurant.budgetLunch && " · "}
+                      {restaurant.budgetLunch && <>런치 {restaurant.budgetLunch}</>}
+                    </span>
+                  </div>
+                )}
+                {restaurant.hotpepperUrl && (
+                  <a
+                    href={restaurant.hotpepperUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-brand-navy inline-flex items-center gap-1.5 hover:underline w-fit"
+                  >
+                    <IconExternalLink className="w-4 h-4 flex-none" />
+                    핫페퍼 그루메에서 보기
+                  </a>
+                )}
               </div>
 
               <iframe

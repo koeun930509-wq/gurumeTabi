@@ -235,3 +235,32 @@ export function IconCake(props) {
     </svg>
   )
 }
+
+export function IconClock(props) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 3" />
+    </svg>
+  )
+}
+
+export function IconWallet(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v2" />
+      <path d="M3 7v10a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-4" />
+      <path d="M16 12h4a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a2 2 0 0 1 0-4Z" />
+    </svg>
+  )
+}
+
+export function IconExternalLink(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+    </svg>
+  )
+}
