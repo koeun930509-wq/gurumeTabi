@@ -220,6 +220,8 @@ Google Places API는 리뷰어 국적/언어 데이터를 제공하지 않아 �
 ### 10.3 실시간 근처 백업 플랜 추천
 ✅ **구현 완료** — `fetchBackupPlan`(`src/lib/restaurants.js`)이 같은 지역 + 같은 음식종류 후보 중 위경도 기준 하버사인 거리로 가장 가까운 곳을 실제로 추천함(실시간 위치가 아니라 원래 가게의 좌표 기준). 각 매장의 실시간 영업상태는 Google Places의 `businessStatus`(OPERATIONAL/CLOSED_TEMPORARILY/CLOSED_PERMANENTLY)를 그대로 반영하며, 수집 시점 스냅샷이라 실시간은 아님(재수집 주기에 의존).
 
+같은 방식으로 2026-08-18에 **"근처 디저트 맛집"** 기능도 추가됨 — `fetchNearbyDessert`가 음식종류 조건 없이 같은 지역의 `category='디저트'` 후보 중 가장 가까운 곳을 추천. 이 기능을 위해 디저트 카테고리 데이터를 14개 지역 전체에 신규 수집(224곳, 네이버 리뷰 포함).
+
 ### 10.4 역까지 도보 거리
 PRD 원안에는 없었으나 실제 구현에서 추가된 기능. `fill-walk-minutes` Edge Function이 Places Nearby Search로 가게 좌표 기준 가장 가까운 기차역을 찾아 직선거리를 도보 분으로 환산(`walk_minutes`)하고 역 이름(`nearest_station`)도 저장함. 오키나와는 본토와 철도로 연결되지 않아 이 필드를 항상 비워둠(관광객 대부분 렌터카 이동).
 

@@ -83,3 +83,25 @@ export async function fetchBackupPlan(restaurant) {
     .sort((a, b) => a.distance - b.distance)[0]
   return nearest ? toViewModel(nearest.row) : null
 }
+
+// "근처 디저트 맛집" — 백업 플랜과 같은 방식이지만 음식종류 조건 없이 같은 지역의 '디저트' 카테고리 가게 중
+// 실제 거리(위경도 기준)가 가장 가까운 곳을 추천한다. 식사 후 들를 디저트 가게를 찾는 용도라 카테고리는 고정.
+export async function fetchNearbyDessert(restaurant) {
+  const { id, region, lat, lng } = restaurant
+  const { data, error } = await supabase
+    .from('restaurants')
+    .select('*')
+    .neq('id', id)
+    .eq('status', 'open')
+    .eq('region', region)
+    .eq('category', '디저트')
+    .not('lat', 'is', null)
+    .not('lng', 'is', null)
+  if (error) throw error
+  if (!data || data.length === 0) return null
+
+  const nearest = data
+    .map((row) => ({ row, distance: haversineMeters(lat, lng, row.lat, row.lng) }))
+    .sort((a, b) => a.distance - b.distance)[0]
+  return nearest ? toViewModel(nearest.row) : null
+}

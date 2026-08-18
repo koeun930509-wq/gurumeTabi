@@ -219,3 +219,19 @@ export function IconList(props) {
     </svg>
   )
 }
+
+export function IconCake(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+      <path d="M4 16s.5-1 2-1 2.5 1.5 4 1.5S12.5 15 14 15s2.5 1.5 4 1.5S20 16 20 16" />
+      <path d="M2 21h20" />
+      <path d="M7 8v3" />
+      <path d="M12 8v3" />
+      <path d="M17 8v3" />
+      <path d="M7 4v1" />
+      <path d="M12 3.5v1.5" />
+      <path d="M17 4v1" />
+    </svg>
+  )
+}

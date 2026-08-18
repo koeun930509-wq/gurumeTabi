@@ -115,7 +115,7 @@ export default function SearchResultGridCard({ restaurant }) {
                 src={src}
                 alt={restaurant.name}
                 loading="lazy"
-                className="w-full h-full flex-none object-cover group-hover:scale-110 transition-transform duration-300 ease-out"
+                className="w-full h-full flex-none object-cover"
                 onError={(e) => {
                   // 대표 사진(첫 장)이 아예 못 뜨면 필름스트립 전체를 숨기고 placeholder("사진 준비중")를
                   // 보여준다. 나머지 장이 실패하는 경우는 흔치 않고 스와이프해서 넘어갈 때 빈 프레임만

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
-import { IconArrowLeft, IconPhone, IconPin, IconStar } from "../components/icons";
-import { fetchBackupPlan, fetchRestaurantById } from "../lib/restaurants";
+import { IconArrowLeft, IconCake, IconPhone, IconPin, IconStar } from "../components/icons";
+import { fetchBackupPlan, fetchNearbyDessert, fetchRestaurantById } from "../lib/restaurants";
 import { useAuth } from "../context/AuthContext";
 
 function googleMapEmbedSrc(lat, lng, zoom = 16) {
@@ -23,16 +23,27 @@ export default function RestaurantDetailPage() {
   const { user, scrapIds, toggleScrap } = useAuth();
   const [restaurant, setRestaurant] = useState(null);
   const [backup, setBackup] = useState(null);
+  const [nearbyDessert, setNearbyDessert] = useState(null);
+  const [dessertChecked, setDessertChecked] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setDessertChecked(false);
     fetchRestaurantById(id)
       .then((data) => {
         if (cancelled) return;
         setRestaurant(data);
-        if (data) return fetchBackupPlan(data).then((b) => !cancelled && setBackup(b));
+        if (!data) return;
+        fetchBackupPlan(data).then((b) => !cancelled && setBackup(b));
+        if (data.category !== "디저트") {
+          fetchNearbyDessert(data).then((d) => {
+            if (cancelled) return;
+            setNearbyDessert(d);
+            setDessertChecked(true);
+          });
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -111,7 +122,7 @@ export default function RestaurantDetailPage() {
         <div className="relative z-10 -mt-3 md:mx-6 bg-white rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-4 md:p-6 flex flex-col gap-5">
           {/* 제목 영역 */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-bold text-2xl">{restaurant.name}</span>
+            <span className="font-bold text-xl">{restaurant.name}</span>
             <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-coral bg-brand-coral/10 px-2.5 py-1 rounded-full">
               <IconStar className="w-3.5 h-3.5" />
               {restaurant.rating}
@@ -152,13 +163,32 @@ export default function RestaurantDetailPage() {
                 src={googleMapEmbedSrc(restaurant.lat, restaurant.lng)}
               />
 
-              <button
-                onClick={handleSaveClick}
-                className="w-full inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl py-3.5 shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all cursor-pointer"
-              >
-                <IconStar className="w-4 h-4" />
-                {isSaved ? "저장됨" : "이 가게 저장하기"}
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSaveClick}
+                  className="flex-1 inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl py-3.5 shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all cursor-pointer"
+                >
+                  <IconStar className="w-4 h-4" />
+                  {isSaved ? "저장됨" : "이 가게 저장하기"}
+                </button>
+
+                {restaurant.category !== "디저트" &&
+                  (nearbyDessert ? (
+                    <button
+                      onClick={() => navigate(`/place/${nearbyDessert.id}`)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-b from-brand-pink to-brand-pink-dark rounded-xl py-3.5 shadow-[0_6px_16px_-4px_rgba(238,113,145,0.5)] hover:brightness-105 transition-all cursor-pointer"
+                    >
+                      <IconCake className="w-4 h-4" />
+                      근처 디저트 맛집
+                    </button>
+                  ) : (
+                    dessertChecked && (
+                      <div className="flex-1 inline-flex items-center justify-center text-sm text-gray-400 border border-gray-200 rounded-xl py-3.5">
+                        근처 디저트 없음
+                      </div>
+                    )
+                  ))}
+              </div>
 
               <div className="flex gap-3">
                 <a
