@@ -90,7 +90,7 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example@email.com"
-              className="w-full bg-white/80 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
+              className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
             />
           </div>
 
@@ -102,7 +102,7 @@ export default function SignUpPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="6자 이상"
-              className="w-full bg-white/80 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
+              className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
             />
           </div>
 
@@ -114,7 +114,7 @@ export default function SignUpPage() {
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
               placeholder="비밀번호 확인"
-              className="w-full bg-white/80 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
+              className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
             />
           </div>
 

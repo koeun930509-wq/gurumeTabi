@@ -53,8 +53,7 @@ export default function LoginPage() {
         <Link to="/" className="mb-1">
           <img src="/logo.png" alt="Gurume Tabi" className="h-12 w-auto" />
         </Link>
-        <div className="text-xl font-bold text-gray-900">다시 오셨네요</div>
-        <div className="text-sm text-gray-500 mb-2">계속하려면 로그인해주세요</div>
+        <div className="text-xl font-bold text-gray-900 mb-2">Welcome!</div>
 
         <label className="text-[11px] font-bold tracking-wide text-gray-500">이메일</label>
         <div className="relative">
@@ -64,7 +63,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@email.com"
-            className="w-full bg-white/80 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
+            className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
           />
         </div>
 
@@ -76,7 +75,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호"
-            className="w-full bg-white/80 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
+            className="w-full bg-white/80 border border-gray-200 rounded-lg pl-10 pr-3 py-2.5 text-base outline-none focus:bg-white focus:border-transparent focus:shadow-[0_0_0_2px_rgba(168,85,247,0.4)] transition-all"
           />
         </div>
 
