@@ -38,7 +38,7 @@ export default function HomePage() {
       <section className="flex-1 flex flex-col items-center justify-center text-center px-6 min-h-0 gap-5">
         <div className="flex flex-col items-center gap-5 w-full -mt-[60px]">
           <div className="flex flex-col items-center gap-2">
-            <h1 className="font-jua text-4xl sm:text-5xl md:text-6xl text-white leading-tight">
+            <h1 className="font-jua text-5xl sm:text-5xl md:text-6xl text-white leading-tight">
               광고 없는 <span className="text-brand-coral">찐맛집,</span>
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-white">
@@ -76,7 +76,7 @@ export default function HomePage() {
           </form>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5 leading-none sm:leading-normal">
           {POPULAR.map((tag) => (
             <button
               key={tag}

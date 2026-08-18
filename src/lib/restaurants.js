@@ -31,6 +31,8 @@ function toViewModel(row) {
       author: rv.author,
       rating: rv.rating,
       snippet: rv.snippet,
+      tasteSnippet: rv.taste_snippet,
+      link: rv.link,
       isAdFiltered: rv.is_ad_filtered,
     })),
   }

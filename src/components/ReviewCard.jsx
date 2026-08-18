@@ -72,11 +72,14 @@ export default function ReviewCard({ review, googlePlaceId }) {
   const googleReviewsUrl = googlePlaceId
     ? `https://www.google.com/maps/place/?q=place_id:${googlePlaceId}&query_place_id=${googlePlaceId}`
     : null
-  const isClickable = !isNaver && Boolean(googleReviewsUrl)
+  // 네이버 블로그 리뷰는 검색 API가 개별 글 URL(item.link)을 그대로 줘서 원문으로 바로 이동 가능 — 2026-08-18 이전에
+  // 수집된 리뷰는 link 컬럼이 비어있을 수 있어(백필 전) 그 경우에만 클릭 비활성화로 폴백.
+  const targetUrl = isNaver ? review.link : googleReviewsUrl
+  const isClickable = Boolean(targetUrl)
 
   const Wrapper = isClickable ? 'a' : 'div'
   const wrapperProps = isClickable
-    ? { href: googleReviewsUrl, target: '_blank', rel: 'noopener noreferrer' }
+    ? { href: targetUrl, target: '_blank', rel: 'noopener noreferrer' }
     : {}
 
   return (
