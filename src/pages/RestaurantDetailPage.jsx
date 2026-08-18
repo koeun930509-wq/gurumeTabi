@@ -24,7 +24,7 @@ function shuffle(arr) {
   const result = [...arr];
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    ;[result[i], result[j]] = [result[j], result[i]];
+    [result[i], result[j]] = [result[j], result[i]];
   }
   return result;
 }
@@ -138,7 +138,7 @@ export default function RestaurantDetailPage() {
         <div className="relative z-10 -mt-3 md:mx-6 bg-white rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-4 md:p-6 flex flex-col gap-5">
           {/* 제목 영역 */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-bold text-xl">{restaurant.name}</span>
+            <span className="font-bold text-lg leading-tight">{restaurant.name}</span>
             <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-coral bg-brand-coral/10 px-2.5 py-1 rounded-full">
               <IconStar className="w-3.5 h-3.5" />
               {restaurant.rating}

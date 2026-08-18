@@ -43,10 +43,26 @@ function toViewModel(row) {
   }
 }
 
+// PostgREST(Supabase)는 명시적으로 range를 안 주면 기본 1000행까지만 반환한다 — restaurants가
+// 1000행을 넘어선 뒤로 검색 결과가 뒷부분 지역/카테고리를 통째로 빠뜨리는 버그가 있었음
+// (예: "오사카" 검색이 187곳 중 149곳만 나옴 — 나머지 38곳이 1000행 밖에 있었음). 1000행씩
+// 페이지네이션해서 전체를 모아온다.
 export async function fetchRestaurants() {
-  const { data, error } = await supabase.from('restaurants').select('*')
-  if (error) throw error
-  return data.map(toViewModel)
+  const pageSize = 1000
+  let from = 0
+  const all = []
+  while (true) {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*')
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    all.push(...data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+  return all.map(toViewModel)
 }
 
 export async function fetchRestaurantById(id) {

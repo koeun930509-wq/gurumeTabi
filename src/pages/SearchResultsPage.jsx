@@ -259,7 +259,6 @@ export default function SearchResultsPage() {
 
   const cappedResults = matchedResults.slice(0, MAX_RESULTS);
   const results = cappedResults.slice(0, visibleCount);
-  const hiddenCount = matchedResults.length - cappedResults.length;
   const hasMore = visibleCount < cappedResults.length;
 
   // 헤더에 보여줄 텍스트 — 검색창에 입력한 검색어에 필터로 고른 음식종류를 이어붙인다.
@@ -417,8 +416,14 @@ export default function SearchResultsPage() {
                 </h1>
                 {q && results.length > 0 && (
                   <div className="text-sm text-white">
-                    {hiddenCount > 0 ? `${matchedResults.length}곳 중 상위 ${results.length}곳` : `${results.length}곳`} · 광고 의심 리뷰 엄격 제외
-                    적용
+                    {/* cappedResults.length(=최대 MAX_RESULTS건까지의 전체 매칭 수)와 results.length(=현재
+                        "더보기"로 펼쳐진 수)를 비교해야 함 — hiddenCount(매칭이 100건을 초과한 나머지)로
+                        비교하면 매칭이 9~100건인 흔한 케이스에서 "더보기" 버튼이 있는데도 그냥 "8곳"이라고만
+                        표시되어 실제 매칭 수를 사용자가 알 수 없는 버그가 있었음. */}
+                    {results.length < cappedResults.length
+                      ? `${cappedResults.length}곳 중 상위 ${results.length}곳`
+                      : `${results.length}곳`}{" "}
+                    · 광고 의심 리뷰 엄격 제외 적용
                   </div>
                 )}
               </div>
