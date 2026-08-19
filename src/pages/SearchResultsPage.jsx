@@ -610,7 +610,7 @@ export default function SearchResultsPage() {
                 조건에 맞는 맛집이 없어요 — 필터를 다시 설정해보세요.
               </div>
             ) : (
-              <div className="relative">
+              <>
                 {viewMode === "list" ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
                     {results.map((r) => (
@@ -624,25 +624,16 @@ export default function SearchResultsPage() {
                     ))}
                   </div>
                 )}
-
-                {hasMore && (
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
-                    className="hidden xl:flex items-center gap-1.5 absolute left-1/2 -translate-x-1/2 bottom-0 z-10 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.2)] cursor-pointer transition-colors whitespace-nowrap"
-                  >
-                    더 많은 "{headerText}" 맛집 보기
-                    <IconChevronDown className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+              </>
             )}
 
-            {q && hasMore && (
+            {/* 그리드 경계에 걸치는 절대위치 대신, 결과 개수와 무관하게 항상 Footer 바로 위(16px)에 오도록
+                일반 흐름(mt-auto가 아니라 뒤이은 Footer의 mt-auto가 이 버튼까지 밀어 붙임)에 배치한다. */}
+            {hasMore && (
               <button
                 type="button"
                 onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
-                className="xl:hidden self-center flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 mt-2 shadow-[0_4px_12px_rgba(0,0,0,0.2)] cursor-pointer transition-colors"
+                className="self-center flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.2)] cursor-pointer transition-colors whitespace-nowrap"
               >
                 더 많은 "{headerText}" 맛집 보기
                 <IconChevronDown className="w-4 h-4" />
