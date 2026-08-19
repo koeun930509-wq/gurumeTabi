@@ -6,7 +6,7 @@ import SearchResultCard from "../components/SearchResultCard";
 import SearchResultGridCard from "../components/SearchResultGridCard";
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose } from "../components/icons";
 import { fetchRestaurants } from "../lib/restaurants";
-import { FOOD_TYPES, normalizeJapaneseTranscription } from "../utils/searchTerms";
+import { FOOD_TYPES, normalizeJapaneseTranscription, resolveSearchSynonym } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
 import { useAuth } from "../context/AuthContext";
@@ -75,7 +75,6 @@ function filterStateToSearchParamEntries(filterState) {
   return entries;
 }
 
-const MAX_RESULTS = 100;
 const RESULTS_PAGE_SIZE = 8;
 
 const SORT_OPTIONS = [
@@ -137,6 +136,18 @@ export default function SearchResultsPage() {
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(RESULTS_PAGE_SIZE);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const resultsScrollRef = useRef(null);
+
+  // 위로 스크롤해둔 상태에서 "더보기"를 눌러도 새로 추가된 카드가 바로 보이도록, 클릭 시점 기준
+  // 한 화면 높이만큼 아래로 스크롤한다(정확히 새 카드 위치를 계산하는 대신, sticky 버튼 근처로
+  // 옮겨주는 정도로 충분 — 버튼 자체가 sticky라 스크롤 후에도 계속 같은 자리에 남아있음).
+  function loadMoreResults() {
+    setVisibleCount((v) => v + RESULTS_PAGE_SIZE);
+    const el = resultsScrollRef.current;
+    if (el) {
+      el.scrollBy({ top: el.clientHeight * 0.8, behavior: "smooth" });
+    }
+  }
 
   function setSortBy(key) {
     setSortByState(key);
@@ -233,7 +244,16 @@ export default function SearchResultsPage() {
     return count;
   }, [applied]);
 
-  const matchTokens = useMemo(() => q.split(/\s+/).filter(Boolean), [q]);
+  // "맛집"은 지역/음식명 뒤에 붙는 수식어일 뿐 실제 데이터(가게명/카테고리/지역/주소)에는 나타나지 않으므로
+  // 매칭 토큰에서 제외한다 — 안 그러면 "도쿄 맛집"처럼 검색했을 때 "맛집" 토큰이 매칭 실패해 0건이 됨.
+  const matchTokens = useMemo(
+    () =>
+      q
+        .split(/\s+/)
+        .filter((token) => token && token !== "맛집")
+        .map(resolveSearchSynonym),
+    [q]
+  );
 
   const matchedResults = useMemo(() => {
     return restaurants
@@ -266,9 +286,8 @@ export default function SearchResultsPage() {
       .sort(SORT_OPTIONS.find((o) => o.key === sortBy).sorter);
   }, [restaurants, applied, matchTokens, sortBy]);
 
-  const cappedResults = matchedResults.slice(0, MAX_RESULTS);
-  const results = cappedResults.slice(0, visibleCount);
-  const hasMore = visibleCount < cappedResults.length;
+  const results = matchedResults.slice(0, visibleCount);
+  const hasMore = visibleCount < matchedResults.length;
 
   // 헤더에 보여줄 텍스트 — 검색창에 입력한 검색어에 필터로 고른 음식종류를 이어붙인다.
   // 검색어에 이미 같은 단어가 들어있으면 중복으로 안 붙임.
@@ -296,7 +315,7 @@ export default function SearchResultsPage() {
             바보다 낮게 배치되는 문제가 있었음(env(safe-area-inset-bottom)도 이런 웹뷰에서는 0으로 무효화됨) —
             inset-4 대신 개별 방향 지정으로 최하단에 물리적 여유 공간을 고정 확보함. */}
         <aside
-          className={`bg-white rounded-2xl overflow-hidden flex-col md:h-full md:p-5 md:gap-4 md:flex ${
+          className={`bg-white rounded-2xl overflow-hidden flex-col md:h-full md:p-5 md:gap-1 md:flex ${
             mobileFilterOpen ? "fixed top-4 left-4 right-4 bottom-8 z-30 flex" : "hidden"
           }`}
         >
@@ -410,7 +429,7 @@ export default function SearchResultsPage() {
           <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
         )}
 
-        <div className="h-full overflow-y-scroll pretty-scroll md:pr-4">
+        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4">
           <div className="min-h-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
               <div className="flex items-baseline gap-2 flex-wrap">
@@ -425,12 +444,8 @@ export default function SearchResultsPage() {
                 </h1>
                 {q && results.length > 0 && (
                   <div className="text-sm text-white">
-                    {/* cappedResults.length(=최대 MAX_RESULTS건까지의 전체 매칭 수)와 results.length(=현재
-                        "더보기"로 펼쳐진 수)를 비교해야 함 — hiddenCount(매칭이 100건을 초과한 나머지)로
-                        비교하면 매칭이 9~100건인 흔한 케이스에서 "더보기" 버튼이 있는데도 그냥 "8곳"이라고만
-                        표시되어 실제 매칭 수를 사용자가 알 수 없는 버그가 있었음. */}
-                    {results.length < cappedResults.length
-                      ? `${cappedResults.length}곳 중 상위 ${results.length}곳`
+                    {results.length < matchedResults.length
+                      ? `${matchedResults.length}곳 중 상위 ${results.length}곳`
                       : `${results.length}곳`}{" "}
                     · 광고 의심 리뷰 엄격 제외 적용
                   </div>
@@ -606,8 +621,13 @@ export default function SearchResultsPage() {
                 <span className="text-lg text-brand-navy/30">맛집을 불러오는 중이에요...</span>
               </div>
             ) : results.length === 0 ? (
-              <div className="flex-1 min-h-0 text-base text-gray-400 bg-white rounded-2xl p-6 flex items-center justify-center text-center">
-                조건에 맞는 맛집이 없어요 — 필터를 다시 설정해보세요.
+              <div className="flex-1 min-h-0 text-base text-gray-400 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3">
+                <span className="text-5xl">🥲</span>
+                <span>
+                  조건에 맞는 맛집이 없어요.
+                  <br />
+                  필터를 다시 설정해보세요.
+                </span>
               </div>
             ) : (
               <>
@@ -638,7 +658,7 @@ export default function SearchResultsPage() {
               >
                 <button
                   type="button"
-                  onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
+                  onClick={loadMoreResults}
                   className="pointer-events-auto flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.25)] cursor-pointer transition-colors whitespace-nowrap"
                 >
                   더 많은 "{headerText}" 맛집 보기
