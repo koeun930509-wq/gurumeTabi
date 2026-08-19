@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { resolveStatusKey } from '../utils/businessHours'
 import { IconPhone, IconPin, IconStar } from './icons'
 
 const AREA_KEYWORDS = ['도톤보리', '난바', '신사이바시', '우메다']
@@ -7,12 +8,14 @@ const AREA_KEYWORDS = ['도톤보리', '난바', '신사이바시', '우메다']
 const STATUS_NOTE = {
   open: '영업 중',
   closed: '휴무일 가능 · 확인 필요',
+  closed_now: '영업시간 종료',
   soldout: '재료 소진 · 확인 필요',
 }
 
 const STATUS_CHIP_STYLE = {
   open: 'text-status-open bg-status-open/10',
   closed: 'text-status-closed bg-status-closed/10',
+  closed_now: 'text-status-closed bg-status-closed/10',
   soldout: 'text-status-soldout bg-status-soldout/10',
 }
 
@@ -105,10 +108,10 @@ export default function SearchResultCard({ restaurant }) {
           </span>
           <span
             className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${
-              STATUS_CHIP_STYLE[restaurant.status] ?? 'text-gray-500 bg-gray-100'
+              STATUS_CHIP_STYLE[resolveStatusKey(restaurant)] ?? 'text-gray-500 bg-gray-100'
             }`}
           >
-            {STATUS_NOTE[restaurant.status] ?? '영업시간 확인 필요'}
+            {STATUS_NOTE[resolveStatusKey(restaurant)] ?? '영업시간 확인 필요'}
           </span>
         </div>
       </div>

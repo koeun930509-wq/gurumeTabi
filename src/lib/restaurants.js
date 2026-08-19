@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { isOpenNow } from '../utils/businessHours'
 
 // restaurants 테이블(snake_case) → 프론트 컴포넌트가 기대하는 mock 데이터 shape(camelCase)로 변환.
 // localRatio/hasRudeReview/acceptsCard/walkMinutes/acceptsReservation은 Google Places로 채울 수 없는 필드라
@@ -22,6 +23,10 @@ function toViewModel(row) {
     localRatio: row.local_ratio ?? 0,
     hasRudeReview: row.has_rude_review ?? false,
     status: row.status ?? 'open',
+    openingHours: row.opening_hours ?? null,
+    // Google businessStatus(폐업 여부, row.status)와 별개로 지금 이 순간 영업 중인지를 opening_hours로 계산한다.
+    // 값이 null이면 아직 opening_hours를 못 채운 가게(재수집 전)라 뱃지 표시 여부는 UI에서 status로 폴백한다.
+    isOpenNow: row.status === 'closed' ? false : isOpenNow(row.opening_hours),
     acceptsCard: row.accepts_card ?? false,
     walkMinutes: row.walk_minutes ?? null,
     nearestStation: row.nearest_station ?? null,

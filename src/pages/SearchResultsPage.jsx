@@ -7,6 +7,7 @@ import SearchResultGridCard from "../components/SearchResultGridCard";
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose } from "../components/icons";
 import { fetchRestaurants } from "../lib/restaurants";
 import { FOOD_TYPES, normalizeJapaneseTranscription } from "../utils/searchTerms";
+import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
 
 const RATING_OPTIONS = [
@@ -77,9 +78,9 @@ const MAX_RESULTS = 100;
 const RESULTS_PAGE_SIZE = 8;
 
 const SORT_OPTIONS = [
+  { key: "reviews", label: "리뷰 많은 순", sorter: (a, b) => b.reviewCount - a.reviewCount },
   { key: "rating", label: "평점 높은 순", sorter: (a, b) => b.rating - a.rating },
   { key: "local", label: "현지인 비율 높은 순", sorter: (a, b) => b.localRatio - a.localRatio },
-  { key: "reviews", label: "리뷰 많은 순", sorter: (a, b) => b.reviewCount - a.reviewCount },
 ];
 
 function FilterSegmentGroup({ title, options, value, onChange }) {
@@ -120,7 +121,7 @@ export default function SearchResultsPage() {
   const [applied, setApplied] = useState(initialFilterState);
   // 정렬·뷰모드도 필터와 같은 이유로 URL에 반영 — 상세 페이지 왕복 후 재마운트돼도 유지되도록 함
   // (예: "리뷰 많은 순"으로 정렬 후 상세 진입 → 뒤로가기 시 "평점 높은 순"으로 리셋되던 버그).
-  const [sortBy, setSortByState] = useState(() => searchParams.get("sort") ?? "rating");
+  const [sortBy, setSortByState] = useState(() => searchParams.get("sort") ?? "reviews");
   const [viewMode, setViewModeState] = useState(() => searchParams.get("view") ?? "grid");
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const sortMenuRef = useRef(null);
@@ -132,7 +133,7 @@ export default function SearchResultsPage() {
   function setSortBy(key) {
     setSortByState(key);
     const next = new URLSearchParams(searchParams);
-    if (key === "rating") next.delete("sort");
+    if (key === "reviews") next.delete("sort");
     else next.set("sort", key);
     setSearchParams(next, { replace: true });
   }
@@ -245,8 +246,8 @@ export default function SearchResultsPage() {
         if (r.hasRudeReview) return false;
         if (r.rating < applied.ratingMin) return false;
         if (r.localRatio < applied.localMin) return false;
-        if (applied.openStatus === "open" && r.status !== "open") return false;
-        if (applied.openStatus === "closed" && r.status === "open") return false;
+        if (applied.openStatus === "open" && resolveStatusKey(r) !== "open") return false;
+        if (applied.openStatus === "closed" && resolveStatusKey(r) === "open") return false;
         if (applied.card && !r.acceptsCard) return false;
         // TODO(역 도보거리): walkMinutes는 아직 수집 전이라 전부 null — sync-restaurants에 가까운 역 검색+거리 계산이 붙기 전까지는 이 필터가 항상 통과됨
         if (applied.walk10 && r.walkMinutes != null && r.walkMinutes > 10) return false;

@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
 import { IconArrowLeft, IconCake, IconClock, IconExternalLink, IconPhone, IconPin, IconStar, IconWallet } from "../components/icons";
 import { fetchBackupPlan, fetchNearbyDessert, fetchRestaurantById } from "../lib/restaurants";
+import { resolveStatusKey } from "../utils/businessHours";
 import { useAuth } from "../context/AuthContext";
 
 function googleMapEmbedSrc(lat, lng, zoom = 16) {
@@ -14,6 +15,7 @@ function googleMapEmbedSrc(lat, lng, zoom = 16) {
 const STATUS_PILL = {
   open: { label: "영업중", className: "text-status-open bg-status-open/10" },
   closed: { label: "휴무", className: "text-status-closed bg-status-closed/10" },
+  closed_now: { label: "영업종료", className: "text-status-closed bg-status-closed/10" },
   soldout: { label: "재료소진", className: "text-status-soldout bg-status-soldout/10" },
 };
 
@@ -148,10 +150,10 @@ export default function RestaurantDetailPage() {
             </span>
             <span
               className={`inline-flex items-center gap-1 text-sm px-2.5 py-1 rounded-full ${
-                (STATUS_PILL[restaurant.status] ?? STATUS_PILL.open).className
+                (STATUS_PILL[resolveStatusKey(restaurant)] ?? STATUS_PILL.open).className
               }`}
             >
-              {(STATUS_PILL[restaurant.status] ?? STATUS_PILL.open).label}
+              {(STATUS_PILL[resolveStatusKey(restaurant)] ?? STATUS_PILL.open).label}
             </span>
             <span className="text-sm text-gray-400">
               {restaurant.category} · 리뷰 {restaurant.reviewCount}개

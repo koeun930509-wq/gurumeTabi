@@ -1,17 +1,20 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { resolveStatusKey } from '../utils/businessHours'
 import { IconStar, IconChevronRight } from './icons'
 
 const STATUS_LABEL = {
   open: '영업중',
   closed: '휴무',
+  closed_now: '영업종료',
   soldout: '재료소진',
 }
 
 const STATUS_CHIP_STYLE = {
   open: 'text-status-open',
   closed: 'text-status-closed',
+  closed_now: 'text-status-closed',
   soldout: 'text-status-soldout',
 }
 
@@ -175,10 +178,10 @@ export default function SearchResultGridCard({ restaurant }) {
           </span>
           <span
             className={`inline-flex items-center h-[22px] leading-none text-[11px] font-bold bg-white/90 px-2 rounded-full ${
-              STATUS_CHIP_STYLE[restaurant.status] ?? 'text-gray-700'
+              STATUS_CHIP_STYLE[resolveStatusKey(restaurant)] ?? 'text-gray-700'
             }`}
           >
-            {STATUS_LABEL[restaurant.status] ?? '영업중'}
+            {STATUS_LABEL[resolveStatusKey(restaurant)] ?? '영업중'}
           </span>
         </div>
 
