@@ -280,6 +280,18 @@ export function IconEye(props) {
   )
 }
 
+export function IconShare(props) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="M8.6 10.5 15.4 6.5" />
+      <path d="M8.6 13.5 15.4 17.5" />
+    </svg>
+  )
+}
+
 export function IconEyeOff(props) {
   return (
     <svg {...base(props)}>

@@ -10,6 +10,7 @@ import {
   IconExternalLink,
   IconPhone,
   IconPin,
+  IconShare,
   IconStar,
   IconWallet,
 } from "../components/icons";
@@ -194,6 +195,22 @@ export default function RestaurantDetailPage() {
     toggleScrap(restaurant.id);
   }
 
+  // 모바일 SNS 공유 — navigator.share가 있으면 OS 네이티브 공유 시트(카카오톡/인스타그램 등)를 띄우고,
+  // 지원 안 하는 브라우저(대부분 데스크톱)는 URL을 클립보드에 복사하는 것으로 폴백한다.
+  async function handleShareClick() {
+    const shareData = { title: restaurant.name, text: restaurant.tagline, url: window.location.href };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // 사용자가 공유 시트를 취소한 경우 — 별도 처리 불필요
+      }
+      return;
+    }
+    await navigator.clipboard.writeText(window.location.href);
+    alert("링크가 복사되었어요.");
+  }
+
   return (
     <div className="min-h-full flex flex-col">
       <Header active="search" />
@@ -223,12 +240,21 @@ export default function RestaurantDetailPage() {
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <h1 className="text-[#fff] font-bold text-2xl md:text-3xl text-center px-6">{restaurant.name}</h1>
         </div>
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute top-4 left-6 inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
-        >
-          <IconArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-        </button>
+        <div className="absolute top-4 inset-x-6 flex items-center justify-between">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
+          >
+            <IconArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+          </button>
+          <button
+            onClick={handleShareClick}
+            aria-label="공유하기"
+            className="inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
+          >
+            <IconShare className="w-4 h-4 md:w-5 md:h-5" />
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col px-3 md:px-0">
