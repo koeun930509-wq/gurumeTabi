@@ -8,6 +8,7 @@ import {
   IconChevronRight,
   IconClock,
   IconExternalLink,
+  IconLink,
   IconPhone,
   IconPin,
   IconShare,
@@ -195,18 +196,18 @@ export default function RestaurantDetailPage() {
     toggleScrap(restaurant.id);
   }
 
-  // 모바일 SNS 공유 — navigator.share가 있으면 OS 네이티브 공유 시트(카카오톡/인스타그램 등)를 띄우고,
-  // 지원 안 하는 브라우저(대부분 데스크톱)는 URL을 클립보드에 복사하는 것으로 폴백한다.
+  // 모바일 전용 SNS 공유 — OS 네이티브 공유 시트(카카오톡/인스타그램 등)를 띄운다.
+  // PC는 공유 시트가 없는 대신 별도 "주소 복사" 버튼(handleCopyLinkClick)을 쓴다.
   async function handleShareClick() {
     const shareData = { title: restaurant.name, text: restaurant.tagline, url: window.location.href };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        // 사용자가 공유 시트를 취소한 경우 — 별도 처리 불필요
-      }
-      return;
+    try {
+      await navigator.share(shareData);
+    } catch {
+      // 사용자가 공유 시트를 취소한 경우 — 별도 처리 불필요
     }
+  }
+
+  async function handleCopyLinkClick() {
     await navigator.clipboard.writeText(window.location.href);
     alert("링크가 복사되었어요.");
   }
@@ -221,7 +222,7 @@ export default function RestaurantDetailPage() {
           <img
             src={restaurant.image}
             alt={restaurant.name}
-            className="w-full aspect-[32/14] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+            className="w-full aspect-[32/14] sm:aspect-[32/5] sm:max-h-[260px] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
             onError={(e) => {
               e.currentTarget.style.display = "none";
               e.currentTarget.nextElementSibling.style.display = "block";
@@ -231,7 +232,7 @@ export default function RestaurantDetailPage() {
         <img
           src="/defaultHero.png"
           alt=""
-          className="w-full aspect-[32/14] sm:aspect-[32/5] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+          className="w-full aspect-[32/14] sm:aspect-[32/5] sm:max-h-[260px] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
           style={{ objectPosition: "center calc(50% - 200px)", ...(restaurant.image ? { display: "none" } : {}) }}
         />
         {restaurant.image && (
@@ -243,16 +244,24 @@ export default function RestaurantDetailPage() {
         <div className="absolute top-4 inset-x-6 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer -translate-x-2 md:translate-x-0 md:translate-y-2"
           >
             <IconArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
           </button>
+          {/* 모바일: OS 네이티브 공유 시트 / PC: 공유 시트가 없으므로 링크 복사 버튼으로 대체 */}
           <button
             onClick={handleShareClick}
             aria-label="공유하기"
-            className="inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer"
+            className="md:hidden inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow-md hover:text-brand-navy transition-colors cursor-pointer translate-x-2"
           >
-            <IconShare className="w-4 h-4 md:w-5 md:h-5" />
+            <IconShare className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleCopyLinkClick}
+            aria-label="주소 복사"
+            className="hidden md:inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer md:translate-y-2"
+          >
+            <IconLink className="md:w-5 md:h-5" />
           </button>
         </div>
       </div>
@@ -294,15 +303,15 @@ export default function RestaurantDetailPage() {
                   <div className="flex flex-col gap-2">
                     <span className="font-bold text-xl leading-tight">{restaurant.name}</span>
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-coral bg-brand-coral/10 px-2.5 py-1 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs text-brand-coral bg-brand-coral/10 px-2.5 py-1 rounded-full">
                         <IconStar className="w-3.5 h-3.5" />
                         {restaurant.rating} ({restaurant.reviewCount})
                       </span>
-                      <span className="inline-flex items-center gap-1 text-sm font-bold text-brand-navy bg-brand-navy/10 px-2.5 py-1 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs text-brand-navy bg-brand-navy/10 px-2.5 py-1 rounded-full">
                         현지인 방문 {restaurant.localRatio}%
                       </span>
                       <span
-                        className={`inline-flex items-center gap-1 text-sm px-2.5 py-1 rounded-full ${
+                        className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full ${
                           (STATUS_PILL[resolveStatusKey(restaurant)] ?? STATUS_PILL.open).className
                         }`}
                       >

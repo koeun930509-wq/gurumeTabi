@@ -111,7 +111,7 @@ export default function Header({ active, showSearch = true }) {
 
       {/* 모바일 — 메뉴 닫혀 있을 때만 아바타 표시(로그아웃은 드롭다운 안으로 이동) */}
       {!menuOpen && (
-        <div className="md:hidden flex items-center">
+        <div className="md:hidden flex items-center translate-x-2">
           <AccountActions showLogout={false} />
         </div>
       )}

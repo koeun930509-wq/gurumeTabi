@@ -292,6 +292,16 @@ export function IconShare(props) {
   )
 }
 
+export function IconLink(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9 15 15 9" />
+      <path d="M10.5 6 12 4.5a4 4 0 0 1 5.7 5.7L16 12" />
+      <path d="M13.5 18 12 19.5a4 4 0 0 1-5.7-5.7L8 12" />
+    </svg>
+  )
+}
+
 export function IconEyeOff(props) {
   return (
     <svg {...base(props)}>

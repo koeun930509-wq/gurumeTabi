@@ -6,7 +6,7 @@ import SearchResultCard from "../components/SearchResultCard";
 import SearchResultGridCard from "../components/SearchResultGridCard";
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose } from "../components/icons";
 import { fetchRestaurants } from "../lib/restaurants";
-import { FOOD_TYPES, normalizeJapaneseTranscription, resolveSearchSynonym } from "../utils/searchTerms";
+import { FOOD_TYPES, IGNORED_SEARCH_TOKENS, normalizeJapaneseTranscription, resolveSearchSynonym } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
 import { useAuth } from "../context/AuthContext";
@@ -244,13 +244,14 @@ export default function SearchResultsPage() {
     return count;
   }, [applied]);
 
-  // "맛집"은 지역/음식명 뒤에 붙는 수식어일 뿐 실제 데이터(가게명/카테고리/지역/주소)에는 나타나지 않으므로
-  // 매칭 토큰에서 제외한다 — 안 그러면 "도쿄 맛집"처럼 검색했을 때 "맛집" 토큰이 매칭 실패해 0건이 됨.
+  // IGNORED_SEARCH_TOKENS(예: "맛집", 라멘 육수 세부 키워드)는 실제 데이터(가게명/카테고리/지역/주소)에
+  // 나타나지 않는 수식어라 매칭 토큰에서 제외한다 — 안 그러면 "도쿄 맛집"·"쇼유 라멘"처럼 검색했을 때 그
+  // 토큰이 매칭 실패해 0건이 됨. 제외 후 "라멘"만 남으면 라멘 카테고리 전체가 결과로 나오는 폴백이 된다.
   const matchTokens = useMemo(
     () =>
       q
         .split(/\s+/)
-        .filter((token) => token && token !== "맛집")
+        .filter((token) => token && !IGNORED_SEARCH_TOKENS.has(token))
         .map(resolveSearchSynonym),
     [q]
   );
