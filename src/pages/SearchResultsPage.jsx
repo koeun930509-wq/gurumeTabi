@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SearchResultCard from "../components/SearchResultCard";
 import SearchResultGridCard from "../components/SearchResultGridCard";
-import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose } from "../components/icons";
+import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose, IconFilter } from "../components/icons";
 import { fetchRestaurants } from "../lib/restaurants";
 import { FOOD_TYPES, IGNORED_SEARCH_TOKENS, normalizeJapaneseTranscription, resolveSearchSynonym } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
@@ -167,6 +167,17 @@ export default function SearchResultsPage() {
 
   useEffect(() => {
     setPendingQ(q);
+  }, [q]);
+
+  // 검색어가 바뀌면(다른 지역/음식 재검색) 이전 검색에 걸어둔 필터가 그대로 남아있던 버그가 있었음 —
+  // 최초 마운트(뒤로가기·새로고침으로 URL에 필터가 이미 담겨 온 경우)는 리셋하면 안 되므로, q의 이전
+  // 값을 ref로 추적해 "진짜로 검색어가 바뀐 경우"에만 필터를 기본값으로 되돌린다.
+  const prevQRef = useRef(q);
+  useEffect(() => {
+    if (prevQRef.current !== q) {
+      prevQRef.current = q;
+      resetFilters();
+    }
   }, [q]);
 
   // 검색어/필터/정렬이 바뀌면 "더 보기"로 늘려둔 개수를 다시 첫 페이지로 되돌린다.
@@ -493,11 +504,12 @@ export default function SearchResultsPage() {
                 <button
                   type="button"
                   onClick={() => setMobileFilterOpen(true)}
-                  className="md:hidden relative flex items-center gap-1.5 h-10 bg-white text-xs font-semibold text-gray-700 rounded-full px-4 cursor-pointer hover:text-brand-navy transition-colors"
+                  aria-label="필터"
+                  className="md:hidden relative flex items-center justify-center w-10 h-10 bg-white text-gray-700 rounded-full cursor-pointer hover:text-brand-navy transition-colors"
                 >
-                  필터
+                  <IconFilter className="w-4 h-4" />
                   {appliedFilterCount > 0 && (
-                    <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-brand-coral text-white text-[10px] font-bold">
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-brand-coral text-white text-[10px] font-bold">
                       {appliedFilterCount}
                     </span>
                   )}

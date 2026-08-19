@@ -70,6 +70,14 @@ export async function fetchRestaurants() {
   return all.map(toViewModel)
 }
 
+// 스크랩 페이지처럼 id 목록이 이미 정해져 있을 때 전체 4천여 건을 다 불러오지 않고 그 id들만 조회한다.
+export async function fetchRestaurantsByIds(ids) {
+  if (!ids || ids.length === 0) return []
+  const { data, error } = await supabase.from('restaurants').select('*').in('id', ids)
+  if (error) throw error
+  return (data ?? []).map(toViewModel)
+}
+
 export async function fetchRestaurantById(id) {
   const { data, error } = await supabase
     .from('restaurants')

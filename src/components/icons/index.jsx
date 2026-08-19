@@ -52,6 +52,14 @@ export function IconUser(props) {
   )
 }
 
+export function IconFilter(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 5h18L14 13v6l-4 2v-8L3 5Z" />
+    </svg>
+  )
+}
+
 export function IconClose(props) {
   return (
     <svg {...base(props)}>

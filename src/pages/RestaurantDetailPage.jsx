@@ -46,7 +46,9 @@ function shuffle(arr) {
 // SearchResultGridCard의 필름스트립 캐러셀과 동일한 방식(엘리먼트를 유지한 채 transform만 애니메이션)을
 // 상세 페이지 크기에 맞게 재사용. 그리드 카드와 동일하게 최대 5장(restaurant.images)까지만 보여준다.
 function PhotoCarousel({ images, name }) {
-  const [photoIndex, setPhotoIndex] = useState(0);
+  // 히어로 배경이 항상 images[0]을 쓰므로, 캐러셀 첫 장이 히어로와 똑같이 보이지 않도록
+  // 사진이 2장 이상이면 두 번째 장부터 시작한다.
+  const [photoIndex, setPhotoIndex] = useState(() => (images.length > 1 ? 1 : 0));
   const touchStartRef = useRef(null);
 
   function showPrevPhoto(e) {
@@ -168,6 +170,30 @@ export default function RestaurantDetailPage() {
   // 항상 나중에 나오던 걸 매번 다른 순서로 보여주기 위함.
   const shuffledReviews = useMemo(() => shuffle(restaurant?.reviews ?? []), [restaurant]);
 
+  // 모바일에서 스크롤하다 리뷰 섹션에 처음 도달하면 그 헤더가 화면 상단에 오도록 한 번 스냅시킨다 —
+  // 리뷰 목록이 화면 전체를 채워 보기 편해짐. 계속 반복 스냅되면 사용자 스크롤을 방해하므로
+  // triggeredRef로 페이지당 1회만 발동시킨다. PC(md 이상)는 사이드 지도와 나란한 레이아웃이라 대상 아님.
+  const reviewHeaderRef = useRef(null);
+  const reviewSnapTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (!restaurant) return;
+    reviewSnapTriggeredRef.current = false;
+    const el = reviewHeaderRef.current;
+    if (!el || window.matchMedia("(min-width: 768px)").matches) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !reviewSnapTriggeredRef.current) {
+          reviewSnapTriggeredRef.current = true;
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      },
+      { threshold: 0.01 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [restaurant]);
+
   if (loading) {
     return (
       <div className="min-h-full flex flex-col">
@@ -222,7 +248,7 @@ export default function RestaurantDetailPage() {
           <img
             src={restaurant.image}
             alt={restaurant.name}
-            className="w-full aspect-[32/14] sm:aspect-[32/5] sm:max-h-[260px] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+            className="w-full aspect-[32/14] sm:aspect-[32/5] sm:max-h-[260px] object-cover sm:[mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] sm:[-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
             onError={(e) => {
               e.currentTarget.style.display = "none";
               e.currentTarget.nextElementSibling.style.display = "block";
@@ -232,11 +258,12 @@ export default function RestaurantDetailPage() {
         <img
           src="/defaultHero.png"
           alt=""
-          className="w-full aspect-[32/14] sm:aspect-[32/5] sm:max-h-[260px] object-cover [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
+          className="w-full aspect-[32/14] sm:aspect-[32/5] sm:max-h-[260px] object-cover sm:[mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] sm:[-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
           style={{ objectPosition: "center calc(50% - 200px)", ...(restaurant.image ? { display: "none" } : {}) }}
         />
+        <div className="sm:hidden absolute inset-0 bg-black/5 pointer-events-none" />
         {restaurant.image && (
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
+          <div className="hidden sm:block absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
         )}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <h1 className="text-[#fff] font-bold text-2xl md:text-3xl text-center px-6">{restaurant.name}</h1>
@@ -266,8 +293,8 @@ export default function RestaurantDetailPage() {
         </div>
       </div>
 
-      <div className="flex flex-col px-3 md:px-0">
-        <div className="relative z-10 -mt-3 md:mx-6 bg-white rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-4 md:p-6 flex flex-col gap-6">
+      <div className="flex flex-col px-0">
+        <div className="relative z-10 -mt-3 md:mx-6 bg-white rounded-none md:rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-4 md:p-6 flex flex-col gap-6">
           <div className="flex flex-col md:flex-row gap-6 md:gap-x-6">
             {/* 왼쪽: 사진+정보(flex row, items-stretch로 높이 동기화) 위, 리뷰 아래 — 지도(오른쪽 독립 블록)와는
                 완전히 분리되어 있어, 리뷰가 아무리 길어져도 지도/저장버튼 라인에 영향을 주지 않는다. */}
@@ -358,18 +385,30 @@ export default function RestaurantDetailPage() {
                   <div className="flex gap-3 mt-auto">
                     <button
                       onClick={handleSaveClick}
-                      className="flex-1 inline-flex items-center justify-center gap-2 text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl py-3.5 shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all cursor-pointer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all cursor-pointer"
                     >
                       <IconStar className="w-4 h-4" />
                       {isSaved ? "저장됨" : "이 가게 저장하기"}
                     </button>
+                    <a
+                      href={
+                        restaurant.googlePlaceId
+                          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name)}&query_place_id=${restaurant.googlePlaceId}`
+                          : `https://www.google.com/maps/search/?api=1&query=${restaurant.lat}%2C${restaurant.lng}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-base font-bold text-brand-navy border border-brand-navy rounded-xl hover:bg-brand-navy/5 transition-colors"
+                    >
+                      구글 지도
+                    </a>
                   </div>
                 </div>
               </div>
 
               {/* 리뷰 본문 — 사진+정보 바로 아래, 사진 하단에서 20px */}
               <div className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-center justify-between gap-2.5 mb-1">
+                <div ref={reviewHeaderRef} className="flex flex-wrap items-center justify-between gap-2.5 mb-1">
                   <h3 className="text-base font-bold text-gray-900">리뷰</h3>
                   {/* 구글 리뷰 카드마다 반복되던 안내 문구를 이 헤더 라인 오른쪽에 한 번만 표시하도록 옮김 —
                       구글 리뷰(googlePlaceId 있음)가 있을 때만 의미가 있어 그 경우에만 렌더링 */}
@@ -425,30 +464,17 @@ export default function RestaurantDetailPage() {
                 />
               </div>
 
-              <a
-                href={
-                  restaurant.googlePlaceId
-                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name)}&query_place_id=${restaurant.googlePlaceId}`
-                    : `https://www.google.com/maps/search/?api=1&query=${restaurant.lat}%2C${restaurant.lng}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-sm font-bold text-brand-navy border border-brand-navy rounded-xl py-3.5 md:py-4 hover:bg-brand-navy/5 transition-colors"
-              >
-                구글 지도
-              </a>
-
               <div className="flex gap-3">
                 {backup ? (
                   <button
                     onClick={() => navigate(`/place/${backup.id}`)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-bold text-brand-coral-dark bg-brand-peach/40 rounded-xl py-3.5 hover:bg-brand-peach/60 transition-colors"
+                    className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-sm font-bold text-brand-coral-dark bg-brand-peach/40 rounded-xl hover:bg-brand-peach/60 transition-colors"
                   >
                     <IconPin className="w-4 h-4" />
                     근처 백업 플랜
                   </button>
                 ) : (
-                  <div className="flex-1 inline-flex items-center justify-center text-sm text-gray-400 border border-gray-200 rounded-xl py-3.5">
+                  <div className="flex-1 inline-flex items-center justify-center h-[52px] text-sm text-gray-400 border border-gray-200 rounded-xl">
                     대안 없음
                   </div>
                 )}
@@ -457,14 +483,14 @@ export default function RestaurantDetailPage() {
                   (nearbyDessert ? (
                     <button
                       onClick={() => navigate(`/place/${nearbyDessert.id}`)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 text-sm font-bold text-brand-pink-dark bg-brand-pink/10 rounded-xl py-3.5 hover:bg-brand-pink/20 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-sm font-bold text-brand-pink-dark bg-brand-pink/10 rounded-xl hover:bg-brand-pink/20 transition-colors"
                     >
                       <IconCake className="w-4 h-4" />
                       근처 디저트 맛집
                     </button>
                   ) : (
                     dessertChecked && (
-                      <div className="flex-1 inline-flex items-center justify-center text-sm text-gray-400 border border-gray-200 rounded-xl py-3.5">
+                      <div className="flex-1 inline-flex items-center justify-center h-[52px] text-sm text-gray-400 border border-gray-200 rounded-xl">
                         근처 디저트 없음
                       </div>
                     )

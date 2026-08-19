@@ -6,25 +6,23 @@ import Footer from '../components/Footer'
 import SearchResultGridCard from '../components/SearchResultGridCard'
 import AccountActions from '../components/AccountActions'
 import { IconSearch, IconStar } from '../components/icons'
-import { fetchRestaurants } from '../lib/restaurants'
+import { fetchRestaurantsByIds } from '../lib/restaurants'
 import { useAuth } from '../context/AuthContext'
 
 export default function ScrapPage() {
   const { scrapIds } = useAuth()
   const navigate = useNavigate()
-  const [restaurants, setRestaurants] = useState([])
+  const [saved, setSaved] = useState([])
 
   useEffect(() => {
     let cancelled = false
-    fetchRestaurants().then((data) => {
-      if (!cancelled) setRestaurants(data)
+    fetchRestaurantsByIds(scrapIds).then((data) => {
+      if (!cancelled) setSaved(data)
     })
     return () => {
       cancelled = true
     }
-  }, [])
-
-  const saved = restaurants.filter((r) => scrapIds.includes(r.id))
+  }, [scrapIds])
 
   return (
     <div className="h-screen flex overflow-hidden">
