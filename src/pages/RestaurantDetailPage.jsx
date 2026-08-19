@@ -282,7 +282,7 @@ export default function RestaurantDetailPage() {
                 </div>
 
                 {/* 식당 정보 — 저장 버튼은 mt-auto로 사진 하단 라인에 맞춤(items-stretch가 이 컬럼을 사진과 같은 높이로 늘림) */}
-                <div className="md:flex-1 min-w-0 flex flex-col gap-2">
+                <div className="md:flex-1 min-w-0 flex flex-col gap-4">
                   <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       onClick={() => navigate(`/search?q=${encodeURIComponent(restaurant.region)}`)}
