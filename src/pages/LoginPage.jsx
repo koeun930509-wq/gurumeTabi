@@ -14,7 +14,7 @@ function loginErrorMessage(error) {
 }
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState("");
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -39,6 +40,17 @@ export default function LoginPage() {
       setError(loginErrorMessage(err));
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    setError("");
+    setGoogleSubmitting(true);
+    try {
+      await loginWithGoogle();
+    } catch (err) {
+      setError(err.message);
+      setGoogleSubmitting(false);
     }
   }
 
@@ -98,6 +110,27 @@ export default function LoginPage() {
           {submitting ? "로그인 중..." : "로그인"}
         </button>
 
+        <div className="flex items-center gap-2 my-1">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-[11px] text-gray-400">또는</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={googleSubmitting}
+          className="flex items-center justify-center gap-2 border border-gray-200 rounded-lg py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-60"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.77-2.4 3.62v3.01h3.88c2.27-2.09 3.57-5.17 3.57-8.82z" />
+            <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3.01c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11C3.24 21.3 7.28 24 12 24z" />
+            <path fill="#FBBC05" d="M5.27 14.27a7.2 7.2 0 010-4.54V6.62H1.26a12 12 0 000 10.76l4.01-3.11z" />
+            <path fill="#EA4335" d="M12 4.77c1.76 0 3.35.6 4.6 1.79l3.45-3.45C17.95 1.19 15.24 0 12 0 7.28 0 3.24 2.7 1.26 6.62l4.01 3.11C6.22 6.88 8.87 4.77 12 4.77z" />
+          </svg>
+          {googleSubmitting ? "이동 중..." : "Google로 로그인"}
+        </button>
+
         <div className="text-xs text-gray-500 text-center mt-1">
           아직 계정이 없으신가요?{" "}
           <Link to="/signup" className="font-semibold text-brand-navy">
@@ -108,8 +141,6 @@ export default function LoginPage() {
 
       <div className="relative text-xs text-white/80 text-center drop-shadow">
         광고 없는 찐맛집 · 일본 여행 전용
-        <br />
-        (Supabase Auth 이메일/비밀번호. 구글 로그인은 추후 도입)
       </div>
     </div>
   );

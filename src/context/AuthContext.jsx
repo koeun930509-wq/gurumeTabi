@@ -2,9 +2,9 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 // 로그인/회원가입/세션은 Supabase Auth(이메일/비밀번호)로 실제 연동됩니다.
-// 스크랩은 아직 localStorage로 흉내만 냅니다(scraps 테이블 연동은 별도 작업).
+// 스크랩은 로그인 시 scraps 테이블, 비로그인 시 localStorage — search_history와 같은 이원화 패턴.
 
-const DEMO_SCRAP_IDS = ['sushi-masa', 'ichiran-osaka', 'okonomiyaki-mizuno']
+const SCRAP_IDS_KEY = 'gurume_scrap_ids'
 const RECENT_SEARCHES_KEY = 'gurume_recent_searches'
 const MAX_RECENT_SEARCHES = 15
 
@@ -16,8 +16,8 @@ export function AuthProvider({ children }) {
   const [nickname, setNickname] = useState(null)
   const [avatar, setAvatar] = useState(null)
   const [scrapIds, setScrapIds] = useState(() => {
-    const saved = localStorage.getItem('gurume_scrap_ids')
-    return saved ? JSON.parse(saved) : DEMO_SCRAP_IDS
+    const saved = localStorage.getItem(SCRAP_IDS_KEY)
+    return saved ? JSON.parse(saved) : []
   })
   // 로그인 상태면 search_history 테이블, 비로그인이면 localStorage — scrapIds와 같은 이원화 패턴.
   const [recentSearches, setRecentSearches] = useState(() => {
@@ -58,14 +58,20 @@ export function AuthProvider({ children }) {
       .then(({ data }) => setNickname(data?.nickname ?? null))
   }, [session?.user?.id])
 
-  useEffect(() => {
-    localStorage.setItem('gurume_scrap_ids', JSON.stringify(scrapIds))
-  }, [scrapIds])
-
-  // 로그인 시에만 DB에서 검색 기록을 불러와 로컬 state를 덮어씀. 초기 마운트(세션 로딩 중)나 비로그인
+  // 로그인 시에만 DB에서 스크랩/검색 기록을 불러와 로컬 state를 덮어씀. 초기 마운트(세션 로딩 중)나 비로그인
   // 상태에서는 아무것도 하지 않아 localStorage에서 읽어온 초기값이 그대로 유지되도록 함 — 여기서 무조건
-  // setRecentSearches([])를 호출하면 페이지 이동마다 AuthProvider가 재마운트되며 비로그인 사용자의
-  // 저장된 검색 기록이 매번 사라지는 버그가 생김.
+  // 빈 배열로 초기화하면 페이지 이동마다 AuthProvider가 재마운트되며 비로그인 사용자의 저장된 데이터가
+  // 매번 사라지는 버그가 생김.
+  useEffect(() => {
+    const userId = session?.user?.id
+    if (!userId) return
+    supabase
+      .from('scraps')
+      .select('restaurant_id')
+      .eq('user_id', userId)
+      .then(({ data }) => setScrapIds((data ?? []).map((r) => r.restaurant_id)))
+  }, [session?.user?.id])
+
   useEffect(() => {
     const userId = session?.user?.id
     if (!userId) return
@@ -86,10 +92,18 @@ export function AuthProvider({ children }) {
       setHadSession(true)
     } else if (hadSession) {
       setHadSession(false)
-      const saved = localStorage.getItem(RECENT_SEARCHES_KEY)
-      setRecentSearches(saved ? JSON.parse(saved) : [])
+      const savedScraps = localStorage.getItem(SCRAP_IDS_KEY)
+      setScrapIds(savedScraps ? JSON.parse(savedScraps) : [])
+      const savedSearches = localStorage.getItem(RECENT_SEARCHES_KEY)
+      setRecentSearches(savedSearches ? JSON.parse(savedSearches) : [])
     }
   }, [session?.user, hadSession])
+
+  useEffect(() => {
+    if (!session?.user) {
+      localStorage.setItem(SCRAP_IDS_KEY, JSON.stringify(scrapIds))
+    }
+  }, [scrapIds, session?.user])
 
   useEffect(() => {
     if (!session?.user) {
@@ -142,6 +156,14 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
+  async function loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    })
+    if (error) throw error
+  }
+
   async function signup(email, password) {
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw error
@@ -177,18 +199,32 @@ export function AuthProvider({ children }) {
     setAvatar(avatarDataUrl)
   }
 
-  function toggleScrap(restaurantId) {
+  // UI는 즉시 반영(낙관적 업데이트)하고, 로그인 상태면 DB 반영이 실패했을 때만 되돌린다.
+  async function toggleScrap(restaurantId) {
+    const wasScraped = scrapIds.includes(restaurantId)
     setScrapIds((prev) =>
-      prev.includes(restaurantId)
-        ? prev.filter((id) => id !== restaurantId)
-        : [...prev, restaurantId]
+      wasScraped ? prev.filter((id) => id !== restaurantId) : [...prev, restaurantId]
     )
+
+    if (!session?.user) return
+
+    const userId = session.user.id
+    const { error } = wasScraped
+      ? await supabase.from('scraps').delete().eq('user_id', userId).eq('restaurant_id', restaurantId)
+      : await supabase.from('scraps').insert({ user_id: userId, restaurant_id: restaurantId })
+
+    if (error) {
+      setScrapIds((prev) =>
+        wasScraped ? [...prev, restaurantId] : prev.filter((id) => id !== restaurantId)
+      )
+    }
   }
 
   const value = {
     user,
     loading,
     login,
+    loginWithGoogle,
     signup,
     logout,
     changePassword,
