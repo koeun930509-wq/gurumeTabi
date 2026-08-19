@@ -627,23 +627,25 @@ export default function SearchResultsPage() {
               </>
             )}
 
-            {/* 그리드 경계에 걸치는 절대위치 대신, 결과 개수와 무관하게 항상 Footer 바로 위(16px)에 오도록
-                일반 흐름(mt-auto가 아니라 뒤이은 Footer의 mt-auto가 이 버튼까지 밀어 붙임)에 배치한다. */}
-            {hasMore && (
-              <button
-                type="button"
-                onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
-                className="self-center flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.2)] cursor-pointer transition-colors whitespace-nowrap"
-              >
-                더 많은 "{headerText}" 맛집 보기
-                <IconChevronDown className="w-4 h-4" />
-              </button>
-            )}
-
             <Footer className="mt-auto text-center text-[#999] pt-3 pb-4 translate-y-[14px]" />
           </div>
         </div>
       </div>
+
+      {/* 콘텐츠 흐름(Footer 앞)이 아니라 뷰포트 기준 고정 — 스크롤 위치와 무관하게 항상 화면 하단에서
+          16px 위에 떠 있어야 하므로 fixed로 뺐다. env(safe-area-inset-bottom)로 안드로이드 제스처
+          네비게이션 바 같은 시스템 UI도 피한다(모바일 필터 버튼의 mobile-safe-bottom과 같은 이유). */}
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+          className="fixed left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.25)] cursor-pointer transition-colors whitespace-nowrap"
+        >
+          더 많은 "{headerText}" 맛집 보기
+          <IconChevronDown className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 }
