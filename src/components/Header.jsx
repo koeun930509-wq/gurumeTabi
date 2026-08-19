@@ -23,7 +23,7 @@ function mobileNavLinkClass(isActive) {
 
 export default function Header({ active, showSearch = true }) {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, addRecentSearch } = useAuth()
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const navRef = useRef(null)
@@ -47,9 +47,15 @@ export default function Header({ active, showSearch = true }) {
     return () => observer.disconnect()
   }, [])
 
+  function runSearch(keyword) {
+    const trimmed = keyword.trim()
+    if (trimmed) addRecentSearch(trimmed)
+    navigate(trimmed ? `/search?q=${encodeURIComponent(trimmed)}` : '/search')
+  }
+
   function handleSearch(e) {
     e.preventDefault()
-    navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
+    runSearch(q)
   }
 
   function closeMenu() {
@@ -89,7 +95,7 @@ export default function Header({ active, showSearch = true }) {
           <SearchAutocompleteInput
             value={q}
             onChange={setQ}
-            onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
+            onSubmit={runSearch}
             placeholder="지역·음식 검색"
             inputClassName="bg-transparent outline-none text-xs text-gray-600 w-full"
             wrapperClassName="relative flex-1"

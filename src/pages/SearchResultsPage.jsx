@@ -9,6 +9,7 @@ import { fetchRestaurants } from "../lib/restaurants";
 import { FOOD_TYPES, normalizeJapaneseTranscription } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
+import { useAuth } from "../context/AuthContext";
 
 const RATING_OPTIONS = [
   { value: 0, label: "전체" },
@@ -114,8 +115,15 @@ function FilterSegmentGroup({ title, options, value, onChange }) {
 export default function SearchResultsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { addRecentSearch } = useAuth();
   const q = searchParams.get("q") ?? "";
   const [pendingQ, setPendingQ] = useState("");
+
+  function runSearch(keyword) {
+    const trimmed = keyword.trim();
+    if (trimmed) addRecentSearch(trimmed);
+    navigate(trimmed ? `/search?q=${encodeURIComponent(trimmed)}` : "/search");
+  }
   const initialFilterState = useMemo(() => filterStateFromSearchParams(searchParams), []);
   const [draft, setDraft] = useState(initialFilterState);
   const [applied, setApplied] = useState(initialFilterState);
@@ -439,14 +447,14 @@ export default function SearchResultsPage() {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
-                      navigate(pendingQ ? `/search?q=${encodeURIComponent(pendingQ)}` : "/search");
+                      runSearch(pendingQ);
                     }}
                     className="order-3 md:order-none w-full md:w-auto flex items-center gap-1.5 h-10 rounded-full border border-transparent focus-within:border-[#9993e2] bg-white px-3 md:min-w-[170px]"
                   >
                     <SearchAutocompleteInput
                       value={pendingQ}
                       onChange={setPendingQ}
-                      onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
+                      onSubmit={runSearch}
                       placeholder="지역·음식 검색"
                       inputClassName="bg-transparent outline-none text-sm text-gray-600 w-full placeholder:text-xs"
                       wrapperClassName="relative flex-1"
@@ -562,14 +570,14 @@ export default function SearchResultsPage() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    navigate(pendingQ ? `/search?q=${encodeURIComponent(pendingQ)}` : "/search");
+                    runSearch(pendingQ);
                   }}
                   className="relative w-full max-w-sm"
                 >
                   <SearchAutocompleteInput
                     value={pendingQ}
                     onChange={setPendingQ}
-                    onSubmit={(picked) => navigate(`/search?q=${encodeURIComponent(picked)}`)}
+                    onSubmit={runSearch}
                     placeholder="예: 오사카 라멘"
                     inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-24 py-4 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
                   />
