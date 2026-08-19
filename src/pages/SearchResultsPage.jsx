@@ -627,25 +627,30 @@ export default function SearchResultsPage() {
               </>
             )}
 
+            {/* fixed(뷰포트 전체 폭 기준 중앙)로 두면 좌측 필터 사이드바(230px)만큼 왼쪽으로 치우쳐 보이는
+                문제가 있었음 — sticky로 두면 이 콘텐츠 컬럼(사이드바 제외 영역) 폭 기준으로 중앙 정렬되면서도
+                스크롤 시 항상 화면 하단 16px 위에 붙어있음. env(safe-area-inset-bottom)로 안드로이드 제스처
+                네비게이션 바 같은 시스템 UI도 피한다(모바일 필터 버튼의 mobile-safe-bottom과 같은 이유). */}
+            {hasMore && (
+              <div
+                className="sticky flex justify-center pointer-events-none"
+                style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
+                  className="pointer-events-auto flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.25)] cursor-pointer transition-colors whitespace-nowrap"
+                >
+                  더 많은 "{headerText}" 맛집 보기
+                  <IconChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
             <Footer className="mt-auto text-center text-[#999] pt-3 pb-4 translate-y-[14px]" />
           </div>
         </div>
       </div>
-
-      {/* 콘텐츠 흐름(Footer 앞)이 아니라 뷰포트 기준 고정 — 스크롤 위치와 무관하게 항상 화면 하단에서
-          16px 위에 떠 있어야 하므로 fixed로 뺐다. env(safe-area-inset-bottom)로 안드로이드 제스처
-          네비게이션 바 같은 시스템 UI도 피한다(모바일 필터 버튼의 mobile-safe-bottom과 같은 이유). */}
-      {hasMore && (
-        <button
-          type="button"
-          onClick={() => setVisibleCount((v) => v + RESULTS_PAGE_SIZE)}
-          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
-          className="fixed left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.25)] cursor-pointer transition-colors whitespace-nowrap"
-        >
-          더 많은 "{headerText}" 맛집 보기
-          <IconChevronDown className="w-4 h-4" />
-        </button>
-      )}
     </div>
   );
 }
