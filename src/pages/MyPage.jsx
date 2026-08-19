@@ -7,9 +7,13 @@ import AccountActions from "../components/AccountActions";
 import { IconUserCircle, IconEdit, IconChevronRight, IconFileText, IconShield, IconClose } from "../components/icons";
 import { useAuth } from "../context/AuthContext";
 
-function Toggle({ checked, onChange }) {
+function Toggle({ checked, onChange, disabled = false }) {
   return (
-    <button onClick={onChange} className={`w-11 h-6 rounded-full relative transition-colors flex-none ${checked ? "bg-status-open" : "bg-gray-300"}`}>
+    <button
+      onClick={onChange}
+      disabled={disabled}
+      className={`w-11 h-6 rounded-full relative transition-colors flex-none ${checked ? "bg-status-open" : "bg-gray-300"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+    >
       <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${checked ? "translate-x-5" : ""}`} />
     </button>
   );
@@ -303,10 +307,8 @@ function NicknameModal({ open, currentNickname, currentAvatar, onSave, onSaveAva
 }
 
 export default function MyPage() {
-  const { user, logout, updateNickname, updateAvatar, scrapIds } = useAuth();
+  const { user, logout, updateNickname, updateAvatar, scrapIds, recentSearches } = useAuth();
   const navigate = useNavigate();
-  const [notifyOn, setNotifyOn] = useState(true);
-  const [reviewAlertOn, setReviewAlertOn] = useState(false);
   const [policyModal, setPolicyModal] = useState(null);
   const displayName = user ? user.nickname || user.email.split("@")[0] : "게스트";
 
@@ -374,7 +376,7 @@ export default function MyPage() {
                 onClick={() => setPolicyModal("recentSearch")}
                 className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-3.5 text-center cursor-pointer"
               >
-                <div className="text-xl font-extrabold text-brand-navy">3</div>
+                <div className="text-xl font-extrabold text-brand-navy">{recentSearches.length}</div>
                 <div className="text-xs text-gray-500 mt-0.5">최근 검색</div>
               </button>
             </div>
@@ -382,18 +384,21 @@ export default function MyPage() {
 
           {/* 설정 · 알림 */}
           <section>
-            <h4 className="text-sm tracking-wider text-gray-400 font-sans mb-2.5">설정 · 알림</h4>
-            <div className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] divide-y divide-brand-peach/40 overflow-hidden">
+            <h4 className="text-sm tracking-wider text-gray-400 font-sans mb-2.5 flex items-center gap-1.5">
+              설정 · 알림
+              <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">준비중</span>
+            </h4>
+            <div className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] divide-y divide-brand-peach/40 overflow-hidden opacity-60">
               <div className="flex items-center justify-between p-3.5">
-                <span className="text-base font-semibold">전체 알림</span>
-                <Toggle checked={notifyOn} onChange={() => setNotifyOn((v) => !v)} />
+                <span className="text-base font-semibold text-gray-400">전체 알림</span>
+                <Toggle checked={false} disabled />
               </div>
               <div className="flex items-center justify-between p-3.5">
                 <div className="flex flex-col">
-                  <span className="text-base font-semibold">새 리뷰 업데이트 알림</span>
+                  <span className="text-base font-semibold text-gray-400">새 리뷰 업데이트 알림</span>
                   <span className="text-xs text-gray-400">스크랩에 새 리뷰가 등록되면 알림</span>
                 </div>
-                <Toggle checked={reviewAlertOn} onChange={() => setReviewAlertOn((v) => !v)} />
+                <Toggle checked={false} disabled />
               </div>
             </div>
           </section>
@@ -490,22 +495,25 @@ export default function MyPage() {
 
           {/* 알림 설정 · 계정 설정 · 검색 통계 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <section className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-5">
-              <h4 className="text-base font-bold text-gray-900 mb-3">알림 설정</h4>
+            <section className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-5 opacity-60">
+              <h4 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+                알림 설정
+                <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">준비중</span>
+              </h4>
               <div className="divide-y divide-brand-peach/40">
                 <div className="flex items-center justify-between py-3.5">
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold">전체 알림</span>
+                    <span className="text-sm font-semibold text-gray-400">전체 알림</span>
                     <span className="text-xs text-gray-400">모든 알림을 받습니다.</span>
                   </div>
-                  <Toggle checked={notifyOn} onChange={() => setNotifyOn((v) => !v)} />
+                  <Toggle checked={false} disabled />
                 </div>
                 <div className="flex items-center justify-between py-3.5">
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold">새 리뷰 업데이트 알림</span>
+                    <span className="text-sm font-semibold text-gray-400">새 리뷰 업데이트 알림</span>
                     <span className="text-xs text-gray-400">스크랩에서 새 리뷰가 등록되면 알림을 받습니다.</span>
                   </div>
-                  <Toggle checked={reviewAlertOn} onChange={() => setReviewAlertOn((v) => !v)} />
+                  <Toggle checked={false} disabled />
                 </div>
               </div>
             </section>
@@ -564,7 +572,7 @@ export default function MyPage() {
                 <button onClick={() => setPolicyModal("recentSearch")} className="text-center px-2 cursor-pointer">
                   <div className="text-xs text-gray-500 mb-2">최근 검색</div>
                   <div className="text-2xl font-extrabold text-brand-navy">
-                    3<span className="text-sm font-semibold text-gray-400 ml-0.5">회</span>
+                    {recentSearches.length}<span className="text-sm font-semibold text-gray-400 ml-0.5">회</span>
                   </div>
                   <div className="text-xs text-gray-500 mt-2">최근 검색한 횟수</div>
                 </button>
