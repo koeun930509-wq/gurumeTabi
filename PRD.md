@@ -106,9 +106,9 @@
 | 검색 결과 | 필터 바, 검증 맛집 리스트, 정렬/보기 전환 | 평점·현지인 비율·영업 상태는 단계별 값 중 하나만 고르는 단일 선택 세그먼트(전체/3.0+/3.5+/4.0+ 등) + 실용정보 필터(카드 결제·예약 가능·역에서 도보 10분 이내, 다중선택) + 음식 종류 필터(스시·라멘 등 20종, 체크박스·다중선택·내부 스크롤). **지역 필터는 없음** — 검색어와 지역 필터가 동시에 있으면 서로 다른 지역을 고를 때 결과가 뒤엉키는 문제가 있어 제거했고, 지역은 검색창(자연어)으로만 다룸. 검색창은 음식 종류+지역 통합 자동완성(예: "오"만 입력해도 "오사카"·"오코노미야키"가 함께 추천) 및 키보드 방향키/Enter 선택 지원, 텍스트 입력 시 지우기(X) 버튼 노출, 일본어 음차 표기 흔들림(오코노미야키/오꼬노미야끼 등) 자동 정규화 매칭. 필터는 선택 즉시 반영되지 않고 하단 "필터 적용하기"를 눌러야 결과에 반영되며(상단 "초기화"는 즉시 반영), 불친절 후기 제외는 토글 없이 항상 적용되는 기본 동작. 정렬(평점 높은 순·현지인 비율 높은 순·리뷰 많은 순)·그리드/리스트 보기 전환은 검색 여부와 무관하게 항상 노출되며, 검색을 실행한 뒤에는 정렬 드롭다운 옆에 검색창이 추가로 나타남. 결과는 처음 8개만 보이고 "더 보기" 버튼으로 추가 로드. 결과 카드(그리드·리스트 공통)에 `#지역 #음식종류` 해시태그 노출, 그리드 카드는 사진 여러 장을 화살표로 넘겨보는 캐러셀 지원, 사진 없는 가게는 기본 아이콘 placeholder로 대체 |
 | 맛집 상세 | 히어로 배너, 리뷰 요약, 위치 지도 + 백업 플랜, 저장 버튼 | 히어로 이미지(사진 없으면 기본 배경 이미지로 대체)에 어두운 오버레이(사진이 있을 때만) 위로 가게 이름을 중앙 표시. 평점·현지인 비율·영업 상태 배지 + 지역·음식 종류·현지인 방문 다수·불친절 후기 없음 해시태그, 주소·전화번호, 네이버 블로그+구글 리뷰(출처별 hover 강조색 구분), 구글 지도 바로가기 버튼, 휴무/소진 시에만 백업 플랜 지도 노출 |
 | 스크랩 | 저장 리스트, 총 개수 표시 | 로그인 필요(ProtectedRoute로 접근 제한, scraps 기반). 타이틀 옆 "총 N개" 카운트. 목록 그리드는 화면 폭을 꽉 채우며 반응형(모바일 1열~xl 4열), 검색 결과와 동일한 카드 컴포넌트 재사용. 검색 결과 화면과 동일하게 페이지 자체는 고정 높이(스크롤 없음)이고 콘텐츠 영역만 내부 스크롤되며 스크롤바가 항상 표시됨(그리드/리스트 전환·콘텐츠 길이 변화에도 레이아웃이 흔들리지 않도록) |
-| 로그인 | 이메일/비밀번호 | Supabase Auth (구글 로그인은 추후 도입). 로그인 성공 시 원래 접근하려던 화면으로 리다이렉트 |
+| 로그인 | 이메일/비밀번호 + 구글 소셜 로그인 | Supabase Auth 이메일/비밀번호 + Google OAuth(2026-08-19 추가). 로그인 성공 시 원래 접근하려던 화면으로 리다이렉트 |
 | 회원가입 | 이메일/비밀번호 폼 | Supabase Auth로 실제 가입 처리(이 프로젝트는 이메일 확인 절차가 꺼져 있어 가입 즉시 로그인됨) |
-| 마이페이지 | 설정 | 모바일: 카드 스택형(프로필·활동·알림·계정·정보). PC(md 이상): 대시보드형 — 계정 정보 카드 + 알림 설정/계정 설정/검색 통계 3열 그리드 + 이용약관 및 정책. 알림 on/off, 프로필 수정(닉네임 + 프로필 사진), 비밀번호 변경, 로그아웃, 회원 탈퇴, 최근 검색어 조회(클릭 시 해당 검색어로 재검색 — 현재는 더미 목록만 노출, 실제 검색 기록 저장·재검색 연동은 백엔드 작업 시 구현) |
+| 마이페이지 | 설정 | 모바일: 카드 스택형(프로필·활동·알림·계정·정보). PC(md 이상): 대시보드형 — 계정 정보 카드 + 알림 설정/계정 설정/검색 통계 3열 그리드 + 이용약관 및 정책. 프로필 수정(닉네임 + 프로필 사진), 비밀번호 변경, 로그아웃, 회원 탈퇴, 최근 검색어 조회(클릭 시 해당 검색어로 재검색, `search_history` 실데이터 연동 완료). 검색 통계(스크랩 개수·최근 검색 횟수)도 실데이터 기준으로 표시(2026-08-19). 알림 설정은 미구현 기능이라 "준비중" 배지와 함께 비활성화 상태로 노출(2026-08-19) |
 
 > 실시간 위치 지도는 맛집 상세의 백업 플랜에만 배치 — 필요 없는 위치 권한 요청 최소화.
 
@@ -163,10 +163,10 @@ https://claude.ai/code/artifact/b2aa2e21-ea95-4376-b332-f06f53530b39
 | 테이블 | 주요 컬럼 | 제약·관계 | 비고 |
 |---|---|---|---|
 | `profiles` | id(uuid, PK), email, nickname, avatar_url, is_admin(boolean, 기본 false) | id는 `auth.users(id)` 참조 FK, ON DELETE CASCADE. `auth.users` insert 시 `handle_new_user` 트리거로 자동 생성 | 이메일 로그인(Supabase Auth) 실제 연동 완료 — nickname은 마이페이지에서 실제로 갱신됨. avatar_url은 Supabase Storage 업로드 후 공개 URL 저장 예정 — 현재는 업로드한 이미지를 base64로 변환해 localStorage에만 저장(브라우저 새로고침 시에도 유지되나 기기 간 동기화 불가, 실제 파일 업로드는 백엔드 작업 시 구현). is_admin은 관리자 계정 구분용으로 추가했으나 이를 검사하는 관리자 화면/로직은 아직 없음 |
-| `restaurants` | id(uuid, PK), name, address, phone, lat, lng, google_place_id, category, region, image_url, image_urls(배열), rating, review_count, tagline, status, local_ratio, has_rude_review, accepts_card, walk_minutes, nearest_station, accepts_reservation, updated_at | google_place_id 유니크(중복 등록 방지) | **실제로 Google Places 데이터가 채워져 있음**(14개 지역 × 6개 카테고리, 약 1,400여 곳). 최초 설계보다 컬럼이 대폭 늘어남 — `local_ratio`/`has_rude_review`/`accepts_card`/`walk_minutes`/`accepts_reservation`은 Google API가 직접 안 주는 값이라 일부만 채워짐(아래 10.1 참고) |
-| `reviews_cache` | id(uuid, PK), restaurant_id(FK), source('naver'\|'google'), author, snippet, rating, fetched_at, is_ad_filtered | restaurant_id → restaurants.id FK, ON DELETE CASCADE | **Google 리뷰 + 네이버 블로그 리뷰 둘 다 실제로 채워져 있음**(Google: 가게당 최대 5개 약 6,000여 건, `is_ad_filtered` 항상 `false`. 네이버: `sync-naver-reviews`로 2026-08-18 전체 수집 완료, 1,470곳 총 6,598건, 검색 스니펫의 협찬 키워드 감지로 `is_ad_filtered` 채워짐 — 11건 감지됨) |
-| `scraps` | id(uuid, PK), user_id(FK), restaurant_id(FK) | user_id+restaurant_id 조합 유니크 | "스크랩" 기능. 테이블은 생성됐으나 프론트는 아직 localStorage(`scrapIds`)만 사용 |
-| `search_history` | id(uuid, PK), user_id(FK), keyword, searched_at | user_id → profiles.id FK, ON DELETE CASCADE | 마이페이지 "최근 검색" 카운트·목록 및 클릭 시 재검색 기능용. 현재 프론트 뼈대는 더미 검색어 3개만 하드코딩 표시, 실제 검색 시점 기록·저장은 백엔드 작업 시 구현 |
+| `restaurants` | id(uuid, PK), name, address, phone, lat, lng, google_place_id, category, region, image_url, image_urls(배열), rating, review_count, tagline, status, local_ratio, has_rude_review, accepts_card, walk_minutes, nearest_station, accepts_reservation, opening_hours(jsonb), business_hours, regular_holiday, budget_dinner, budget_lunch, hotpepper_url, updated_at | google_place_id 유니크(중복 등록 방지) | **실제로 Google Places 데이터가 채워져 있음**(14개 지역 × 7개 카테고리(디저트 포함), 약 2,000여 곳). 최초 설계보다 컬럼이 대폭 늘어남 — `local_ratio`는 여전히 null, `has_rude_review`/`accepts_card`/`walk_minutes`/`accepts_reservation`은 일부만 채워짐(아래 10.1 참고). `opening_hours`는 2026-08-19에 추가된 컬럼으로 Google `regularOpeningHours.periods`를 그대로 저장해 실시간 영업중 계산에 사용(10.3 참고), 전체의 약 66%만 채워짐(Google 자체에 시간 정보가 없는 가게는 제외) |
+| `reviews_cache` | id(uuid, PK), restaurant_id(FK), source('naver'\|'google'), author, snippet, rating, fetched_at, is_ad_filtered, taste_snippet, link | restaurant_id → restaurants.id FK, ON DELETE CASCADE | **Google 리뷰 + 네이버 블로그 리뷰 둘 다 실제로 채워져 있음**(Google: 가게당 최대 5개, `is_ad_filtered` 항상 `false`. 네이버: `sync-naver-reviews`로 2026-08-18 전체 수집 완료, 1,470곳 총 6,598건, 검색 스니펫의 협찬 키워드 감지로 `is_ad_filtered` 채워짐) |
+| `scraps` | id(uuid, PK), user_id(FK), restaurant_id(FK) | user_id+restaurant_id 조합 유니크 | "스크랩" 기능. ✅ **2026-08-19 실제 DB 연동 완료** — 로그인 시 이 테이블에 저장/조회(계정별 동기화), 비로그인 시에만 localStorage(`scrapIds`) 폴백 |
+| `search_history` | id(uuid, PK), user_id(FK), keyword, searched_at | user_id → profiles.id FK, ON DELETE CASCADE | 마이페이지 "최근 검색" 카운트·목록 및 클릭 시 재검색 기능용. ✅ 실제 검색 시점 기록·저장·재검색 연동 완료, 마이페이지 통계 카운트도 이 실데이터를 사용(2026-08-19) |
 
 **RLS 적용 완료**: `profiles`·`scraps`·`search_history`는 로그인한 본인 행만 SELECT/INSERT(profiles는 UPDATE도) 허용하는 정책이 실제 적용됨. `restaurants`·`reviews_cache`는 조회가 전체 공개(`select using (true)`)로 되어 있어 프론트가 익명 사용자로도 직접 SELECT 가능함. 쓰기(INSERT/UPDATE)는 서비스 role(Edge Function)만 하고 있고 클라이언트에는 허용 안 됨.
 
@@ -196,7 +196,9 @@ React (Vite) ──SELECT (anon key, RLS)──> Supabase DB (restaurants, revie
                               ├─ fill-walk-minutes: Places Nearby Search로 도보거리 계산
                               └─ translate-restaurant-names: Cloud Translation API로 상호명 보정
 ```
-당초 문서(7단계 워크시트까지)는 Flask 백엔드가 API 키를 보호하며 요청을 대신 처리하는 구조를 계획했으나, 실제 구현 단계에서는 **Supabase Edge Function이 그 역할을 그대로 대신함**(서버리스라 별도 배포·호스팅 관리가 필요 없고, 이미 Supabase 프로젝트에 통합돼 있어 채택). Google Places/Translation API 키는 Edge Function의 secret으로만 저장되고 프론트에는 절대 노출되지 않는다. 프론트는 Edge Function을 직접 호출하지 않고, Edge Function이 미리 채워둔 `restaurants`/`reviews_cache`를 anon key로 SELECT만 한다 — 즉 **사용자가 검색할 때마다 Google API가 호출되는 구조가 아니라, 관리자가 주기적으로(월 1회 권장) 수집을 실행해 DB를 갱신하는 배치 방식**이다. 네이버 블로그 API(`sync-naver-reviews`)도 2026-08-18부터 같은 배치 방식으로 이 파이프라인에 연동되었다(10.1 참고).
+당초 문서(7단계 워크시트까지)는 Flask 백엔드가 API 키를 보호하며 요청을 대신 처리하는 구조를 계획했으나, 실제 구현 단계에서는 **Supabase Edge Function이 그 역할을 그대로 대신함**(서버리스라 별도 배포·호스팅 관리가 필요 없고, 이미 Supabase 프로젝트에 통합돼 있어 채택). Google Places/Translation API 키는 Edge Function의 secret으로만 저장되고 프론트에는 절대 노출되지 않는다. 프론트는 Edge Function을 직접 호출하지 않고, Edge Function이 미리 채워둔 `restaurants`/`reviews_cache`를 anon key로 SELECT만 한다 — 즉 **사용자가 검색할 때마다 Google API가 호출되는 구조가 아니라, 관리자가 주기적으로 수집을 실행해 DB를 갱신하는 배치 방식**이다. 네이버 블로그 API(`sync-naver-reviews`)도 2026-08-18부터 같은 배치 방식으로 이 파이프라인에 연동되었다(10.1 참고).
+
+**재수집 주기는 분기(3개월) 1회로 운영**(2026-08-19, 기존 월 1회에서 변경) — 전체 84개 지역×카테고리 조합(+디저트 14개) 재수집 1회당 Google Places Text Search + Cloud Translation API 비용이 약 9~10만 원 실측됨. 무료 크레딧 소진 속도를 늦추기 위해 주기를 늘렸으며, 매 재수집 전에는 항상 예상 비용과 잔여 크레딧을 확인 후 사용자 승인을 받는다(자동화 없음).
 
 > 배포 환경(프론트 호스팅)은 아직 미정 — 추후 논의에서 확정.
 
@@ -217,8 +219,10 @@ React (Vite) ──SELECT (anon key, RLS)──> Supabase DB (restaurants, revie
 ### 10.2 현지인 비율 판별
 Google Places API는 리뷰어 국적/언어 데이터를 제공하지 않아 아직 미구현 — `restaurants.local_ratio`는 현재 전부 `null`(프론트에서는 `0`으로 기본 표시). 판별 방법은 여전히 미정.
 
-### 10.3 실시간 근처 백업 플랜 추천
-✅ **구현 완료** — `fetchBackupPlan`(`src/lib/restaurants.js`)이 같은 지역 + 같은 음식종류 후보 중 위경도 기준 하버사인 거리로 가장 가까운 곳을 실제로 추천함(실시간 위치가 아니라 원래 가게의 좌표 기준). 각 매장의 실시간 영업상태는 Google Places의 `businessStatus`(OPERATIONAL/CLOSED_TEMPORARILY/CLOSED_PERMANENTLY)를 그대로 반영하며, 수집 시점 스냅샷이라 실시간은 아님(재수집 주기에 의존).
+### 10.3 실시간 근처 백업 플랜 추천 및 영업중 판정
+✅ **구현 완료** — `fetchBackupPlan`(`src/lib/restaurants.js`)이 같은 지역 + 같은 음식종류 후보 중 위경도 기준 하버사인 거리로 가장 가까운 곳을 실제로 추천함(실시간 위치가 아니라 원래 가게의 좌표 기준).
+
+**영업중 뱃지는 2026-08-19부터 진짜 실시간 계산으로 전환됨.** 기존에는 Google Places의 `businessStatus`(OPERATIONAL/CLOSED_TEMPORARILY/CLOSED_PERMANENTLY, 폐업 여부만 구분)만 반영해 사실상 거의 모든 가게가 "영업중"으로 고정 표시되는 문제가 있었음. `sync-restaurants`가 `regularOpeningHours`(요일별 영업시간)를 추가로 요청해 `opening_hours`(jsonb) 컬럼에 저장하고, 프론트의 `src/utils/businessHours.js`(`isOpenNow`)가 일본 현지 시각 기준으로 지금 문을 열었는지 계산함. 폐업(`status='closed'`)과 "오늘 영업시간이 지나 문 닫음"을 구분해 각각 "휴무"/"영업종료"로 다르게 표시(`resolveStatusKey`). `opening_hours`는 Google 자체에 시간 정보가 없는 가게(전체의 약 34%)는 비어있어, 이 경우 기존처럼 `businessStatus` 기준으로만 폴백.
 
 같은 방식으로 2026-08-18에 **"근처 디저트 맛집"** 기능도 추가됨 — `fetchNearbyDessert`가 음식종류 조건 없이 같은 지역의 `category='디저트'` 후보 중 가장 가까운 곳을 추천. 이 기능을 위해 디저트 카테고리 데이터를 14개 지역 전체에 신규 수집(224곳, 네이버 리뷰 포함).
 
@@ -237,7 +241,7 @@ PRD 원안에는 없었으나 실제 구현에서 추가된 기능. `fill-walk-m
 ## 11. 인증
 
 - Supabase Auth 기반 **이메일/비밀번호 로그인**을 실제로 구현(`@supabase/supabase-js` 연동, 가입 시 트리거로 `profiles` 행 자동 생성). 비밀번호 변경도 마이페이지에서 현재 비밀번호 재인증 후 실제로 처리됨
-- 구글 소셜 로그인은 이후 단계에서 추가 예정
+- **구글 소셜 로그인 실제 연동 완료**(2026-08-19) — Supabase Auth의 Google OAuth Provider 사용, 로그인 화면에 "Google로 로그인" 버튼 추가. `handle_new_user` 트리거가 provider와 무관하게 `auth.users` insert마다 동작해 Google 신규 가입자도 `profiles` 행이 자동 생성됨
 - 비로그인 상태에서 저장(⭐)·마이페이지 접근 시 `ProtectedRoute` 컴포넌트로 로그인 화면으로 분기, 로그인 성공 후 원래 목적지로 복귀
 - 회원가입도 Supabase Auth로 실제 구현됨(이메일/비밀번호 입력 → 계정 생성) — 이 프로젝트는 이메일 확인이 꺼져 있어 가입 즉시 로그인 처리
 
@@ -292,7 +296,7 @@ PRD 원안에는 없었으나 실제 구현에서 추가된 기능. `fill-walk-m
 - [x] 네이버 블로그 리뷰(협찬 필터링 배지 포함) + 구글 리뷰(Google 출처 표기 포함) 병행 노출 — 2026-08-18 네이버 연동 완료(전체 1,748곳 수집, 1,470곳/6,598건)
 - [x] 휴무/재료소진 상태일 때만 지도 + 백업 플랜 CTA 노출 — 단, 위치 권한 요청은 아직 없음(백업 플랜이 사용자 실시간 위치가 아니라 원래 가게 좌표 기준으로 동작해서 권한 자체가 불필요해짐)
 - [x] 이메일/비밀번호 로그인(Supabase Auth) 정상 동작, 비로그인 시 보호된 화면(마이페이지) 접근 시 로그인으로 분기 후 원래 화면 복귀 — 실제 Supabase Auth 연동 완료(회원가입·로그인·로그아웃·비밀번호 변경)
-- [ ] 스크랩 목록에서 추가/삭제 정상 동작 (`scraps`) — UI는 동작하나 여전히 localStorage 기반, `scraps` 테이블 미연동
+- [x] 스크랩 목록에서 추가/삭제 정상 동작 (`scraps`) — 2026-08-19 실제 DB 연동 완료(로그인 시 계정별 동기화, 비로그인 시만 localStorage 폴백)
 - [x] Supabase RLS로 본인 데이터만 조회/수정 가능한지 확인 — `profiles`/`scraps`/`search_history`는 본인만, `restaurants`/`reviews_cache`는 의도적으로 전체 공개 조회 허용
 - [x] 외부 API(구글·네이버) 키는 Supabase Edge Function의 secret으로만 저장, 클라이언트에 노출되지 않음 — 단 Flask가 아니라 Edge Function으로 구현됨(9절 참고). 네이버는 `NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET` secret으로 등록됨
 
@@ -302,6 +306,6 @@ PRD 원안에는 없었으나 실제 구현에서 추가된 기능. `fill-walk-m
 
 - 여행 일정 전체 관리(숙소·교통 포함 종합 플래너)
 - 회원 등록/관리자 화면, 1:1 채팅, 리뷰 수동 정정 (MVP 이후 검토)
-- 구글 소셜 로그인 (추후 도입)
+- 알림 기능 (마이페이지 UI는 존재하나 "준비중" 상태로 비활성화, 실제 발송 로직 미구현)
 - 현지 식당 사장님 대상 제휴/쿠폰 등록 기능 (Could — MVP 이후)
 - 수익모델 상세 확정(수수료율·가격) — 1단계 메모 참고, 별도 시점에 진행
