@@ -13,6 +13,8 @@ const SEARCH_SYNONYMS = {
   돈까스: '돈카츠',
   빵집: '베이커리',
   커피: '카페',
+  초밥: '스시',
+  덮밥: '돈부리',
 }
 
 export function resolveSearchSynonym(token) {
