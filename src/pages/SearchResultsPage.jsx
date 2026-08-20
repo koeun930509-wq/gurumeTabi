@@ -707,9 +707,11 @@ export default function SearchResultsPage() {
                 위에 버튼이 겹쳐 보이는 문제가 있었음(2026-08-20 피드백) — 일반 배치로 바꿔서 목록 끝까지
                 스크롤했을 때(마지막 카드 다음, Footer 앞)만 보이도록 함. headerText가 비어있는 검색 전
                 기본 목록(q도 음식 필터도 없을 때)에는 버튼 문구가 `더 많은 "" 맛집 보기`처럼 빈 따옴표로
-                보이므로, 검색이 실제로 실행된 경우(headerText가 있을 때)에만 노출함. */}
+                보이므로, 검색이 실제로 실행된 경우(headerText가 있을 때)에만 노출함.
+                -mt-8 — 카드 목록과 Footer 사이 간격이 넓어 보인다는 피드백으로, 이 버튼이 마지막 카드 줄
+                아래쪽을 살짝 가리는 걸 감수하고 위로 당김(사용자가 명시적으로 허용). */}
             {hasMore && headerText && (
-              <div className="flex justify-center">
+              <div className="-mt-8 flex justify-center">
                 <button
                   type="button"
                   onClick={loadMoreResults}
@@ -721,7 +723,7 @@ export default function SearchResultsPage() {
               </div>
             )}
 
-            <Footer className="mt-auto text-center text-[#999] pt-3 pb-4 translate-y-[14px]" />
+            <Footer className="mt-auto text-center text-[#999] pb-4 translate-y-[14px]" />
           </div>
         </div>
       </div>
