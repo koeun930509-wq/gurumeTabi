@@ -40,7 +40,9 @@ export default function ScrapPage() {
           <AccountActions />
         </div>
 
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll">
+        {/* pb-20 — 맨 위로 버튼이 fixed라 끝까지 스크롤하면 Footer 텍스트에 그대로 겹치던 문제 방지
+            (SearchResultsPage와 동일한 이유) */}
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll pb-20">
           <div className="p-6 pb-0 md:p-8 md:pb-0 w-full min-h-full flex flex-col gap-6">
             <h1 className="font-bold text-2xl text-gray-900 flex items-baseline gap-[10px]">
               스크랩 맛집

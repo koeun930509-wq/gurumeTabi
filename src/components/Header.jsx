@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { IconClose, IconMenu, IconSearch, IconStar, IconUser, IconLogout, IconLogin } from './icons'
 import SearchAutocompleteInput from './SearchAutocompleteInput'
 import AccountActions from './AccountActions'
+import MobileSearchOverlay from './MobileSearchOverlay'
 import { useAuth } from '../context/AuthContext'
 
 const navLinkClass = (isActive) =>
@@ -23,9 +24,10 @@ function mobileNavLinkClass(isActive) {
 
 export default function Header({ active, showSearch = true }) {
   const navigate = useNavigate()
-  const { user, logout, addRecentSearch } = useAuth()
+  const { user, logout, addRecentSearch, recentSearches, removeRecentSearch } = useAuth()
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const navRef = useRef(null)
   const [navHeight, setNavHeight] = useState(0)
   const [scrolled, setScrolled] = useState(false)
@@ -144,12 +146,21 @@ export default function Header({ active, showSearch = true }) {
         </div>
       )}
 
-      {/* 햄버거 버튼 — 모바일 전용 */}
+      {/* 검색 아이콘 — 모바일 전용. 누르면 메인 화면 검색창 탭 시 나오는 것과 같은 전체화면 검색으로 이동 */}
+      <button
+        onClick={() => setMobileSearchOpen(true)}
+        aria-label="검색"
+        className="md:hidden flex items-center justify-center text-brand-navy cursor-pointer"
+      >
+        <IconSearch className="w-6 h-6" />
+      </button>
+
+      {/* 햄버거 버튼 — 모바일 전용. 검색 아이콘과의 간격만 nav 전체 gap-6(24px)보다 8px 좁히기 위해 -ml-2 */}
       <button
         onClick={() => setMenuOpen((v) => !v)}
         aria-label="메뉴 열기"
         aria-expanded={menuOpen}
-        className="md:hidden text-brand-navy"
+        className="md:hidden -ml-2 text-brand-navy"
       >
         {menuOpen ? <IconClose className="w-7 h-7" /> : <IconMenu className="w-7 h-7" />}
       </button>
@@ -201,6 +212,29 @@ export default function Header({ active, showSearch = true }) {
               </Link>
             )}
           </div>,
+          document.body,
+        )}
+
+      {/* 검색 오버레이도 모바일 드롭다운 메뉴와 같은 이유로 document.body에 Portal로 렌더링함
+          (h-screen overflow-hidden인 페이지 안에서 fixed 자식이 그 조상 밖으로 못 나가는 버그 방지). */}
+      {mobileSearchOpen &&
+        createPortal(
+          <MobileSearchOverlay
+            q={q}
+            onChangeQ={setQ}
+            onSubmit={(keyword) => {
+              runSearch(keyword)
+              setMobileSearchOpen(false)
+            }}
+            onClose={() => setMobileSearchOpen(false)}
+            recentSearches={recentSearches}
+            onSelectRecent={(keyword) => {
+              setQ(keyword)
+              runSearch(keyword)
+              setMobileSearchOpen(false)
+            }}
+            onRemoveRecent={removeRecentSearch}
+          />,
           document.body,
         )}
     </nav>

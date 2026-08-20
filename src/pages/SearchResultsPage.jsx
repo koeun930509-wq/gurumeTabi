@@ -479,7 +479,11 @@ export default function SearchResultsPage() {
           <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
         )}
 
-        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4">
+        {/* pb-20 — 맨 위로 버튼은 fixed라 레이아웃 공간을 차지하지 않고 뷰포트 기준으로 떠 있어서, 끝까지
+            스크롤하면 버튼 높이(44px)+bottom 오프셋(28px)만큼 Footer 텍스트 위에 그대로 겹쳐 보이던 문제가
+            있었음. 스크롤 컨테이너 자체에 여유 공간을 예약해 최대로 스크롤해도 버튼이 빈 공간 위에서만
+            떠 있도록 함(더 보기 버튼은 sticky라 flex gap으로 이미 자연스럽게 간격이 있어 영향 없음). */}
+        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4 pb-20">
           <div className="min-h-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
               <div className="flex items-baseline gap-2 flex-wrap">
@@ -722,7 +726,14 @@ export default function SearchResultsPage() {
           </div>
         </div>
       </div>
-      <ScrollToTopButton containerRef={resultsScrollRef} />
+      {/* "더 보기" 버튼은 resultsScrollRef 내부의 sticky라 bottom이 그 컨테이너 기준(위 grid의 p-3=12px만큼
+          안쪽)이지만, 이 버튼은 fixed라 뷰포트 기준 — 그래서 똑같이 "1rem"을 줘도 실제로는 12px만큼 어긋난다.
+          그 12px을 더해서(1rem+0.75rem=1.75rem) 뷰포트 기준으로도 같은 줄에 보이도록 맞춤. right는 둘 다
+          뷰포트/정적 레이아웃 기준이라 그대로 콘텐츠 여백(12px)에 맞음. md+는 기존 위치 유지. */}
+      <ScrollToTopButton
+        containerRef={resultsScrollRef}
+        className="right-3 md:right-6 bottom-[calc(1.75rem_+_env(safe-area-inset-bottom,_0px))] md:bottom-6"
+      />
     </div>
   );
 }
