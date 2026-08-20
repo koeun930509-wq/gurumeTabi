@@ -709,9 +709,13 @@ export default function SearchResultsPage() {
                 기본 목록(q도 음식 필터도 없을 때)에는 버튼 문구가 `더 많은 "" 맛집 보기`처럼 빈 따옴표로
                 보이므로, 검색이 실제로 실행된 경우(headerText가 있을 때)에만 노출함.
                 -mt-8 — 카드 목록과 Footer 사이 간격이 넓어 보인다는 피드백으로, 이 버튼이 마지막 카드 줄
-                아래쪽을 살짝 가리는 걸 감수하고 위로 당김(사용자가 명시적으로 허용). */}
+                아래쪽을 살짝 가리는 걸 감수하고 위로 당김(사용자가 명시적으로 허용). relative z-10 —
+                SearchResultGridCard의 썸네일(`relative`, z-index:auto)이 static인 이 버튼보다 항상 위에
+                그려지는 문제가 있었음(같은 스태킹 컨텍스트에서 z-index:auto인 positioned 요소는 DOM 순서와
+                무관하게 static 요소보다 항상 위에 페인트됨) — 버튼도 positioned로 만들어야 DOM 순서(카드보다
+                뒤)대로 위에 그려짐. */}
             {hasMore && headerText && (
-              <div className="-mt-8 flex justify-center">
+              <div className="relative z-10 -mt-8 flex justify-center">
                 <button
                   type="button"
                   onClick={loadMoreResults}
