@@ -11,6 +11,8 @@ export const REGIONS = ['도쿄', '오사카', '후쿠오카', '나고야', '삿
 const SEARCH_SYNONYMS = {
   술집: '이자카야',
   돈까스: '돈카츠',
+  빵집: '베이커리',
+  커피: '카페',
 }
 
 export function resolveSearchSynonym(token) {

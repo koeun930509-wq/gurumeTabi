@@ -13,6 +13,7 @@ import {
   IconPin,
   IconShare,
   IconStar,
+  IconStarFilled,
   IconWallet,
 } from "../components/icons";
 import { fetchBackupPlan, fetchNearbyDessert, fetchRestaurantById } from "../lib/restaurants";
@@ -105,14 +106,14 @@ function PhotoCarousel({ images, name }) {
           <button
             onClick={showPrevPhoto}
             aria-label="이전 사진"
-            className="absolute top-1/2 left-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            className="absolute top-1/2 left-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer"
           >
             <IconChevronRight className="w-4 h-4 rotate-180" />
           </button>
           <button
             onClick={showNextPhoto}
             aria-label="다음 사진"
-            className="absolute top-1/2 right-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            className="absolute top-1/2 right-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer"
           >
             <IconChevronRight className="w-4 h-4" />
           </button>
@@ -387,8 +388,8 @@ export default function RestaurantDetailPage() {
                       onClick={handleSaveClick}
                       className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all cursor-pointer"
                     >
-                      <IconStar className="w-4 h-4" />
-                      {isSaved ? "저장됨" : "이 가게 저장하기"}
+                      <IconStarFilled className="w-6 h-6" />
+                      {isSaved ? "저장 취소" : "이 가게 저장하기"}
                     </button>
                     <a
                       href={

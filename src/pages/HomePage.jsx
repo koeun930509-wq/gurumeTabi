@@ -46,9 +46,9 @@ export default function HomePage() {
         <div className="flex flex-col items-center gap-5 w-full -mt-[60px]">
           <div className="flex flex-col items-center gap-2">
             <h1 className="font-jua text-5xl sm:text-5xl md:text-6xl text-white leading-tight">
-              광고 없는 <span className="text-brand-coral">찐맛집,</span>
+              광고 없는 <span className="text-brand-coral">찐맛집</span>
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-white">일본 미식여행을 위한 맛집 검색</p>
+            <p className="text-lg sm:text-xl md:text-2xl text-white">일본 미식 여행을 위한 맛집 검색 플랫폼</p>
           </div>
 
           <form onSubmit={handleSearch} className="gradient-border-input relative w-full max-w-2xl">

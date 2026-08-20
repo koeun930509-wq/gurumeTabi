@@ -148,14 +148,14 @@ export default function SearchResultGridCard({ restaurant }) {
             <button
               onClick={showPrevPhoto}
               aria-label="이전 사진"
-              className="absolute top-1/2 left-1.5 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              className="absolute top-1/2 left-1.5 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer"
             >
               <IconChevronRight className="w-4 h-4 rotate-180" />
             </button>
             <button
               onClick={showNextPhoto}
               aria-label="다음 사진"
-              className="absolute top-1/2 right-1.5 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              className="absolute top-1/2 right-1.5 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer"
             >
               <IconChevronRight className="w-4 h-4" />
             </button>

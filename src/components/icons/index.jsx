@@ -43,6 +43,14 @@ export function IconStar(props) {
   )
 }
 
+export function IconStarFilled(props) {
+  return (
+    <svg {...base(props)} fill="currentColor" stroke="none">
+      <path d="m12 3 2.7 5.9 6.3.7-4.7 4.4 1.2 6.3L12 17.3 6.5 20.3l1.2-6.3-4.7-4.4 6.3-.7L12 3Z" />
+    </svg>
+  )
+}
+
 export function IconUser(props) {
   return (
     <svg {...base(props)}>

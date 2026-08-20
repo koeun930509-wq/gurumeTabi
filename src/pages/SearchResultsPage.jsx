@@ -278,7 +278,14 @@ export default function SearchResultsPage() {
               normalizeJapaneseTranscription(r.name).includes(normalizedToken) ||
               normalizeJapaneseTranscription(r.category ?? "").includes(normalizedToken) ||
               normalizeJapaneseTranscription(r.region ?? "").includes(normalizedToken) ||
-              r.address.includes(token)
+              r.address.includes(token) ||
+              // 케이크·타코야키처럼 메뉴 종류가 가게명/카테고리에 안 들어가도, 리뷰에 언급됐으면 찾을 수 있도록
+              // 리뷰 본문(snippet/tasteSnippet)도 검색 대상에 포함 — DB에 메뉴 목록이 따로 없어서 쓰는 근사치.
+              r.reviews.some(
+                (rv) =>
+                  normalizeJapaneseTranscription(rv.snippet ?? "").includes(normalizedToken) ||
+                  normalizeJapaneseTranscription(rv.tasteSnippet ?? "").includes(normalizedToken)
+              )
             );
           })
         )
