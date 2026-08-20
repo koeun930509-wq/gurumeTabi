@@ -365,9 +365,10 @@ export default function MyPage() {
           <AccountActions />
         </div>
 
-        {/* pb-20 — 맨 위로 버튼이 fixed라 끝까지 스크롤하면 Footer 텍스트에 그대로 겹치던 문제 방지
-            (SearchResultsPage와 동일한 이유) */}
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll pb-20">
+        {/* pb-[68px] — 맨 위로 버튼(44px 높이 + bottom-6=24px)이 fixed라 끝까지 스크롤하면 Footer 텍스트에
+            그대로 겹치던 문제 방지(SearchResultsPage와 동일한 이유). 버튼 크기에 딱 맞춘 최소값이라 이보다
+            줄이면 다시 겹칠 수 있음 */}
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll pb-[68px]">
         {/* 모바일 레이아웃 */}
         <div className="md:hidden max-w-md w-full p-6 pb-0 flex flex-col gap-6">
           <h1 className="font-bold text-lg text-brand-navy">마이페이지</h1>

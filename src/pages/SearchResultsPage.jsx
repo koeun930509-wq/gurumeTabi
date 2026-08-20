@@ -479,11 +479,11 @@ export default function SearchResultsPage() {
           <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
         )}
 
-        {/* pb-20 — 맨 위로 버튼은 fixed라 레이아웃 공간을 차지하지 않고 뷰포트 기준으로 떠 있어서, 끝까지
-            스크롤하면 버튼 높이(44px)+bottom 오프셋(28px)만큼 Footer 텍스트 위에 그대로 겹쳐 보이던 문제가
-            있었음. 스크롤 컨테이너 자체에 여유 공간을 예약해 최대로 스크롤해도 버튼이 빈 공간 위에서만
-            떠 있도록 함(더 보기 버튼은 sticky라 flex gap으로 이미 자연스럽게 간격이 있어 영향 없음). */}
-        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4 pb-20">
+        {/* pb-[68px] — 맨 위로 버튼(44px 높이 + bottom-6=24px)은 fixed라 레이아웃 공간을 차지하지 않고
+            뷰포트 기준으로 떠 있어서, 끝까지 스크롤하면 그 자리에 Footer 텍스트가 그대로 겹쳐 보이던
+            문제가 있었음. 스크롤 컨테이너에 버튼 크기만큼 딱 맞춘 여유 공간을 예약해 방지함(이보다
+            줄이면 다시 겹칠 수 있음). */}
+        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4 pb-[68px]">
           <div className="min-h-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
               <div className="flex items-baseline gap-2 flex-wrap">
