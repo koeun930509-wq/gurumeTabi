@@ -176,13 +176,15 @@ export default function SearchResultGridCard({ restaurant }) {
           <span className="inline-flex items-center h-[22px] leading-none text-[11px] font-bold text-brand-navy bg-white/90 px-2 rounded-full">
             현지인 {restaurant.localRatio}%
           </span>
-          <span
-            className={`inline-flex items-center h-[22px] leading-none text-[11px] font-bold bg-white/90 px-2 rounded-full ${
-              STATUS_CHIP_STYLE[resolveStatusKey(restaurant)] ?? 'text-gray-700'
-            }`}
-          >
-            {STATUS_LABEL[resolveStatusKey(restaurant)] ?? '영업중'}
-          </span>
+          {resolveStatusKey(restaurant) !== 'unknown' && (
+            <span
+              className={`inline-flex items-center h-[22px] leading-none text-[11px] font-bold bg-white/90 px-2 rounded-full ${
+                STATUS_CHIP_STYLE[resolveStatusKey(restaurant)]
+              }`}
+            >
+              {STATUS_LABEL[resolveStatusKey(restaurant)]}
+            </span>
+          )}
         </div>
 
         <button

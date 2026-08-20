@@ -106,13 +106,15 @@ export default function SearchResultCard({ restaurant }) {
           <span className="text-[11px] font-semibold text-brand-coral-dark bg-brand-coral/10 px-2.5 py-1 rounded-full">
             현지인 {restaurant.localRatio}%
           </span>
-          <span
-            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${
-              STATUS_CHIP_STYLE[resolveStatusKey(restaurant)] ?? 'text-gray-500 bg-gray-100'
-            }`}
-          >
-            {STATUS_NOTE[resolveStatusKey(restaurant)] ?? '영업시간 확인 필요'}
-          </span>
+          {resolveStatusKey(restaurant) !== 'unknown' && (
+            <span
+              className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${
+                STATUS_CHIP_STYLE[resolveStatusKey(restaurant)]
+              }`}
+            >
+              {STATUS_NOTE[resolveStatusKey(restaurant)]}
+            </span>
+          )}
         </div>
       </div>
     </Link>

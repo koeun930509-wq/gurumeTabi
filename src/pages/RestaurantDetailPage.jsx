@@ -338,13 +338,15 @@ export default function RestaurantDetailPage() {
                       <span className="inline-flex items-center gap-1 text-xs text-brand-navy bg-brand-navy/10 px-2.5 py-1 rounded-full">
                         현지인 방문 {restaurant.localRatio}%
                       </span>
-                      <span
-                        className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full ${
-                          (STATUS_PILL[resolveStatusKey(restaurant)] ?? STATUS_PILL.open).className
-                        }`}
-                      >
-                        {(STATUS_PILL[resolveStatusKey(restaurant)] ?? STATUS_PILL.open).label}
-                      </span>
+                      {resolveStatusKey(restaurant) !== "unknown" && (
+                        <span
+                          className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full ${
+                            STATUS_PILL[resolveStatusKey(restaurant)].className
+                          }`}
+                        >
+                          {STATUS_PILL[resolveStatusKey(restaurant)].label}
+                        </span>
+                      )}
                     </div>
                   </div>
 

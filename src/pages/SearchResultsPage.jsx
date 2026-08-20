@@ -289,8 +289,12 @@ export default function SearchResultsPage() {
     if (r.hasRudeReview) return false;
     if (r.rating < applied.ratingMin) return false;
     if (r.localRatio < applied.localMin) return false;
-    if (applied.openStatus === "open" && resolveStatusKey(r) !== "open") return false;
-    if (applied.openStatus === "closed" && resolveStatusKey(r) === "open") return false;
+    // 영업 상태를 알 수 없는 가게("unknown", opening_hours 미수집)는 어느 필터에도 걸리지 않고
+    // 항상 통과시킨다 — "영업중"이라고 단정할 근거가 없다고 해서 검색 결과에서 아예 빼버리면
+    // opening_hours가 없는 약 15%의 가게가 영업상태 필터를 걸 때마다 전부 숨겨지는 게 더 나쁨.
+    const statusKey = resolveStatusKey(r);
+    if (applied.openStatus === "open" && statusKey !== "open" && statusKey !== "unknown") return false;
+    if (applied.openStatus === "closed" && statusKey === "open") return false;
     if (applied.card && !r.acceptsCard) return false;
     // TODO(역 도보거리): walkMinutes는 아직 수집 전이라 전부 null — sync-restaurants에 가까운 역 검색+거리 계산이 붙기 전까지는 이 필터가 항상 통과됨
     if (applied.walk10 && r.walkMinutes != null && r.walkMinutes > 10) return false;

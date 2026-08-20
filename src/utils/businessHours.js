@@ -35,9 +35,13 @@ export function isOpenNow(openingHours, now = new Date()) {
 // 카드/상세 페이지의 영업 상태 뱃지 키를 결정한다.
 // status가 'closed'(Google businessStatus 기준 폐업)면 실시간 계산과 무관하게 항상 휴무로 표시하고,
 // status가 'open'이어도 restaurant.isOpenNow(opening_hours 기반 실시간 계산)가 false면 영업종료로 내린다.
-// isOpenNow가 null(opening_hours 미수집)이면 기존처럼 status만으로 판정해 폴백한다.
+// isOpenNow가 null(opening_hours 미수집이라 실시간 판정이 불가능한 경우)이면 'unknown'을 반환한다.
+// 예전에는 이 경우 무조건 'open'으로 폴백했는데, opening_hours가 없는 가게(전체의 약 15%)가
+// 실제 영업 여부와 무관하게 항상 "영업중"으로 표시되는 문제가 있었음(2026-08-20 발견) — 정보가
+// 없으면 모른다고 보여주는 게 틀린 답을 단정하는 것보다 낫다는 판단으로 변경.
 export function resolveStatusKey(restaurant) {
   if (restaurant.status === 'closed' || restaurant.status === 'soldout') return restaurant.status
   if (restaurant.isOpenNow === false) return 'closed_now'
-  return 'open'
+  if (restaurant.isOpenNow === true) return 'open'
+  return 'unknown'
 }
