@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 import {
   IconArrowLeft,
   IconCake,
@@ -368,7 +369,7 @@ export default function RestaurantDetailPage() {
                         <span>
                           {restaurant.businessHours}
                           {restaurant.regularHoliday && restaurant.regularHoliday !== "없음" && (
-                            <span className="text-gray-400"> · 정휴일 {restaurant.regularHoliday}</span>
+                            <span className="text-gray-400"> · 정기휴무 {restaurant.regularHoliday}</span>
                           )}
                         </span>
                       </div>
@@ -509,6 +510,7 @@ export default function RestaurantDetailPage() {
           </div>
         </div>
       </div>
+      <ScrollToTopButton />
     </div>
   );
 }

@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import AccountActions from "../components/AccountActions";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 import { IconUserCircle, IconEdit, IconChevronRight, IconFileText, IconShield, IconClose } from "../components/icons";
 import { useAuth } from "../context/AuthContext";
 
@@ -341,6 +342,7 @@ export default function MyPage() {
   const navigate = useNavigate();
   const [policyModal, setPolicyModal] = useState(null);
   const displayName = user ? user.nickname || user.email.split("@")[0] : "게스트";
+  const scrollRef = useRef(null);
 
   function handleWithdraw() {
     if (window.confirm("정말 탈퇴하시겠습니까? 탈퇴 시 모든 데이터가 삭제됩니다.")) {
@@ -363,7 +365,7 @@ export default function MyPage() {
           <AccountActions />
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-scroll pretty-scroll">
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll">
         {/* 모바일 레이아웃 */}
         <div className="md:hidden max-w-md w-full p-6 pb-0 flex flex-col gap-6">
           <h1 className="font-bold text-lg text-brand-navy">마이페이지</h1>
@@ -657,6 +659,7 @@ export default function MyPage() {
         onClose={() => setPolicyModal(null)}
       />
       <RecentSearchesModal open={policyModal === "recentSearch"} onClose={() => setPolicyModal(null)} />
+      <ScrollToTopButton containerRef={scrollRef} />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { fetchRestaurants, fetchDessertLikeRestaurantsWithReviews } from "../lib
 import { FOOD_TYPES, IGNORED_SEARCH_TOKENS, normalizeJapaneseTranscription, resolveSearchSynonym } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 import { useAuth } from "../context/AuthContext";
 
 const RATING_OPTIONS = [
@@ -721,6 +722,7 @@ export default function SearchResultsPage() {
           </div>
         </div>
       </div>
+      <ScrollToTopButton containerRef={resultsScrollRef} />
     </div>
   );
 }

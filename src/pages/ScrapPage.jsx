@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import Footer from '../components/Footer'
 import SearchResultGridCard from '../components/SearchResultGridCard'
 import AccountActions from '../components/AccountActions'
+import ScrollToTopButton from '../components/ScrollToTopButton'
 import { IconSearch, IconStar } from '../components/icons'
 import { fetchRestaurantsByIds } from '../lib/restaurants'
 import { useAuth } from '../context/AuthContext'
@@ -13,6 +14,7 @@ export default function ScrapPage() {
   const { scrapIds } = useAuth()
   const navigate = useNavigate()
   const [saved, setSaved] = useState([])
+  const scrollRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -38,7 +40,7 @@ export default function ScrapPage() {
           <AccountActions />
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-scroll pretty-scroll">
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll">
           <div className="p-6 pb-0 md:p-8 md:pb-0 w-full min-h-full flex flex-col gap-6">
             <h1 className="font-bold text-2xl text-gray-900 flex items-baseline gap-[10px]">
               스크랩 맛집
@@ -74,6 +76,7 @@ export default function ScrapPage() {
           </div>
         </div>
       </div>
+      <ScrollToTopButton containerRef={scrollRef} />
     </div>
   )
 }
