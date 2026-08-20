@@ -480,10 +480,6 @@ export default function MyPage() {
             <div className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] divide-y divide-brand-peach/40 overflow-hidden">
               <button onClick={() => setPolicyModal("terms")} className="w-full text-left p-3.5 text-base font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">이용약관</button>
               <button onClick={() => setPolicyModal("privacy")} className="w-full text-left p-3.5 text-base font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">개인정보처리방침</button>
-              <div className="flex items-center justify-between p-3.5">
-                <span className="text-sm font-semibold text-gray-400">앱 버전</span>
-                <span className="text-xs text-gray-400">v0.1.0 (뼈대)</span>
-              </div>
             </div>
           </section>
 
@@ -639,10 +635,6 @@ export default function MyPage() {
                 </div>
                 <IconChevronRight className="w-4 h-4 text-gray-300 flex-none" />
               </button>
-            </div>
-            <div className="flex items-center justify-between pt-4 mt-1 border-t border-brand-peach/40">
-              <span className="text-sm font-semibold text-gray-500">앱 버전</span>
-              <span className="text-xs text-gray-400">v0.1.0 (뼈대)</span>
             </div>
           </section>
 
