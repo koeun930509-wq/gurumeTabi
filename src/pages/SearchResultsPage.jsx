@@ -479,11 +479,12 @@ export default function SearchResultsPage() {
           <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
         )}
 
-        {/* pb-[68px] — 맨 위로 버튼(44px 높이 + bottom-6=24px)은 fixed라 레이아웃 공간을 차지하지 않고
+        {/* pb-14(56px) — 맨 위로 버튼(44px 높이 + bottom-3=12px)은 fixed라 레이아웃 공간을 차지하지 않고
             뷰포트 기준으로 떠 있어서, 끝까지 스크롤하면 그 자리에 Footer 텍스트가 그대로 겹쳐 보이던
-            문제가 있었음. 스크롤 컨테이너에 버튼 크기만큼 딱 맞춘 여유 공간을 예약해 방지함(이보다
-            줄이면 다시 겹칠 수 있음). */}
-        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4 pb-[68px]">
+            문제가 있었음. 스크롤 컨테이너에 버튼 크기만큼 딱 맞춘 여유 공간을 예약해 방지함 — 처음엔
+            버튼이 bottom-6(24px)이라 pb-20(80px)이 필요했는데, 사용자가 PC에서도 여백이 넓어 보인다고
+            해서 버튼 자체를 화면에 더 붙여(bottom-3) 필요 여백을 56px까지 줄임(이보다 줄이면 다시 겹침). */}
+        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4 pb-14">
           <div className="min-h-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
               <div className="flex items-baseline gap-2 flex-wrap">
@@ -726,7 +727,7 @@ export default function SearchResultsPage() {
       </div>
       {/* right만 모바일 콘텐츠 여백(grid의 p-3=12px)에 맞춰 안쪽으로 당김 — "더 보기" 버튼이 이제
           sticky가 아니라 목록 끝에서만 나타나므로 bottom을 그 버튼에 맞춰 정렬할 필요는 없어짐. */}
-      <ScrollToTopButton containerRef={resultsScrollRef} className="right-3 md:right-6 bottom-6" />
+      <ScrollToTopButton containerRef={resultsScrollRef} className="right-3 md:right-6 bottom-3" />
     </div>
   );
 }

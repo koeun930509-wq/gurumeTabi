@@ -40,10 +40,10 @@ export default function ScrapPage() {
           <AccountActions />
         </div>
 
-        {/* pb-[68px] — 맨 위로 버튼(44px 높이 + bottom-6=24px)이 fixed라 끝까지 스크롤하면 Footer 텍스트에
+        {/* pb-14(56px) — 맨 위로 버튼(44px 높이 + bottom-3=12px)이 fixed라 끝까지 스크롤하면 Footer 텍스트에
             그대로 겹치던 문제 방지(SearchResultsPage와 동일한 이유). 버튼 크기에 딱 맞춘 최소값이라 이보다
             줄이면 다시 겹칠 수 있음 */}
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll pb-[68px]">
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll pb-14">
           <div className="p-6 pb-0 md:p-8 md:pb-0 w-full min-h-full flex flex-col gap-6">
             <h1 className="font-bold text-2xl text-gray-900 flex items-baseline gap-[10px]">
               스크랩 맛집

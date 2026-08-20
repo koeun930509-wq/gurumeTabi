@@ -4,7 +4,7 @@ import { IconChevronDown } from './icons'
 // containerRef가 있으면 그 안쪽 스크롤 컨테이너를 감시/스크롤하고(SearchResultsPage/ScrapPage/MyPage처럼
 // 페이지 자체가 h-screen overflow-hidden이고 콘텐츠만 내부에서 스크롤되는 레이아웃), 없으면 window를
 // 감시/스크롤한다(RestaurantDetailPage처럼 별도 스크롤 컨테이너 없이 body 스크롤을 그대로 쓰는 페이지).
-export default function ScrollToTopButton({ containerRef, threshold = 400, className = 'bottom-6 right-6' }) {
+export default function ScrollToTopButton({ containerRef, threshold = 400, className = 'bottom-3 right-6' }) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
