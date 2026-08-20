@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { IconClose, IconMenu, IconSearch, IconStar, IconUser, IconLogout, IconLogin } from './icons'
 import SearchAutocompleteInput from './SearchAutocompleteInput'
@@ -28,6 +28,26 @@ export default function Header({ active, showSearch = true }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const navRef = useRef(null)
   const [navHeight, setNavHeight] = useState(0)
+  const [scrolled, setScrolled] = useState(false)
+
+  // 스크롤을 조금이라도 내리면 헤더가 sticky로 화면 상단에 붙어있는 상태에서 얇게 줄어들도록
+  // — 페이지 자체(window)가 스크롤되는 화면(상세 페이지 등)에서만 발동함. 검색결과/마이페이지/스크랩처럼
+  // h-screen overflow-hidden으로 내부 컨테이너만 스크롤되는 화면에서는 window 스크롤이 발생하지 않아
+  // 이 효과가 적용되지 않음(의도된 범위).
+  // on/off 임계값을 다르게 둬서(진입 40px / 해제 15px) 스크롤이 경계값 근처에서 미세하게 오르내릴 때
+  // scrolled 상태가 반복적으로 뒤집히며 애니메이션이 떨리는 걸 방지함(히스테리시스).
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled((prev) => {
+        if (window.scrollY > 40) return true
+        if (window.scrollY < 15) return false
+        return prev
+      })
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // 모바일 드롭다운 메뉴가 화면 최하단까지 정확히 채워지도록, nav의 실제 렌더링 높이를 측정해서 드롭다운의
   // top 계산에 씀 — 이전에는 min-h-[calc(100vh-92px)]처럼 헤더 높이를 매직넘버로 하드코딩했는데, 헤더
@@ -65,10 +85,18 @@ export default function Header({ active, showSearch = true }) {
   return (
     <nav
       ref={navRef}
-      className="relative flex items-center gap-6 px-4 sm:px-6 py-4 sm:py-6 bg-white shadow-[0_4px_16px_-4px_rgba(109,40,217,0.15)] z-10"
+      className={`sticky top-0 flex items-center gap-6 px-4 sm:px-6 bg-white shadow-[0_4px_16px_-4px_rgba(109,40,217,0.15)] z-20 transition-[padding] duration-300 ease-in-out ${
+        scrolled ? 'py-[14.4px] sm:py-[21.6px]' : 'py-4 sm:py-6'
+      }`}
     >
       <Link to="/" className="flex-none">
-        <img src="/logo.png" alt="Gurume Tabi" className="h-[43.2px] sm:h-12 w-auto" />
+        <img
+          src="/logo.png"
+          alt="Gurume Tabi"
+          className={`w-auto transition-[height] duration-300 ease-in-out ${
+            scrolled ? 'h-[38.88px] sm:h-[43.2px]' : 'h-[43.2px] sm:h-12'
+          }`}
+        />
       </Link>
 
       {/* 데스크톱 nav 링크 — 화면 정중앙 고정, 모바일에서는 숨기고 햄버거 메뉴로 이동 */}

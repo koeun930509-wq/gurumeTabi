@@ -52,26 +52,47 @@ function toViewModel(row) {
   }
 }
 
+// 검색 결과 화면에서 상세 페이지로 갔다가 뒤로가기로 돌아오면 SearchResultsPage가 다시 마운트되며
+// fetchRestaurants()를 처음부터 다시 호출해, 4천여 곳 전체를 재조회하는 동안 로딩 화면이 다시 뜨는
+// 버그가 있었음(2026-08-20). 전체 가게 목록은 같은 세션 안에서는 사실상 고정된 참조 데이터라, 모듈
+// 스코프에 캐시해두고 두 번째 호출부터는 네트워크 재조회 없이 즉시 반환한다. 새로고침하면 캐시도
+// 같이 초기화되므로 최신 데이터와 어긋날 걱정은 없다.
+let restaurantsCache = null
+let restaurantsPromise = null
+
 // PostgREST(Supabase)는 명시적으로 range를 안 주면 기본 1000행까지만 반환한다 — restaurants가
 // 1000행을 넘어선 뒤로 검색 결과가 뒷부분 지역/카테고리를 통째로 빠뜨리는 버그가 있었음
 // (예: "오사카" 검색이 187곳 중 149곳만 나옴 — 나머지 38곳이 1000행 밖에 있었음). 1000행씩
 // 페이지네이션해서 전체를 모아온다.
 export async function fetchRestaurants() {
-  const pageSize = 1000
-  let from = 0
-  const all = []
-  while (true) {
-    const { data, error } = await supabase
-      .from('restaurants')
-      .select('*')
-      .range(from, from + pageSize - 1)
-    if (error) throw error
-    if (!data || data.length === 0) break
-    all.push(...data)
-    if (data.length < pageSize) break
-    from += pageSize
+  if (restaurantsCache) return restaurantsCache
+  if (restaurantsPromise) return restaurantsPromise
+
+  restaurantsPromise = (async () => {
+    const pageSize = 1000
+    let from = 0
+    const all = []
+    while (true) {
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select('*')
+        .range(from, from + pageSize - 1)
+      if (error) throw error
+      if (!data || data.length === 0) break
+      all.push(...data)
+      if (data.length < pageSize) break
+      from += pageSize
+    }
+    return all.map(toViewModel)
+  })()
+
+  try {
+    restaurantsCache = await restaurantsPromise
+    return restaurantsCache
+  } catch (error) {
+    restaurantsPromise = null
+    throw error
   }
-  return all.map(toViewModel)
 }
 
 // 스크랩 페이지처럼 id 목록이 이미 정해져 있을 때 전체 4천여 건을 다 불러오지 않고 그 id들만 조회한다.
@@ -88,13 +109,31 @@ export async function fetchRestaurantsByIds(ids) {
 // 디저트류를 파는 카페/디저트/베이커리 카테고리(합쳐서 700곳 이하)로만 후보를 좁혀 리뷰를 조회한다.
 const DESSERT_LIKE_CATEGORIES = ['카페', '디저트', '베이커리']
 
+// fetchRestaurants()와 같은 이유로 캐시 — 뒤로가기로 검색 결과에 돌아왔을 때 리뷰까지 다시 조회하며
+// 로딩이 재발생하지 않도록 함.
+let dessertLikeCache = null
+let dessertLikePromise = null
+
 export async function fetchDessertLikeRestaurantsWithReviews() {
-  const { data, error } = await supabase
-    .from('restaurants')
-    .select('*, reviews_cache(*)')
-    .in('category', DESSERT_LIKE_CATEGORIES)
-  if (error) throw error
-  return (data ?? []).map(toViewModel)
+  if (dessertLikeCache) return dessertLikeCache
+  if (dessertLikePromise) return dessertLikePromise
+
+  dessertLikePromise = (async () => {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*, reviews_cache(*)')
+      .in('category', DESSERT_LIKE_CATEGORIES)
+    if (error) throw error
+    return (data ?? []).map(toViewModel)
+  })()
+
+  try {
+    dessertLikeCache = await dessertLikePromise
+    return dessertLikeCache
+  } catch (error) {
+    dessertLikePromise = null
+    throw error
+  }
 }
 
 export async function fetchRestaurantById(id) {
