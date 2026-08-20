@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import SearchResultCard from "../components/SearchResultCard";
 import SearchResultGridCard from "../components/SearchResultGridCard";
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose, IconFilter } from "../components/icons";
-import { fetchRestaurants } from "../lib/restaurants";
+import { fetchRestaurants, fetchDessertLikeRestaurantsWithReviews } from "../lib/restaurants";
 import { FOOD_TYPES, IGNORED_SEARCH_TOKENS, normalizeJapaneseTranscription, resolveSearchSynonym } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
@@ -267,36 +267,69 @@ export default function SearchResultsPage() {
     [q]
   );
 
-  const matchedResults = useMemo(() => {
-    return restaurants
-      .filter((r) => {
-        if (
-          matchTokens.length > 0 &&
-          !matchTokens.every((token) => {
-            const normalizedToken = normalizeJapaneseTranscription(token);
-            return (
-              normalizeJapaneseTranscription(r.name).includes(normalizedToken) ||
-              normalizeJapaneseTranscription(r.category ?? "").includes(normalizedToken) ||
-              normalizeJapaneseTranscription(r.region ?? "").includes(normalizedToken) ||
-              r.address.includes(token)
-            );
-          })
-        )
-          return false;
-        if (r.hasRudeReview) return false;
-        if (r.rating < applied.ratingMin) return false;
-        if (r.localRatio < applied.localMin) return false;
-        if (applied.openStatus === "open" && resolveStatusKey(r) !== "open") return false;
-        if (applied.openStatus === "closed" && resolveStatusKey(r) === "open") return false;
-        if (applied.card && !r.acceptsCard) return false;
-        // TODO(역 도보거리): walkMinutes는 아직 수집 전이라 전부 null — sync-restaurants에 가까운 역 검색+거리 계산이 붙기 전까지는 이 필터가 항상 통과됨
-        if (applied.walk10 && r.walkMinutes != null && r.walkMinutes > 10) return false;
-        if (applied.reservation && !r.acceptsReservation) return false;
-        if (applied.foods.length > 0 && !applied.foods.includes(r.category)) return false;
-        return true;
+  function matchesTokens(r, includeReviews) {
+    if (matchTokens.length === 0) return true;
+    return matchTokens.every((token) => {
+      const normalizedToken = normalizeJapaneseTranscription(token);
+      const textMatch =
+        normalizeJapaneseTranscription(r.name).includes(normalizedToken) ||
+        normalizeJapaneseTranscription(r.category ?? "").includes(normalizedToken) ||
+        normalizeJapaneseTranscription(r.region ?? "").includes(normalizedToken) ||
+        r.address.includes(token);
+      if (textMatch || !includeReviews) return textMatch;
+      return (r.reviews ?? []).some(
+        (rv) =>
+          normalizeJapaneseTranscription(rv.snippet ?? "").includes(normalizedToken) ||
+          normalizeJapaneseTranscription(rv.tasteSnippet ?? "").includes(normalizedToken)
+      );
+    });
+  }
+
+  function passesFilters(r) {
+    if (r.hasRudeReview) return false;
+    if (r.rating < applied.ratingMin) return false;
+    if (r.localRatio < applied.localMin) return false;
+    if (applied.openStatus === "open" && resolveStatusKey(r) !== "open") return false;
+    if (applied.openStatus === "closed" && resolveStatusKey(r) === "open") return false;
+    if (applied.card && !r.acceptsCard) return false;
+    // TODO(역 도보거리): walkMinutes는 아직 수집 전이라 전부 null — sync-restaurants에 가까운 역 검색+거리 계산이 붙기 전까지는 이 필터가 항상 통과됨
+    if (applied.walk10 && r.walkMinutes != null && r.walkMinutes > 10) return false;
+    if (applied.reservation && !r.acceptsReservation) return false;
+    if (applied.foods.length > 0 && !applied.foods.includes(r.category)) return false;
+    return true;
+  }
+
+  const textMatchedResults = useMemo(() => {
+    return restaurants.filter((r) => matchesTokens(r, false) && passesFilters(r));
+  }, [restaurants, applied, matchTokens]);
+
+  // 가게명/카테고리/지역/주소로 매칭된 게 하나도 없을 때만, 카페/디저트/베이커리 후보를 리뷰까지
+  // 조회해서(fetchDessertLikeRestaurantsWithReviews) "케이크"처럼 메뉴가 리뷰에만 언급된 경우를 찾는다.
+  // 전체 가게를 리뷰까지 조회하면 쿼리 타임아웃이 나서(위 fetchRestaurants 주석 참고) 후보를 미리 좁혀둠.
+  const [reviewMatchedResults, setReviewMatchedResults] = useState([]);
+  useEffect(() => {
+    if (textMatchedResults.length > 0 || matchTokens.length === 0) {
+      setReviewMatchedResults([]);
+      return;
+    }
+    let cancelled = false;
+    fetchDessertLikeRestaurantsWithReviews()
+      .then((data) => {
+        if (cancelled) return;
+        setReviewMatchedResults(data.filter((r) => matchesTokens(r, true) && passesFilters(r)));
       })
-      .sort(SORT_OPTIONS.find((o) => o.key === sortBy).sorter);
-  }, [restaurants, applied, matchTokens, sortBy]);
+      .catch(() => {
+        if (!cancelled) setReviewMatchedResults([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [textMatchedResults.length, matchTokens, applied]);
+
+  const matchedResults = useMemo(() => {
+    const base = textMatchedResults.length > 0 ? textMatchedResults : reviewMatchedResults;
+    return [...base].sort(SORT_OPTIONS.find((o) => o.key === sortBy).sorter);
+  }, [textMatchedResults, reviewMatchedResults, sortBy]);
 
   const results = matchedResults.slice(0, visibleCount);
   const hasMore = visibleCount < matchedResults.length;

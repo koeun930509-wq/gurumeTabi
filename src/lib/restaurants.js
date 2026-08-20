@@ -78,6 +78,21 @@ export async function fetchRestaurantsByIds(ids) {
   return (data ?? []).map(toViewModel)
 }
 
+// "케이크"처럼 메뉴가 가게명/카테고리에 안 들어가도 리뷰에 언급된 가게를 찾기 위한 함수.
+// 전체 4천여 곳을 리뷰까지 조회하면 PostgREST가 statement timeout(500)으로 죽는 사고가 있었어서
+// (fetchRestaurants()에 reviews_cache join을 넣었다가 검색 결과 전체가 0건이 되는 회귀 발생, 2026-08-20),
+// 디저트류를 파는 카페/디저트/베이커리 카테고리(합쳐서 700곳 이하)로만 후보를 좁혀 리뷰를 조회한다.
+const DESSERT_LIKE_CATEGORIES = ['카페', '디저트', '베이커리']
+
+export async function fetchDessertLikeRestaurantsWithReviews() {
+  const { data, error } = await supabase
+    .from('restaurants')
+    .select('*, reviews_cache(*)')
+    .in('category', DESSERT_LIKE_CATEGORIES)
+  if (error) throw error
+  return (data ?? []).map(toViewModel)
+}
+
 export async function fetchRestaurantById(id) {
   const { data, error } = await supabase
     .from('restaurants')
