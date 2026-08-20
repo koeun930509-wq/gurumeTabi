@@ -59,7 +59,7 @@ export async function fetchRestaurants() {
   while (true) {
     const { data, error } = await supabase
       .from('restaurants')
-      .select('*, reviews_cache(*)')
+      .select('*')
       .range(from, from + pageSize - 1)
     if (error) throw error
     if (!data || data.length === 0) break
