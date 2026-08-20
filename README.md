@@ -51,7 +51,7 @@ npm run lint     # oxlint
 | `translate-restaurant-names` | 기존 데이터 중 한글이 아닌 이름을 보정하는 백필 함수 |
 | `enrich-hotpepper` | 리쿠르트 Hot Pepper Gourmet API로 영업시간/정휴일/예산대/카드결제/핫페퍼 URL을 보강(2026-08-18, 전체 1,970곳 실행 — 1,589곳 매칭; 2026-08-20에 신규 카테고리 1,794곳 추가 실행 — 1,567곳 매칭). 가게명 대신 위경도 거리(80m 이내) 기준으로 매칭. `skipTranslate` 옵션으로 Cloud Translation API 호출 없이 일본어 원문만 저장하는 모드도 지원(신규 카테고리 보강 시 크레딧 절약 목적으로 사용) — 해당 1,567곳도 2026-08-20에 번역 백필 완료, 현재 핫페퍼로 매칭된 가게 전체가 한글로 표시됨 |
 
-`sync-restaurants`는 2026-08-19부터 Google `regularOpeningHours`(요일별 영업시간)도 함께 요청해 `opening_hours`(jsonb) 컬럼에 저장합니다 — 프론트의 `src/utils/businessHours.js`가 이 값과 일본 현지 시각을 비교해 "지금 영업중"을 실시간으로 계산합니다(기존에는 Google `businessStatus`, 즉 폐업 여부만 반영해 대부분 "영업중"으로 고정 표시되던 문제가 있었음).
+`sync-restaurants`는 2026-08-19부터 Google `regularOpeningHours`(요일별 영업시간)도 함께 요청해 `opening_hours`(jsonb) 컬럼에 저장합니다 — 프론트의 `src/utils/businessHours.js`가 이 값과 일본 현지 시각을 비교해 "지금 영업중"을 실시간으로 계산합니다(기존에는 Google `businessStatus`, 즉 폐업 여부만 반영해 대부분 "영업중"으로 고정 표시되던 문제가 있었음). `opening_hours`가 없는 가게(전체의 약 15%)는 핫페퍼 `business_hours` 자유 텍스트를 파싱(`parseBusinessHoursText`)해 대신 쓰고, 그마저 없으면 "정보 없음" 상태로 배지 자체를 숨깁니다(2026-08-20 — 예전엔 정보가 없을 때 무조건 "영업중"으로 잘못 표시되는 버그가 있었음).
 
 수집 범위는 14개 지역(도쿄/오사카/후쿠오카/나고야/삿포로/오키나와/다카마쓰/마쓰야마/오카야마/히로시마/시즈오카/요나고/기타큐슈/나가사키) × 14개 카테고리(스시/라멘/우동/오코노미야키/돈카츠/타코야키/디저트/카페/베이커리/이자카야/카레/오뎅/돈부리/텐동/소바/쿠시카츠/모츠나베/스키야키/장어덮밥/오무라이스/야키소바/몬자야키 등, `FOOD_TYPES` 21종 전체가 실제 검색 가능)이며, **분기(3개월) 1회 재수집을 권장합니다**(2026-08-19부터, 기존 월 1회에서 변경 — 전체 재수집 1회당 Google Places + Translation API 비용이 약 9~10만 원 실측되어 무료 크레딧 소진을 늦추기 위함, 자세한 절차는 `CLAUDE.md` 참고).
 
@@ -92,6 +92,7 @@ npm run lint     # oxlint
 - **마이페이지 프로필 관리**: 닉네임과 프로필 사진을 `NicknameModal`에서 수정 가능. 닉네임은 `AuthContext.updateNickname`을 통해 Supabase `profiles.nickname`에 실제로 저장됨. 사진은 jpg/png/webp·500KB 이하만 허용, `FileReader`로 base64 변환 후 `AuthContext.updateAvatar`를 통해 계정별 `localStorage` 키(`gurume_avatar_${user.id}`)에 저장(실제 파일 업로드/스토리지 없음)
 - **Footer**: `src/components/Footer.jsx` 공용 컴포넌트가 "Copyright(c)2026 GurumeTabi. All rights reserved." 문구를 4개 화면(홈·검색·스크랩·마이페이지) 하단에 표시. 화면마다 색상·정렬·여백만 다르게 적용(홈은 흰색 70% 투명도, 검색은 회색 `#999`, 스크랩·마이페이지는 흰색). 스크랩·검색 결과는 콘텐츠가 짧아도 `mt-auto`로 항상 화면 하단에 붙음
 - **스크롤 안정화**: `/search`·`/scrap`·`/mypage` 모두 페이지 자체는 `h-screen overflow-hidden`이고 콘텐츠 영역만 `overflow-y-scroll`(`pretty-scroll` 커스텀 스크롤바)로 감싸, 콘텐츠 높이 변화로 카드 폭이 흔들리거나 스크롤바가 나타났다 사라지는 현상을 방지함
+- **맨 위로 가기 버튼**(2026-08-20 추가): 홈을 제외한 검색·상세·스크랩·마이페이지 4개 화면에서 일정 스크롤 이상 내려가면 우측 하단에 나타나는 공용 `ScrollToTopButton` 컴포넌트. 페이지마다 스크롤 컨테이너 구조가 달라서(검색/스크랩/마이페이지는 내부 div 스크롤, 상세 페이지는 window 스크롤을 그대로 씀) `containerRef`를 선택적으로 받아 두 경우 모두 처리함
 
 ## 아직 안 된 것 (다음 단계)
 
@@ -99,7 +100,7 @@ npm run lint     # oxlint
 - ~~핫페퍼 그루메 API 보강~~: 2026-08-18 완료 — `enrich-hotpepper`로 영업시간/정휴일/예산대/카드결제/URL을 보강(1,970곳 중 1,589곳 매칭), 상세페이지 사이드바에도 노출 완료. 2026-08-20에 신규 카테고리 1,794곳도 추가 보강(1,567곳 매칭)했고, 같은 날 번역 백필까지 완료해 핫페퍼 매칭 가게 전체가 한글로 표시됨
 - ~~구글 소셜 로그인~~: 2026-08-19 완료
 - ~~스크랩 DB 연동~~: 2026-08-19 완료 — 로그인 시 `scraps` 테이블과 실제 동기화, 비로그인 시만 localStorage
-- ~~영업중 뱃지 실시간화~~: 2026-08-19 완료 — `opening_hours` 백필 + `businessHours.js`로 실시간 계산(위 "데이터 수집" 절 참고)
+- ~~영업중 뱃지 실시간화~~: 2026-08-19 완료 — `opening_hours` 백필 + `businessHours.js`로 실시간 계산(위 "데이터 수집" 절 참고). 2026-08-20에 opening_hours 없는 가게가 항상 "영업중"으로 잘못 표시되던 버그를 수정(정보 없으면 배지 숨김)하고, 핫페퍼 `business_hours` 텍스트 파싱 폴백을 추가해 opening_hours 없는 656곳 중 481곳까지 실시간 판정 범위를 넓힘
 - 알림 기능: 마이페이지 UI는 있으나 "준비중" 상태로 비활성화, 실제 발송 로직 미구현
 - 프로필 사진 실제 업로드/스토리지 연동(Supabase Storage) — 지금은 base64로 `localStorage`에만 저장
 - "역에서 도보 10분 이내" 필터: `walk_minutes`가 아직 안 채워진 지역이 있을 수 있음(`fill-walk-minutes` 재실행 필요), 오키나와는 구조적으로 영구히 비워둠
