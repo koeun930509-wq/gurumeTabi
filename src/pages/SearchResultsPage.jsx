@@ -6,7 +6,7 @@ import SearchResultCard from "../components/SearchResultCard";
 import SearchResultGridCard from "../components/SearchResultGridCard";
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose, IconFilter } from "../components/icons";
 import { fetchRestaurants, fetchDessertLikeRestaurantsWithReviews } from "../lib/restaurants";
-import { FOOD_TYPES, IGNORED_SEARCH_TOKENS, normalizeJapaneseTranscription, resolveSearchSynonym } from "../utils/searchTerms";
+import { FOOD_TYPES, IGNORED_SEARCH_TOKENS, normalizeJapaneseTranscription, REGIONS, resolveSearchSynonym } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
 import ScrollToTopButton from "../components/ScrollToTopButton";
@@ -271,6 +271,12 @@ export default function SearchResultsPage() {
   function matchesTokens(r, includeReviews) {
     if (matchTokens.length === 0) return true;
     return matchTokens.every((token) => {
+      // 토큰이 REGIONS에 등록된 정식 지역명과 정확히 일치하면 region 필드로만 매칭한다 — 그렇지 않고
+      // 가게명/주소에도 부분 문자열로 매칭시키면, 상호명에 지역명이 들어간 타 지역 체인점(예: 오사카에
+      // 있는 "규카츠 교토가츠규")이 "교토" 검색에 걸려버리는 문제가 있었음(2026-08-24 사용자 리포트로 발견).
+      if (REGIONS.includes(token)) {
+        return r.region === token;
+      }
       const normalizedToken = normalizeJapaneseTranscription(token);
       const textMatch =
         normalizeJapaneseTranscription(r.name).includes(normalizedToken) ||
