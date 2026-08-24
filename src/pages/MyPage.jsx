@@ -365,7 +365,10 @@ export default function MyPage() {
           <AccountActions />
         </div>
 
-        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll">
+        {/* pb-7(28px, SearchResultsPage와 동일한 이유로 56px→절반 축소) — 맨 위로 버튼(44px 높이 +
+            bottom-3=12px)이 fixed라 끝까지 스크롤하면 Footer 텍스트에 겹칠 수 있지만(최대 28px), 스크롤이
+            필요 없는 화면에서 Footer가 바닥에서 너무 떨어져 보이는 문제를 더 우선해 감수함 */}
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll pb-7">
         {/* 모바일 레이아웃 */}
         <div className="md:hidden max-w-md w-full p-6 pb-0 flex flex-col gap-6">
           <h1 className="font-bold text-lg text-brand-navy">마이페이지</h1>
@@ -477,10 +480,6 @@ export default function MyPage() {
             <div className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] divide-y divide-brand-peach/40 overflow-hidden">
               <button onClick={() => setPolicyModal("terms")} className="w-full text-left p-3.5 text-base font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">이용약관</button>
               <button onClick={() => setPolicyModal("privacy")} className="w-full text-left p-3.5 text-base font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">개인정보처리방침</button>
-              <div className="flex items-center justify-between p-3.5">
-                <span className="text-sm font-semibold text-gray-400">앱 버전</span>
-                <span className="text-xs text-gray-400">v0.1.0 (뼈대)</span>
-              </div>
             </div>
           </section>
 
@@ -636,10 +635,6 @@ export default function MyPage() {
                 </div>
                 <IconChevronRight className="w-4 h-4 text-gray-300 flex-none" />
               </button>
-            </div>
-            <div className="flex items-center justify-between pt-4 mt-1 border-t border-brand-peach/40">
-              <span className="text-sm font-semibold text-gray-500">앱 버전</span>
-              <span className="text-xs text-gray-400">v0.1.0 (뼈대)</span>
             </div>
           </section>
 

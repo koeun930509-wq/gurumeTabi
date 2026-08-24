@@ -139,9 +139,9 @@ export default function SearchResultsPage() {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const resultsScrollRef = useRef(null);
 
-  // 위로 스크롤해둔 상태에서 "더보기"를 눌러도 새로 추가된 카드가 바로 보이도록, 클릭 시점 기준
-  // 한 화면 높이만큼 아래로 스크롤한다(정확히 새 카드 위치를 계산하는 대신, sticky 버튼 근처로
-  // 옮겨주는 정도로 충분 — 버튼 자체가 sticky라 스크롤 후에도 계속 같은 자리에 남아있음).
+  // "더 보기"는 목록 끝(정적 위치)에 있어서, 클릭 시 새로 추가된 카드가 삽입되는 지점이 현재 스크롤
+  // 위치 바로 아래라 그대로 두면 안 보인다 — 한 화면 높이의 80%만큼 아래로 스크롤해 바로 보이게 함
+  // (정확한 새 카드 위치 계산 대신 대략적인 값으로 충분).
   function loadMoreResults() {
     setVisibleCount((v) => v + RESULTS_PAGE_SIZE);
     const el = resultsScrollRef.current;
@@ -479,7 +479,12 @@ export default function SearchResultsPage() {
           <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileFilterOpen(false)} />
         )}
 
-        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4">
+        {/* pb-7(28px) — 검색 전(빈 상태)처럼 스크롤이 애초에 필요 없는 화면에서 Footer가 진짜 바닥에서 너무
+            떨어져 보인다는 피드백으로 56px에서 절반으로 줄임. 버튼(44px 높이 + bottom-3=12px)이 겹치지
+            않으려면 원래 56px가 필요했으므로, 이 값으로는 아주 긴 목록을 끝까지 스크롤했을 때 맨 위로
+            버튼이 Footer를 다시 살짝(최대 28px) 가릴 수 있음 — 사용자가 "화면 바닥과 너무 떨어져 있다"는
+            문제를 더 중요하게 봐서 감수하기로 함. */}
+        <div ref={resultsScrollRef} className="h-full overflow-y-scroll pretty-scroll md:pr-4 pb-7">
           <div className="min-h-full flex flex-col gap-4">
             <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
               <div className="flex items-baseline gap-2 flex-wrap">
@@ -698,19 +703,23 @@ export default function SearchResultsPage() {
               </>
             )}
 
-            {/* fixed(뷰포트 전체 폭 기준 중앙)로 두면 좌측 필터 사이드바(230px)만큼 왼쪽으로 치우쳐 보이는
-                문제가 있었음 — sticky로 두면 이 콘텐츠 컬럼(사이드바 제외 영역) 폭 기준으로 중앙 정렬되면서도
-                스크롤 시 항상 화면 하단 16px 위에 붙어있음. env(safe-area-inset-bottom)로 안드로이드 제스처
-                네비게이션 바 같은 시스템 UI도 피한다(모바일 필터 버튼의 mobile-safe-bottom과 같은 이유). */}
-            {hasMore && (
-              <div
-                className="sticky flex justify-center pointer-events-none"
-                style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
-              >
+            {/* 예전엔 sticky로 스크롤 내내 화면 하단에 떠 있었는데, 그러면 스크롤하는 동안 계속 카드 사진
+                위에 버튼이 겹쳐 보이는 문제가 있었음(2026-08-20 피드백) — 일반 배치로 바꿔서 목록 끝까지
+                스크롤했을 때(마지막 카드 다음, Footer 앞)만 보이도록 함. headerText가 비어있는 검색 전
+                기본 목록(q도 음식 필터도 없을 때)에는 버튼 문구가 `더 많은 "" 맛집 보기`처럼 빈 따옴표로
+                보이므로, 검색이 실제로 실행된 경우(headerText가 있을 때)에만 노출함.
+                -mt-8 — 카드 목록과 Footer 사이 간격이 넓어 보인다는 피드백으로, 이 버튼이 마지막 카드 줄
+                아래쪽을 살짝 가리는 걸 감수하고 위로 당김(사용자가 명시적으로 허용). relative z-10 —
+                SearchResultGridCard의 썸네일(`relative`, z-index:auto)이 static인 이 버튼보다 항상 위에
+                그려지는 문제가 있었음(같은 스태킹 컨텍스트에서 z-index:auto인 positioned 요소는 DOM 순서와
+                무관하게 static 요소보다 항상 위에 페인트됨) — 버튼도 positioned로 만들어야 DOM 순서(카드보다
+                뒤)대로 위에 그려짐. */}
+            {hasMore && headerText && (
+              <div className="relative z-10 -mt-8 flex justify-center">
                 <button
                   type="button"
                   onClick={loadMoreResults}
-                  className="pointer-events-auto flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.25)] cursor-pointer transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 text-sm font-bold text-white bg-brand-navy/80 hover:bg-brand-navy rounded-full px-6 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.25)] cursor-pointer transition-colors whitespace-nowrap"
                 >
                   더 많은 "{headerText}" 맛집 보기
                   <IconChevronDown className="w-4 h-4" />
@@ -718,11 +727,13 @@ export default function SearchResultsPage() {
               </div>
             )}
 
-            <Footer className="mt-auto text-center text-[#999] pt-3 pb-4 translate-y-[14px]" />
+            <Footer className="mt-auto text-center text-[#999] pb-4 translate-y-[14px]" />
           </div>
         </div>
       </div>
-      <ScrollToTopButton containerRef={resultsScrollRef} />
+      {/* right만 모바일 콘텐츠 여백(grid의 p-3=12px)에 맞춰 안쪽으로 당김 — "더 보기" 버튼이 이제
+          sticky가 아니라 목록 끝에서만 나타나므로 bottom을 그 버튼에 맞춰 정렬할 필요는 없어짐. */}
+      <ScrollToTopButton containerRef={resultsScrollRef} className="right-3 md:right-6 bottom-3" />
     </div>
   );
 }
