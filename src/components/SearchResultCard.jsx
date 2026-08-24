@@ -1,9 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { resolveStatusKey } from '../utils/businessHours'
 import { IconPhone, IconPin, IconStar } from './icons'
 
 const AREA_KEYWORDS = ['도톤보리', '난바', '신사이바시', '우메다']
+
+// SearchResultGridCard와 동일한 이유(상세 페이지 Header nav를 "어디서 왔는지"에 맞게 표시)로 state.from을 실어보낸다.
+const FROM_BY_PATH = {
+  '/nearby': 'nearby',
+  '/scrap': 'scrap',
+}
 
 const STATUS_NOTE = {
   open: '영업 중',
@@ -23,8 +29,9 @@ function extractArea(address) {
   return AREA_KEYWORDS.find((k) => address.includes(k)) ?? ''
 }
 
-export default function SearchResultCard({ restaurant }) {
+export default function SearchResultCard({ restaurant, onClick, selected = false }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, scrapIds, toggleScrap } = useAuth()
   const isSaved = scrapIds.includes(restaurant.id)
   const area = extractArea(restaurant.address)
@@ -39,10 +46,22 @@ export default function SearchResultCard({ restaurant }) {
     toggleScrap(restaurant.id)
   }
 
+  // onClick이 주어지면(예: "내 근처 맛집" 페이지에서 지도 마커 선택 용도) 카드 클릭이 상세 페이지 이동 대신
+  // 그 콜백을 호출한다 — SearchResultGridCard와 동일한 패턴. Link의 기본 이동을 막아야 하므로 preventDefault.
+  function handleClick(e) {
+    if (!onClick) return
+    e.preventDefault()
+    onClick(restaurant.id)
+  }
+
   return (
     <Link
       to={`/place/${restaurant.id}`}
-      className="group flex gap-4 bg-white rounded-2xl overflow-hidden shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] hover:-translate-y-0.5 transition-all"
+      state={{ from: FROM_BY_PATH[location.pathname] ?? 'search' }}
+      onClick={handleClick}
+      className={`group relative flex gap-4 bg-white rounded-2xl overflow-hidden shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] hover:-translate-y-0.5 transition-all ${
+        selected ? "after:absolute after:inset-0 after:bg-brand-coral/15 after:pointer-events-none" : ""
+      }`}
     >
       <div className="relative w-[150px] self-stretch flex-none overflow-hidden">
         {restaurant.image ? (

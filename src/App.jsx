@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import SearchResultsPage from './pages/SearchResultsPage'
+import NearbyPage from './pages/NearbyPage'
 import RestaurantDetailPage from './pages/RestaurantDetailPage'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
@@ -13,6 +14,7 @@ function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/search" element={<SearchResultsPage />} />
+      <Route path="/nearby" element={<NearbyPage />} />
       <Route path="/place/:id" element={<RestaurantDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />

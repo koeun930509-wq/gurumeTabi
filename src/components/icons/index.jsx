@@ -258,6 +258,17 @@ export function IconCake(props) {
   )
 }
 
+export function IconCoffee(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 8h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Z" />
+      <path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17" />
+      <path d="M7 5.5C7 4.5 7.8 4.5 7.8 3.5S7 2.5 7 2.5" strokeLinecap="round" />
+      <path d="M11 5.5c0-1 .8-1 .8-2S11 2.5 11 2.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function IconClock(props) {
   return (
     <svg {...base(props)}>
@@ -314,6 +325,25 @@ export function IconLink(props) {
       <path d="M9 15 15 9" />
       <path d="M10.5 6 12 4.5a4 4 0 0 1 5.7 5.7L16 12" />
       <path d="M13.5 18 12 19.5a4 4 0 0 1-5.7-5.7L8 12" />
+    </svg>
+  )
+}
+
+export function IconUtensils(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M8 3v6a1.5 1.5 0 0 1-3 0V3M6.5 9v12" />
+      <path d="M16 3c-1.5 0-2.5 1.8-2.5 4.5S14.5 12 16 12v9" />
+    </svg>
+  )
+}
+
+export function IconLocateFixed(props) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+      <circle cx="12" cy="12" r="8" />
     </svg>
   )
 }

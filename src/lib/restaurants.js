@@ -86,7 +86,12 @@ export async function fetchRestaurantsByIds(ids) {
 // 전체 4천여 곳을 리뷰까지 조회하면 PostgREST가 statement timeout(500)으로 죽는 사고가 있었어서
 // (fetchRestaurants()에 reviews_cache join을 넣었다가 검색 결과 전체가 0건이 되는 회귀 발생, 2026-08-20),
 // 디저트류를 파는 카페/디저트/베이커리 카테고리(합쳐서 700곳 이하)로만 후보를 좁혀 리뷰를 조회한다.
-const DESSERT_LIKE_CATEGORIES = ['카페', '디저트', '베이커리']
+// NearbyMap.jsx의 마커 색상 분기, NearbyPage.jsx의 카테고리 필터도 동일 기준을 써야 해서 export함.
+export const DESSERT_LIKE_CATEGORIES = ['카페', '디저트', '베이커리']
+
+export function isDessertLikeCategory(category) {
+  return DESSERT_LIKE_CATEGORIES.includes(category)
+}
 
 export async function fetchDessertLikeRestaurantsWithReviews() {
   const { data, error } = await supabase
@@ -107,7 +112,7 @@ export async function fetchRestaurantById(id) {
   return data ? toViewModel(data) : null
 }
 
-function haversineMeters(lat1, lng1, lat2, lng2) {
+export function haversineMeters(lat1, lng1, lat2, lng2) {
   const R = 6371000
   const toRad = (d) => (d * Math.PI) / 180
   const dLat = toRad(lat2 - lat1)
@@ -135,6 +140,37 @@ export async function fetchBackupPlan(restaurant) {
     .map((row) => ({ row, distance: haversineMeters(lat, lng, row.lat, row.lng) }))
     .sort((a, b) => a.distance - b.distance)[0]
   return nearest ? toViewModel(nearest.row) : null
+}
+
+// "내 근처 맛집" — 사용자 좌표 기준 반경(m) 이내 가게를 거리순으로 반환한다. 지역/카테고리 조건이 없어
+// fetchBackupPlan과 달리 대상이 전체 4천여 건이지만, lat/lng 컬럼만 있으면 되므로 select를 좁혀서 가볍게 조회한다.
+// 기본 반경은 도보 10분(NearbyMap.jsx의 분속 67m 기준 환산 = 670m) — 지도가 마커로 뒤덮여 정보량이
+// 너무 많다는 피드백으로 3km에서 축소함. 직선거리 기준이라 실제 도보 10분보다 약간 넉넉하게 잡힌다.
+const NEARBY_RADIUS_METERS = 670
+
+export async function fetchNearbyRestaurants(userLat, userLng, radiusMeters = NEARBY_RADIUS_METERS) {
+  const pageSize = 1000
+  let from = 0
+  const all = []
+  while (true) {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*')
+      .not('lat', 'is', null)
+      .not('lng', 'is', null)
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    all.push(...data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+
+  return all
+    .map((row) => ({ row, distance: haversineMeters(userLat, userLng, row.lat, row.lng) }))
+    .filter(({ distance }) => distance <= radiusMeters)
+    .sort((a, b) => a.distance - b.distance)
+    .map(({ row, distance }) => ({ ...toViewModel(row), distanceMeters: distance }))
 }
 
 // "근처 디저트 맛집" — 백업 플랜과 같은 방식이지만 음식종류 조건 없이 같은 지역의 '디저트' 카테고리 가게 중

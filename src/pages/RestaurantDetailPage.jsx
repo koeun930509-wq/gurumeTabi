@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
 import ScrollToTopButton from "../components/ScrollToTopButton";
 import {
   IconArrowLeft,
-  IconCake,
   IconChevronRight,
   IconClock,
+  IconCoffee,
   IconExternalLink,
   IconLink,
   IconPhone,
@@ -135,6 +135,10 @@ function PhotoCarousel({ images, name }) {
 export default function RestaurantDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  // 목록 카드/지도 마커가 navigate(..., { state: { from } })로 출처를 실어보낸다 — 검색/스크랩/내 근처
+  // 맛집 중 어디서 왔는지에 따라 Header의 nav 활성 탭을 그에 맞게 보여주기 위함(기본값은 검색).
+  const headerActive = location.state?.from ?? "search";
   const { user, scrapIds, toggleScrap } = useAuth();
   const [restaurant, setRestaurant] = useState(null);
   const [backup, setBackup] = useState(null);
@@ -199,7 +203,7 @@ export default function RestaurantDetailPage() {
   if (loading) {
     return (
       <div className="min-h-full flex flex-col">
-        <Header active="search" />
+        <Header active={headerActive} />
         <div className="p-10 text-center text-gray-400">불러오는 중이에요...</div>
       </div>
     );
@@ -208,7 +212,7 @@ export default function RestaurantDetailPage() {
   if (!restaurant) {
     return (
       <div className="min-h-full flex flex-col">
-        <Header active="search" />
+        <Header active={headerActive} />
         <div className="p-10 text-center text-gray-400">맛집 정보를 찾을 수 없어요.</div>
       </div>
     );
@@ -242,7 +246,7 @@ export default function RestaurantDetailPage() {
 
   return (
     <div className="min-h-full flex flex-col">
-      <Header active="search" />
+      <Header active={headerActive} />
 
       {/* 히어로 이미지 — Header와 동일하게 항상 화면 전체 폭(모바일 포함)으로 꽉 채움. */}
       <div className="relative w-full">
@@ -489,7 +493,7 @@ export default function RestaurantDetailPage() {
                       onClick={() => navigate(`/place/${nearbyDessert.id}`)}
                       className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-sm font-bold text-brand-pink-dark bg-brand-pink/10 rounded-xl hover:bg-brand-pink/20 transition-colors"
                     >
-                      <IconCake className="w-4 h-4" />
+                      <IconCoffee className="w-4 h-4" />
                       근처 디저트 맛집
                     </button>
                   ) : (
