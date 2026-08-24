@@ -108,12 +108,12 @@ export default function NearbyPage() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords
-        if (!isInJapan(latitude, longitude)) {
-          setState(STATE.OUTSIDE_JAPAN)
-          return
-        }
+        // userLocation은 일본 밖이어도 항상 저장해서 지도(왼쪽)는 실제 GPS 위치로 항상 렌더링되게 한다 —
+        // "일본이 아님" 판정은 오른쪽 카드 영역(맛집 목록/필터)만 전환하는 용도로 별도 관리(아래 렌더링
+        // 참고). 이전엔 지도까지 통째로 안내 문구로 대체했었는데, 사용자가 "지도는 뜨고 안내는 오른쪽에만"
+        // 나오길 원해서 2026-08-24에 분리함.
         setUserLocation({ lat: latitude, lng: longitude })
-        setState(STATE.READY)
+        setState(isInJapan(latitude, longitude) ? STATE.READY : STATE.OUTSIDE_JAPAN)
       },
       () => setState(STATE.DENIED),
       { enableHighAccuracy: true, timeout: 10000 }
@@ -167,7 +167,10 @@ export default function NearbyPage() {
       <Header active="nearby" showSearch={false} />
 
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 p-3 md:p-4">
-        {state === STATE.READY && userLocation ? (
+        {userLocation ? (
+          // 지도는 일본 밖이어도 실제 GPS 위치로 항상 렌더링한다 — "일본이 아님" 안내는 오른쪽 카드
+          // 영역에서만 보여주고, 왼쪽 지도는 상태와 무관하게 내 위치 마커만 있는 상태로 표시됨(주변
+          // 맛집 마커는 STATE.READY일 때만 fetchNearbyRestaurants가 채워주므로 자연히 0개로 나옴).
           <div className="h-64 md:h-full rounded-2xl overflow-hidden">
             <NearbyMap
               userLocation={userLocation}
@@ -196,16 +199,6 @@ export default function NearbyPage() {
             )}
             {state === STATE.UNSUPPORTED && (
               <span className="text-base text-gray-500">이 브라우저는 위치 정보를 지원하지 않아요.</span>
-            )}
-            {state === STATE.OUTSIDE_JAPAN && (
-              <>
-                <span className="text-5xl">🗾</span>
-                <span className="text-base text-gray-500">
-                  위치가 일본이 아니에요.
-                  <br />
-                  일본에서 접속해주세요.
-                </span>
-              </>
             )}
           </div>
         )}
@@ -315,6 +308,17 @@ export default function NearbyPage() {
                 </div>
               )}
             </div>
+
+            {state === STATE.OUTSIDE_JAPAN && (
+              <div className="flex-1 min-h-0 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3">
+                <span className="text-5xl">🗾</span>
+                <span className="text-base text-gray-400">
+                  위치가 일본이 아니에요.
+                  <br />
+                  일본에서 접속해주세요.
+                </span>
+              </div>
+            )}
 
             {state === STATE.READY &&
               (loadingRestaurants ? (
