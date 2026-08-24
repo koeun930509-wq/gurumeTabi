@@ -183,9 +183,9 @@ export async function fetchBackupPlan(restaurant) {
 
 // "내 근처 맛집" — 사용자 좌표 기준 반경(m) 이내 가게를 거리순으로 반환한다. 지역/카테고리 조건이 없어
 // fetchBackupPlan과 달리 대상이 전체 4천여 건이지만, lat/lng 컬럼만 있으면 되므로 select를 좁혀서 가볍게 조회한다.
-// 기본 반경은 도보 10분(NearbyMap.jsx의 분속 67m 기준 환산 = 670m) — 지도가 마커로 뒤덮여 정보량이
-// 너무 많다는 피드백으로 3km에서 축소함. 직선거리 기준이라 실제 도보 10분보다 약간 넉넉하게 잡힌다.
-const NEARBY_RADIUS_METERS = 670
+// 기본 반경은 도보 15분(NearbyMap.jsx의 분속 67m 기준 환산 = 1005m, 2026-08-24에 10분(670m)에서 조정) —
+// 직선거리 기준이라 실제 도보 소요시간보다 약간 넉넉하게 잡힌다.
+const NEARBY_RADIUS_METERS = 1005
 
 export async function fetchNearbyRestaurants(userLat, userLng, radiusMeters = NEARBY_RADIUS_METERS) {
   const pageSize = 1000

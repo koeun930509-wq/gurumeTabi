@@ -29,7 +29,7 @@ const SORT_OPTIONS = [
 ]
 
 // NearbyMap.jsx의 마커 색상 분기(식당=보라/카페류=핑크)와 동일한 2분류 — 카페/디저트/베이커리를 개별
-// 카테고리로 세분화하지 않고 "카페류"로 묶었다(도보 10분 반경이라 애초에 표본이 적어서 세분화 실익이 적음).
+// 카테고리로 세분화하지 않고 "카페류"로 묶었다(도보 15분 반경이라 애초에 표본이 적어서 세분화 실익이 적음).
 const CATEGORY_FILTERS = [
   { key: 'all', label: '전체' },
   { key: 'restaurant', label: '식당' },
@@ -325,12 +325,12 @@ export default function NearbyPage() {
               ) : restaurants.length === 0 ? (
                 <div className="flex-1 min-h-0 text-base text-gray-400 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3">
                   <span className="text-5xl">🥲</span>
-                  <span>도보 10분 이내에 등록된 맛집이 없어요.</span>
+                  <span>도보 15분 이내에 등록된 맛집이 없어요.</span>
                 </div>
               ) : sortedRestaurants.length === 0 ? (
                 <div className="flex-1 min-h-0 text-base text-gray-400 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3">
                   <span className="text-5xl">🥲</span>
-                  <span>이 카테고리에는 도보 10분 이내에 맛집이 없어요.</span>
+                  <span>이 카테고리에는 도보 15분 이내에 맛집이 없어요.</span>
                 </div>
               ) : viewMode === 'list' ? (
                 <div className="flex flex-col gap-4">
