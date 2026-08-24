@@ -75,25 +75,20 @@ export default function NearbyPage() {
     else next.set('view', mode)
     setSearchParams(next, { replace: true })
   }
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false)
   const sortMenuRef = useRef(null)
+  const categoryMenuRef = useRef(null)
   const selectedCardRef = useRef(null)
-  const categoryButtonRefs = useRef({})
-  const [categoryPillRect, setCategoryPillRect] = useState(null)
 
-  // 그리드/리스트 토글(고정폭 두 칸)과 달리 이 필터는 라벨 길이가 제각각(전체/식당/카페·디저트·베이커리)이라
-  // translateX 비율만으로는 슬라이딩 배경을 못 만든다 — 선택된 버튼의 실제 offsetLeft/offsetWidth를 측정해서
-  // 배경 pill을 그 자리로 애니메이션 이동시킨다. 이 버튼 그룹 자체가 restaurants가 로드된 뒤에야 조건부로
-  // 렌더링되므로(초기 마운트 시점엔 DOM에 없어 ref가 비어있음), restaurants.length도 의존성에 넣어서
-  // 버튼이 실제로 나타나는 시점에 다시 측정한다 — 안 그러면 "전체" 배경이 처음부터 안 보이는 버그가 있었음.
-  useEffect(() => {
-    const el = categoryButtonRefs.current[categoryFilter]
-    if (el) setCategoryPillRect({ left: el.offsetLeft, width: el.offsetWidth })
-  }, [categoryFilter, restaurants.length])
-
+  // pill 버튼 그룹(전체/식당/카페·디저트·베이커리)이 모바일 좁은 화면에서 줄바꿈되며 레이아웃이 깨지는
+  // 문제가 있었음(2026-08-24 발견) — 정렬과 동일한 드롭다운 UI로 바꿔서 폭을 고정폭 버튼 하나로 줄임.
   useEffect(() => {
     function handleClickOutside(e) {
       if (sortMenuRef.current && !sortMenuRef.current.contains(e.target)) {
         setSortMenuOpen(false)
+      }
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target)) {
+        setCategoryMenuOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -205,18 +200,18 @@ export default function NearbyPage() {
 
         <div className="h-full overflow-y-scroll pretty-scroll">
           <div className="min-h-full flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-3 flex-wrap pt-3">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-3">
               <h1 className="text-xl font-bold text-gray-900 pl-2">내 근처 맛집</h1>
 
               {state === STATE.READY && restaurants.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <div className="relative" ref={sortMenuRef}>
+                <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+                  <div className="relative flex-none" ref={sortMenuRef}>
                     <button
                       type="button"
                       onClick={() => setSortMenuOpen((v) => !v)}
                       aria-haspopup="listbox"
                       aria-expanded={sortMenuOpen}
-                      className={`flex items-center gap-1.5 h-10 bg-white text-xs leading-[1.25rem] font-semibold text-gray-700 rounded-full pl-4 pr-3 border outline-none cursor-pointer hover:text-brand-navy transition-colors focus-visible:border-[#9993e2] ${
+                      className={`flex items-center gap-1.5 h-10 bg-white text-xs leading-[1.25rem] font-semibold text-gray-700 rounded-full pl-4 pr-3 border outline-none cursor-pointer hover:text-brand-navy transition-colors focus-visible:border-[#9993e2] whitespace-nowrap ${
                         sortMenuOpen ? 'border-[#9993e2]' : 'border-transparent'
                       }`}
                     >
@@ -227,7 +222,7 @@ export default function NearbyPage() {
                     {sortMenuOpen && (
                       <ul
                         role="listbox"
-                        className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-20"
+                        className="absolute left-0 top-full mt-2 w-40 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-20"
                       >
                         {SORT_OPTIONS.map((o) => (
                           <li key={o.key}>
@@ -239,7 +234,7 @@ export default function NearbyPage() {
                                 setSortBy(o.key)
                                 setSortMenuOpen(false)
                               }}
-                              className={`w-full text-left text-xs leading-[1.25rem] px-4 py-2 transition-colors ${
+                              className={`w-full text-left text-xs leading-[1.25rem] px-4 py-2 whitespace-nowrap transition-colors ${
                                 sortBy === o.key ? 'bg-brand-coral/10 text-brand-coral-dark font-bold' : 'text-gray-600 hover:bg-gray-50'
                               }`}
                             >
@@ -251,32 +246,48 @@ export default function NearbyPage() {
                     )}
                   </div>
 
-                  <div className="relative flex items-center gap-1 h-10 bg-white rounded-full p-1">
-                    {categoryPillRect && (
-                      <div
-                        className="absolute top-1 h-8 rounded-full bg-brand-coral transition-[left,width] duration-200 ease-out"
-                        style={{ left: categoryPillRect.left, width: categoryPillRect.width }}
-                      />
-                    )}
-                    {CATEGORY_FILTERS.map((f) => (
-                      <button
-                        key={f.key}
-                        ref={(el) => {
-                          categoryButtonRefs.current[f.key] = el
-                        }}
-                        type="button"
-                        onClick={() => setCategoryFilter(f.key)}
-                        aria-pressed={categoryFilter === f.key}
-                        className={`relative z-10 whitespace-nowrap text-xs font-semibold px-3 h-8 rounded-full cursor-pointer transition-colors ${
-                          categoryFilter === f.key ? 'text-white' : 'text-gray-500 hover:text-brand-navy'
-                        }`}
+                  <div className="relative flex-none" ref={categoryMenuRef}>
+                    <button
+                      type="button"
+                      onClick={() => setCategoryMenuOpen((v) => !v)}
+                      aria-haspopup="listbox"
+                      aria-expanded={categoryMenuOpen}
+                      className={`flex items-center gap-1.5 h-10 bg-white text-xs leading-[1.25rem] font-semibold text-gray-700 rounded-full pl-4 pr-3 border outline-none cursor-pointer hover:text-brand-navy transition-colors focus-visible:border-[#9993e2] whitespace-nowrap ${
+                        categoryMenuOpen ? 'border-[#9993e2]' : 'border-transparent'
+                      }`}
+                    >
+                      {CATEGORY_FILTERS.find((f) => f.key === categoryFilter).label}
+                      <IconChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${categoryMenuOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {categoryMenuOpen && (
+                      <ul
+                        role="listbox"
+                        className="absolute left-0 top-full mt-2 w-48 bg-white rounded-xl shadow-[0_8px_24px_-6px_rgba(109,40,217,0.3)] py-1.5 z-20"
                       >
-                        {f.label}
-                      </button>
-                    ))}
+                        {CATEGORY_FILTERS.map((f) => (
+                          <li key={f.key}>
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={categoryFilter === f.key}
+                              onClick={() => {
+                                setCategoryFilter(f.key)
+                                setCategoryMenuOpen(false)
+                              }}
+                              className={`w-full text-left text-xs leading-[1.25rem] px-4 py-2 whitespace-nowrap transition-colors ${
+                                categoryFilter === f.key ? 'bg-brand-coral/10 text-brand-coral-dark font-bold' : 'text-gray-600 hover:bg-gray-50'
+                              }`}
+                            >
+                              {f.label}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
 
-                  <div className="relative flex items-center gap-1 h-10 bg-white rounded-full p-1">
+                  <div className="relative flex items-center gap-1 h-10 bg-white rounded-full p-1 flex-none">
                     <div
                       className={`absolute top-1 left-1 w-8 h-8 rounded-full bg-brand-coral transition-transform duration-200 ease-out ${
                         viewMode === 'list' ? 'translate-x-[calc(100%+0.25rem)]' : 'translate-x-0'

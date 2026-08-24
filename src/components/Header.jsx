@@ -11,7 +11,7 @@ const navLinkClass = (isActive) =>
   `text-lg font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
 
 const MOBILE_MENU = [
-  { to: '/search', key: 'search', label: '검색', Icon: IconSearch },
+  { to: '/search', key: 'search', label: '일본 맛집 검색', Icon: IconSearch },
   { to: '/nearby', key: 'nearby', label: '내 근처 맛집', Icon: IconPin },
   { to: '/scrap', key: 'scrap', label: '스크랩 맛집', Icon: IconStar },
   { to: '/mypage', key: 'mypage', label: '마이페이지', Icon: IconUser },
@@ -105,7 +105,7 @@ export default function Header({ active, showSearch = true }) {
       {/* 데스크톱 nav 링크 — 화면 정중앙 고정, 모바일에서는 숨기고 햄버거 메뉴로 이동 */}
       <div className="hidden md:flex items-center gap-10 lg:gap-[4.5rem] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <Link to="/search" className={navLinkClass(active === 'search')}>
-          검색
+          일본 맛집 검색
         </Link>
         <Link to="/nearby" className={navLinkClass(active === 'nearby')}>
           내 근처 맛집

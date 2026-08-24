@@ -4,7 +4,7 @@ import { IconHome, IconSearch, IconPin, IconStar, IconUser, IconLogout, IconLogi
 
 const MENU = [
   { to: '/', key: 'home', label: '홈', Icon: IconHome },
-  { to: '/search', key: 'search', label: '검색', Icon: IconSearch },
+  { to: '/search', key: 'search', label: '일본 맛집 검색', Icon: IconSearch },
   { to: '/nearby', key: 'nearby', label: '내 근처 맛집', Icon: IconPin },
   { to: '/scrap', key: 'scrap', label: '스크랩 맛집', Icon: IconStar },
   { to: '/mypage', key: 'mypage', label: '마이페이지', Icon: IconUser },
