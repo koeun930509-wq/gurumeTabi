@@ -201,9 +201,9 @@ export default function NearbyPage() {
               <>
                 <span className="text-5xl">🗾</span>
                 <span className="text-base text-gray-500">
-                  일본에서만 사용할 수 있는 기능이에요.
+                  위치가 일본이 아니에요.
                   <br />
-                  일본 여행 중에 다시 시도해주세요.
+                  일본에서 접속해주세요.
                 </span>
               </>
             )}
