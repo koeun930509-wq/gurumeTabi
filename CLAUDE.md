@@ -66,6 +66,8 @@ npm test         # vitest run (Vitest + React Testing Library, jsdom 환경)
 
 이로써 `FOOD_TYPES` 21종 전부(+이자카야) 실제 검색 가능한 상태가 됨. "이자카야"는 `FOOD_TYPES`에 정식 등록하지 않고 `SEARCH_SYNONYMS`(아래 검색어 동의어 항목 참고)로만 연결해뒀음 — 필터 체크박스에 노출하려면 `FOOD_TYPES`에 추가해야 함(현재는 검색창 입력으로만 접근 가능).
 
+**규카츠를 돈카츠에서 분리(2026-08-25)**: `sync-restaurants`가 애초에 "규카츠"를 별도 카테고리로 수집한 적이 없어서(6개 기본 카테고리에 없음), 가게명에 "규카츠"가 들어간 체인점(모토무라·교토가츠규 등)이 전부 Google Places 검색 결과상 `category: '돈카츠'`로 upsert되어 있었음 — 사용자가 "규카츠랑 돈카츠랑 같은 카테고리로 나온다"고 리포트해서 발견. `restaurants.category = '돈카츠'` 중 가게명에 "규카츠"가 포함된 29곳을 SQL로 `category = '규카츠'`로 일괄 변경했고, `FOOD_TYPES`(`src/utils/searchTerms.js`)에도 `'돈카츠'` 바로 뒤에 `'규카츠'`를 추가해 필터 체크박스에 노출시킴. **주의**: 이후 `sync-restaurants`로 돈카츠 카테고리를 재수집하면 Google Places가 다시 규카츠 체인점을 `category: '돈카츠'`로 upsert해올 것이므로(수집 쿼리 자체가 "돈카츠"라 카테고리 구분이 없음), 재수집 후에는 이 SQL(`update restaurants set category='규카츠' where category='돈카츠' and name ilike '%규카츠%'`)을 다시 돌려야 함.
+
 **검색어 매칭 폴백(2026-08-19, `src/utils/searchTerms.js`)**: `SearchResultsPage.jsx`의 `matchTokens`가 공백 분리한 각 토큰을 AND 조건으로 매칭하다 보니, 실데이터에 없는 수식어가 섞이면 전체가 0건이 되는 문제가 반복적으로 발견됨 — 이를 두 가지 메커니즘으로 해결:
 - `SEARCH_SYNONYMS`: 검색어를 실제 데이터에 있는 표현으로 치환. `술집`→`이자카야`(가게명에 "이자카야"가 포함된 결과로 텍스트 매칭), `돈까스`→`돈카츠`(카테고리명 표기 통일), `빵집`→`베이커리`·`커피`→`카페`(2026-08-20 추가, 둘 다 `FOOD_TYPES`에 이미 있는 카테고리명으로 치환). `resolveSearchSynonym(token)`으로 적용.
 - `IGNORED_SEARCH_TOKENS`(Set): 매칭에 참여시키지 않고 그냥 버리는 토큰. `맛집`(지역/음식명 뒤에 붙는 수식어라 실데이터에 없음), `쇼유`·`돈코츠`·`미소`·`시오`(라멘은 육수 종류별 세부 카테고리 없이 전부 "라멘" 하나로 수집되어 있어서, 이 키워드들을 무시하면 "쇼유 라멘" 검색 시 "라멘" 토큰만 남아 라멘 카테고리 전체가 폴백으로 나옴).
