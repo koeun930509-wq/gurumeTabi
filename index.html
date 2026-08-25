@@ -21,10 +21,29 @@
     <!-- 네이버 서치어드바이저 소유확인 — https://searchadvisor.naver.com 에서 발급받은 값으로 content 채울 것 -->
     <meta name="naver-site-verification" content="001b3b469e0d542dd5032f7cdf311409e32177eb" />
 
-    <!-- <title>을 의도적으로 비워둠 — 모든 라우트가 src/components/Seo.jsx에서 <title>을 렌더링해 채운다.
-         React 19는 컴포넌트가 렌더링한 head 태그끼리는 자동으로 정리해주지만, 여기 정적으로 하나라도
-         박아두면 React 트리 밖의 태그라 제거되지 않고 Seo가 렌더링한 것과 중복으로 남는다(실측 확인됨) —
-         빈 상태가 아니라 "Gurume Tabi" 같은 값을 넣고 싶어져도 넣지 말 것. -->
+    <!-- <title>/<meta name="description">는 의도적으로 비워둠 — 모든 라우트가 src/components/Seo.jsx에서
+         렌더링해 채운다. React 19는 컴포넌트가 렌더링한 head 태그끼리는 자동으로 정리해주지만, 여기
+         정적으로 하나라도 박아두면 React 트리 밖의 태그라 제거되지 않고 Seo가 렌더링한 것과 중복으로
+         남는다(실측 확인됨) — 빈 상태가 아니라 "Gurume Tabi" 같은 값을 넣고 싶어져도 넣지 말 것.
+
+         반면 아래 og:*/twitter:* 태그는 정적으로 둔다 — 카카오톡/디스코드/슬랙 등 링크 미리보기 봇은
+         대부분 JS를 실행하지 않고 이 HTML을 그대로 파싱하기 때문에, Seo.jsx가 React로 렌더링하는
+         og 태그는 이런 봇에게는 아예 안 보인다(SPA라 SSR 없음 — 2026-08-25 카카오톡 "미리보기가
+         없습니다" 리포트로 발견). 검색엔진(구글/네이버) 크롤러는 JS를 실행해서 Seo.jsx의 동적 값을
+         읽어가므로 이 정적 태그와 충돌하지 않음 — property 속성 기반 태그라 React 19가 페이지별로
+         자동 디듀프해서 덮어씀. 이 고정값은 모든 페이지에서 동일하게 뜨는 "최소 보장"용이고, 가게별
+         맞춤 미리보기(가게명/사진)는 여기서 다루지 않음. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gurume Tabi" />
+    <meta property="og:title" content="Gurume Tabi — 일본 찐맛집 검색" />
+    <meta property="og:description" content="광고 없는 찐맛집, 일본 미식여행을 위한 맛집 검색" />
+    <meta property="og:url" content="https://gurume-tabi.com" />
+    <meta property="og:image" content="https://gurume-tabi.com/simbol.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Gurume Tabi — 일본 찐맛집 검색" />
+    <meta name="twitter:description" content="광고 없는 찐맛집, 일본 미식여행을 위한 맛집 검색" />
+    <meta name="twitter:image" content="https://gurume-tabi.com/simbol.png" />
   </head>
   <body>
     <div id="root"></div>
