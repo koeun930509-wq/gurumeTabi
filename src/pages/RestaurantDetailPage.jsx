@@ -252,9 +252,13 @@ export default function RestaurantDetailPage() {
   const seoTitle = `${truncatedName} 맛집 후기·평점 | ${restaurant.region} ${restaurant.category}`;
   // "로/으로"는 앞말 받침 유무에 따라 갈리는 조사라 카테고리명(라멘/돈카츠 등)을 그대로 붙이면 문법이
   // 어색해질 수 있어("라멘로") 조사가 필요 없는 문장 구조로 작성한다.
+  // localRatio는 정량적 %가 아니라 네이버 리뷰의 "현지인"/"로컬" 키워드 언급 유무로 매긴 100/0
+  // 이진값이라(2026-08-25 변경), 0일 때는 "현지인 방문 비율 0%"처럼 부자연스러운 문구가 나오지
+  // 않도록 아예 뺀다.
+  const localMention = restaurant.localRatio > 0 ? " 현지인도 찾는 맛집입니다." : "";
   const seoDescription = restaurant.tagline
-    ? `${restaurant.region} ${restaurant.category} 맛집 ${restaurant.name}. ${restaurant.tagline} 평점 ${restaurant.rating}점, 현지인 방문 비율 ${restaurant.localRatio}%.`
-    : `${restaurant.region} ${restaurant.category} 맛집 ${restaurant.name}의 평점(${restaurant.rating}점)과 현지인 방문 비율(${restaurant.localRatio}%), 실제 방문자 리뷰를 확인하세요.`;
+    ? `${restaurant.region} ${restaurant.category} 맛집 ${restaurant.name}. ${restaurant.tagline} 평점 ${restaurant.rating}점.${localMention}`
+    : `${restaurant.region} ${restaurant.category} 맛집 ${restaurant.name}의 평점(${restaurant.rating}점)과 실제 방문자 리뷰를 확인하세요.${localMention}`;
 
   return (
     <div className="min-h-full flex flex-col">
@@ -358,9 +362,11 @@ export default function RestaurantDetailPage() {
                         <IconStar className="w-3.5 h-3.5" />
                         {restaurant.rating} ({restaurant.reviewCount})
                       </span>
-                      <span className="inline-flex items-center gap-1 text-xs text-brand-navy bg-brand-navy/10 px-2.5 py-1 rounded-full">
-                        현지인 방문 {restaurant.localRatio}%
-                      </span>
+                      {restaurant.localRatio > 0 && (
+                        <span className="inline-flex items-center gap-1 text-xs text-brand-navy bg-brand-navy/10 px-2.5 py-1 rounded-full">
+                          현지인 추천
+                        </span>
+                      )}
                       {resolveStatusKey(restaurant) !== "unknown" && (
                         <span
                           className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full ${

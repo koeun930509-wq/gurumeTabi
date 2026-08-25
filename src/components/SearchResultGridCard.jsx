@@ -181,9 +181,11 @@ export default function SearchResultGridCard({ restaurant, onClick, selected = f
         )}
 
         <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-          <span className="inline-flex items-center h-[22px] leading-none text-[11px] font-bold text-brand-navy bg-white/90 px-2 rounded-full">
-            현지인 {restaurant.localRatio}%
-          </span>
+          {restaurant.localRatio > 0 && (
+            <span className="inline-flex items-center h-[22px] leading-none text-[11px] font-bold text-brand-navy bg-white/90 px-2 rounded-full">
+              현지인 추천
+            </span>
+          )}
           {resolveStatusKey(restaurant) !== "unknown" && (
             <span
               className={`inline-flex items-center h-[22px] leading-none text-[11px] font-bold bg-white/90 px-2 rounded-full ${

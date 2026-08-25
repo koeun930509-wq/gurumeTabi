@@ -122,9 +122,11 @@ export default function SearchResultCard({ restaurant, onClick, selected = false
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5 mt-1">
-          <span className="text-[11px] font-semibold text-brand-coral-dark bg-brand-coral/10 px-2.5 py-1 rounded-full">
-            현지인 {restaurant.localRatio}%
-          </span>
+          {restaurant.localRatio > 0 && (
+            <span className="text-[11px] font-semibold text-brand-coral-dark bg-brand-coral/10 px-2.5 py-1 rounded-full">
+              현지인 추천
+            </span>
+          )}
           {resolveStatusKey(restaurant) !== 'unknown' && (
             <span
               className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${

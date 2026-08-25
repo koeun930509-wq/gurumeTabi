@@ -20,11 +20,12 @@ const RATING_OPTIONS = [
   { value: 4.0, label: "4.0+" },
 ];
 
+// local_ratio가 정량적 %가 아니라 네이버 리뷰 "현지인"/"로컬" 키워드 언급 유무로 매긴 100/0
+// 이진값이라(2026-08-25 변경), 원래 있던 40%+/60%+/80%+ 3단계는 전부 같은 결과(100인 것만)를
+// 주게 되어 의미가 없어짐 — 전체/현지인추천 2단계로 단순화함.
 const LOCAL_RATIO_OPTIONS = [
   { value: 0, label: "전체" },
-  { value: 40, label: "40%+" },
-  { value: 60, label: "60%+" },
-  { value: 80, label: "80%+" },
+  { value: 1, label: "현지인추천" },
 ];
 
 const OPEN_STATUS_OPTIONS = [
@@ -340,7 +341,10 @@ export default function SearchResultsPage() {
 
   const matchedResults = useMemo(() => {
     const base = textMatchedResults.length > 0 ? textMatchedResults : reviewMatchedResults;
-    return [...base].sort(SORT_OPTIONS.find((o) => o.key === sortBy).sorter);
+    // 예전 공유 링크/북마크에 sort=local(현지인 판별 비활성화로 제거된 옵션)이 남아있을 수 있어
+    // find 실패 시 기본 정렬(SORT_OPTIONS[0])로 폴백한다.
+    const activeSort = SORT_OPTIONS.find((o) => o.key === sortBy) ?? SORT_OPTIONS[0];
+    return [...base].sort(activeSort.sorter);
   }, [textMatchedResults, reviewMatchedResults, sortBy]);
 
   const results = matchedResults.slice(0, visibleCount);
@@ -581,7 +585,7 @@ export default function SearchResultsPage() {
                       sortMenuOpen ? "border-[#9993e2]" : "border-transparent"
                     }`}
                   >
-                    {SORT_OPTIONS.find((o) => o.key === sortBy).label}
+                    {(SORT_OPTIONS.find((o) => o.key === sortBy) ?? SORT_OPTIONS[0]).label}
                     <IconChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${sortMenuOpen ? "rotate-180" : ""}`} />
                   </button>
 
