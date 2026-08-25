@@ -83,6 +83,19 @@ npm test         # vitest run (Vitest + React Testing Library, jsdom 환경)
 
 **재수집 주기**: 분기(3개월) 1회로 재수집을 권장하기로 사용자와 합의함(2026-08-19, 기존 월 1회에서 변경 — 84개 지역×카테고리 + 디저트 14개 조합 전체를 한 번 재수집할 때마다 Google Places Text Search + Cloud Translation API 비용이 약 9~10만 원 발생하는 것을 확인, 무료 크레딧 소진 속도를 늦추기 위해 주기를 늘림). pg_cron 등 완전 자동화는 하지 않기로 함(매번 사용자 확인 후 진행하는 방식 유지).
 
+## SEO (2026-08-25 추가)
+
+이 프로젝트는 SSR이 없는 순수 SPA(Vite + react-router-dom)라 서버 사이드에서 메타태그를 렌더링할 수 없음 — 아래 방식으로 크롤러 대응함.
+
+- **페이지별 title/description은 `src/components/Seo.jsx`가 담당**: React 19가 컴포넌트 안에서 렌더링한 `<title>`/`<meta>`/`<link>`를 자동으로 문서 `<head>`로 끌어올리는 네이티브 기능을 그대로 씀(`react-helmet` 등 라이브러리 미설치, 의도적 선택) — 각 페이지(`HomePage`/`SearchResultsPage`/`NearbyPage`/`RestaurantDetailPage`/`LoginPage`/`SignUpPage`/`ScrapPage`/`MyPage`)가 최상단에서 `<Seo title=... description=... path=... />`를 렌더링함. `RestaurantDetailPage`는 가게명·지역·카테고리·평점·현지인비율을 조합해 가게마다 고유한 title/description을 만듦("로/으로" 조사가 카테고리명 받침에 따라 갈려서 어색해지는 문제가 있었음 — 조사가 필요 없는 문장 구조로 우회함). `Seo`가 title 50자·description 150자를 넘으면 자동으로 말줄임표(`…`)로 잘라줌(가게명이 최대 95자까지 있어서 안전장치로 필요).
+  - **`index.html`에는 정적 `<title>`/`<meta name="description">`을 두지 않음**: 처음엔 SPA 초기 로딩 폴백용으로 넣었었는데, React가 렌더링한 head 태그는 서로 자동으로 디듀프되지만 `index.html`에 정적으로 박힌 태그는 React 트리 밖이라 제거되지 않고 `Seo`가 렌더링한 것과 나란히 중복으로 남는 걸 실측으로 확인함(headless Chrome `--dump-dom`으로 검증) — 모든 라우트가 예외 없이 `Seo`를 렌더링하므로 정적 폴백 없이도 문제없음. 새 라우트를 추가할 때 `Seo` 렌더링을 빠뜨리면 이 중복 방지 전제가 깨지니 반드시 포함할 것.
+  - `/login`·`/signup`·`/scrap`·`/mypage`는 `noIndex` prop으로 `<meta name="robots" content="noindex, nofollow">`를 추가함(로그인 필요/개인화 페이지라 검색 노출 의미 없음).
+- **sitemap.xml은 빌드 시점에 Supabase를 조회해 동적 생성**: `scripts/generate-sitemap.mjs`가 `npm run build`(`package.json`의 `build` 스크립트가 `node scripts/generate-sitemap.mjs && vite build`로 구성됨) 시 정적 페이지 3개(`/`, `/search`, `/nearby`) + `restaurants` 테이블 전체(가게 상세 `/place/:id`, 2026-08-25 기준 4,446곳, `updated_at`을 `lastmod`로 사용)를 모아 `public/sitemap.xml`을 생성하고, Vite가 이를 `dist/`로 그대로 복사함. `fetchRestaurants()`(`src/lib/restaurants.js`)와 동일한 이유로 Supabase PostgREST 1000행 기본 제한을 피하려 페이지네이션(`.range()`)으로 전체 조회함. 로컬 실행 시 `.env`를 직접 파싱해 `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`를 읽어옴(Vite 밖의 순수 Node 스크립트라 Vite의 자동 `.env` 로딩이 적용 안 됨) — Vercel 등 배포 환경은 프로젝트에 등록된 환경변수가 `process.env`에 이미 있으므로 `.env` 파일 없이도 그대로 동작함. `changefreq`/`priority`는 구글이 무시한다고 공식 문서에 명시되어 있어 `lastmod`만 신경 쓰면 됨(`priority`는 다른 검색엔진 참고용으로 남겨둠, 없어도 무방).
+- **robots.txt**(`public/robots.txt`, 정적 파일): `/login`·`/signup`·`/scrap`·`/mypage`를 `Disallow` 처리하고 `Sitemap: https://gurume-tabi.com/sitemap.xml`을 명시함.
+- **구글/네이버 소유확인 메타태그**: `index.html`의 `<head>`에 `google-site-verification`/`naver-site-verification` 빈 `<meta>`를 자리만 잡아뒀음(`content=""`) — 실제 값은 각각 구글 서치 콘솔/네이버 서치어드바이저에서 발급받아 채워야 함, 아직 미발급 상태.
+- **네이버 서치어드바이저(searchadvisor.naver.com) 접속 불가**: 이 작업 진행 시 WebFetch로 접속을 시도했으나 차단되어 최신 가이드를 직접 확인하지 못함 — 네이버 관련 결정(sitemap 표준 형식 그대로 사용, robots.txt 별도 문법 없음)은 일반적으로 알려진 기준으로 진행하기로 사용자와 합의한 것이니, 추후 실제로 접속 가능해지면 네이버 특유의 요구사항이 있는지 한 번 재확인할 것.
+- **배포 도메인은 `https://gurume-tabi.com`으로 고정**되어 있음(`src/components/Seo.jsx`의 `SITE_URL`, `scripts/generate-sitemap.mjs`의 `SITE_URL`, `public/robots.txt`의 `Sitemap:` 라인, 총 3곳) — 도메인이 바뀌면 이 3곳을 함께 수정해야 함.
+
 ## 스타일링 — Tailwind v4, config 파일 없음
 
 테마는 `src/index.css`의 `@theme{}` 블록 안에 있습니다 — **`tailwind.config.js`는 없습니다**. 알아둘 커스텀 토큰:

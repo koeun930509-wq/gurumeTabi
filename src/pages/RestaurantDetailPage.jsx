@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
+import Seo from "../components/Seo";
 import ReviewCard from "../components/ReviewCard";
 import ScrollToTopButton from "../components/ScrollToTopButton";
 import {
@@ -203,6 +204,7 @@ export default function RestaurantDetailPage() {
   if (loading) {
     return (
       <div className="min-h-full flex flex-col">
+        <Seo title="불러오는 중... — Gurume Tabi" description="맛집 정보를 불러오고 있어요." noIndex />
         <Header active={headerActive} />
         <div className="p-10 text-center text-gray-400">불러오는 중이에요...</div>
       </div>
@@ -212,6 +214,7 @@ export default function RestaurantDetailPage() {
   if (!restaurant) {
     return (
       <div className="min-h-full flex flex-col">
+        <Seo title="맛집 정보 없음 — Gurume Tabi" description="요청하신 맛집 정보를 찾을 수 없어요." noIndex />
         <Header active={headerActive} />
         <div className="p-10 text-center text-gray-400">맛집 정보를 찾을 수 없어요.</div>
       </div>
@@ -244,8 +247,23 @@ export default function RestaurantDetailPage() {
     alert("링크가 복사되었어요.");
   }
 
+  // 가게명이 길면(최대 95자) 접미사를 붙인 전체 title이 50자를 넘을 수 있어 이름 자체를 안전하게 자른다.
+  const truncatedName = restaurant.name.length > 30 ? `${restaurant.name.slice(0, 29)}…` : restaurant.name;
+  const seoTitle = `${truncatedName} 맛집 후기·평점 | ${restaurant.region} ${restaurant.category}`;
+  // "로/으로"는 앞말 받침 유무에 따라 갈리는 조사라 카테고리명(라멘/돈카츠 등)을 그대로 붙이면 문법이
+  // 어색해질 수 있어("라멘로") 조사가 필요 없는 문장 구조로 작성한다.
+  const seoDescription = restaurant.tagline
+    ? `${restaurant.region} ${restaurant.category} 맛집 ${restaurant.name}. ${restaurant.tagline} 평점 ${restaurant.rating}점, 현지인 방문 비율 ${restaurant.localRatio}%.`
+    : `${restaurant.region} ${restaurant.category} 맛집 ${restaurant.name}의 평점(${restaurant.rating}점)과 현지인 방문 비율(${restaurant.localRatio}%), 실제 방문자 리뷰를 확인하세요.`;
+
   return (
     <div className="min-h-full flex flex-col">
+      <Seo
+        title={seoTitle}
+        description={seoDescription}
+        path={`/place/${restaurant.id}`}
+        image={restaurant.image || undefined}
+      />
       <Header active={headerActive} />
 
       {/* 히어로 이미지 — Header와 동일하게 항상 화면 전체 폭(모바일 포함)으로 꽉 채움. */}

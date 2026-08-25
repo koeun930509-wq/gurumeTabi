@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -15,7 +15,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
-    <title>Gurume Tabi</title>
+
+    <!-- 구글 서치 콘솔 소유확인 — https://search.google.com/search-console 에서 발급받은 값으로 content 채울 것 -->
+    <meta name="google-site-verification" content="" />
+    <!-- 네이버 서치어드바이저 소유확인 — https://searchadvisor.naver.com 에서 발급받은 값으로 content 채울 것 -->
+    <meta name="naver-site-verification" content="" />
+
+    <!-- <title>을 의도적으로 비워둠 — 모든 라우트가 src/components/Seo.jsx에서 <title>을 렌더링해 채운다.
+         React 19는 컴포넌트가 렌더링한 head 태그끼리는 자동으로 정리해주지만, 여기 정적으로 하나라도
+         박아두면 React 트리 밖의 태그라 제거되지 않고 Seo가 렌더링한 것과 중복으로 남는다(실측 확인됨) —
+         빈 상태가 아니라 "Gurume Tabi" 같은 값을 넣고 싶어져도 넣지 말 것. -->
   </head>
   <body>
     <div id="root"></div>

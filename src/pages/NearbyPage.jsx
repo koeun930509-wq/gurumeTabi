@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Seo from '../components/Seo'
 import NearbyMap from '../components/NearbyMap'
 import SearchResultCard from '../components/SearchResultCard'
 import SearchResultGridCard from '../components/SearchResultGridCard'
@@ -159,6 +160,11 @@ export default function NearbyPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
+      <Seo
+        title="내 근처 맛집 — 지금 위치 기준 일본 맛집 찾기"
+        description="일본 여행 중 지금 있는 위치에서 도보 15분 이내 맛집을 지도로 바로 확인하세요. GPS 기반으로 가까운 순, 평점 높은 순 정렬도 지원합니다."
+        path="/nearby"
+      />
       <Header active="nearby" showSearch={false} />
 
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 p-3 md:p-4">

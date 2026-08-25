@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Seo from "../components/Seo";
 import SearchResultCard from "../components/SearchResultCard";
 import SearchResultGridCard from "../components/SearchResultGridCard";
 import { IconSearch, IconGrid, IconList, IconChevronDown, IconCheck, IconClose, IconFilter } from "../components/icons";
@@ -353,8 +354,14 @@ export default function SearchResultsPage() {
     return [...parts, ...extraTerms].join(" ");
   }, [q, applied.foods]);
 
+  const seoTitle = headerText ? `"${headerText}" 맛집 검색 결과` : "일본 맛집 검색 — 지역 · 음식 종류별 찾기";
+  const seoDescription = headerText
+    ? `${headerText} 관련 일본 현지 맛집 ${matchedResults.length}곳을 평점과 현지인 방문 비율로 비교해보세요. 광고성 리뷰는 걸러낸 진짜 후기만 모았습니다.`
+    : "오사카, 도쿄, 후쿠오카 등 지역과 라멘, 스시, 돈카츠 같은 음식 종류를 조합해 검색하면 광고 없는 일본 현지 맛집을 바로 찾을 수 있습니다.";
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
+      <Seo title={seoTitle} description={seoDescription} path={q ? `/search?q=${encodeURIComponent(q)}` : "/search"} />
       <Header active="search" showSearch={false} />
 
       <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[230px_1fr] gap-4 p-3 md:p-4">

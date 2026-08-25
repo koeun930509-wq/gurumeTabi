@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /scrap
+Disallow: /mypage
+
+Sitemap: https://gurume-tabi.com/sitemap.xml

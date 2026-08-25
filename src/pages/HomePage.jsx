@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Seo from "../components/Seo";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
 import MobileSearchOverlay from "../components/MobileSearchOverlay";
 import { IconSearch, IconClose } from "../components/icons";
@@ -28,6 +29,11 @@ export default function HomePage() {
 
   return (
     <div className="relative h-screen flex flex-col overflow-hidden">
+      <Seo
+        title="Gurume Tabi — 광고 없는 일본 찐맛집 검색"
+        description="일본 여행 중 광고 없는 진짜 현지인 맛집을 찾는 검색 플랫폼. 오사카, 도쿄 등 지역과 라멘, 스시 같은 음식 종류로 검색하고 현지인 방문 비율로 확인하세요."
+        path="/"
+      />
       {/* 배경 영상 + 어두운 오버레이 */}
       <video className="absolute inset-0 w-full h-full object-cover -z-20" src="/sushi.mp4" autoPlay muted loop playsInline aria-hidden="true" />
       <div className="absolute inset-0 bg-brand-navy-dark/35 -z-10" aria-hidden="true" />

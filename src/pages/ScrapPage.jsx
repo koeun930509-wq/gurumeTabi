@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import Footer from '../components/Footer'
+import Seo from '../components/Seo'
 import SearchResultGridCard from '../components/SearchResultGridCard'
 import AccountActions from '../components/AccountActions'
 import ScrollToTopButton from '../components/ScrollToTopButton'
@@ -28,6 +29,7 @@ export default function ScrapPage() {
 
   return (
     <div className="h-screen flex overflow-hidden">
+      <Seo title="스크랩 맛집 — Gurume Tabi" description="내가 저장한 일본 맛집 목록입니다." path="/scrap" noIndex />
       <Sidebar active="scrap" />
 
       <div className="relative flex-1 flex flex-col min-w-0 h-full">

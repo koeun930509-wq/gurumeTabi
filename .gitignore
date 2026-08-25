@@ -36,3 +36,6 @@ drive-download-*.zip
 __pycache__/
 .vercel
 .env*
+
+# scripts/generate-sitemap.mjs가 빌드마다 새로 생성함(lastmod가 매번 바뀜) — 소스가 아니라 생성물이라 추적 제외
+public/sitemap.xml

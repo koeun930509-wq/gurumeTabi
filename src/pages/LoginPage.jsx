@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Seo from "../components/Seo";
 import { IconLock, IconMail, IconEye, IconEyeOff } from "../components/icons";
 
 function loginErrorMessage(error) {
@@ -56,6 +57,7 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-full flex flex-col items-center justify-center gap-4 px-6 overflow-hidden">
+      <Seo title="로그인 — Gurume Tabi" description="Gurume Tabi에 로그인하고 맛집을 스크랩하세요." path="/login" noIndex />
       <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url(/loginBg.png)` }} />
       <div className="absolute inset-0 bg-brand-navy-dark/35" aria-hidden="true" />
 

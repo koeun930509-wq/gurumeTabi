@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import Seo from '../components/Seo'
 import { IconLock, IconMail, IconEye, IconEyeOff } from '../components/icons'
 
 function signupErrorMessage(error) {
@@ -53,6 +54,7 @@ export default function SignUpPage() {
 
   return (
     <div className="relative min-h-full flex flex-col items-center justify-center gap-4 px-6 overflow-hidden">
+      <Seo title="회원가입 — Gurume Tabi" description="Gurume Tabi에 가입하고 맛집을 스크랩하세요." path="/signup" noIndex />
       <div
         className="absolute inset-0 bg-cover bg-center opacity-60"
         style={{ backgroundImage: `url(/loginBg.png)` }}

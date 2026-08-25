@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
+import Seo from "../components/Seo";
 import AccountActions from "../components/AccountActions";
 import ScrollToTopButton from "../components/ScrollToTopButton";
 import { IconUserCircle, IconEdit, IconChevronRight, IconFileText, IconShield, IconClose } from "../components/icons";
@@ -353,6 +354,7 @@ export default function MyPage() {
 
   return (
     <div className="h-screen flex overflow-hidden">
+      <Seo title="마이페이지 — Gurume Tabi" description="내 계정 정보와 설정을 관리하세요." path="/mypage" noIndex />
       <Sidebar active="mypage" />
 
       <div className="relative flex-1 flex flex-col min-w-0 h-full">
