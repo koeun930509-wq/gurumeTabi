@@ -414,7 +414,7 @@ export default function SearchResultsPage() {
 
             <div className="md:mb-4">
               <FilterSegmentGroup
-                title="현지인 비율"
+                title="현지인 추천"
                 options={LOCAL_RATIO_OPTIONS}
                 value={draft.localMin}
                 onChange={(v) => setDraftValue("localMin", v)}
