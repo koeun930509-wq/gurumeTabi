@@ -32,18 +32,23 @@
          없습니다" 리포트로 발견). 검색엔진(구글/네이버) 크롤러는 JS를 실행해서 Seo.jsx의 동적 값을
          읽어가므로 이 정적 태그와 충돌하지 않음 — property 속성 기반 태그라 React 19가 페이지별로
          자동 디듀프해서 덮어씀. 이 고정값은 모든 페이지에서 동일하게 뜨는 "최소 보장"용이고, 가게별
-         맞춤 미리보기(가게명/사진)는 여기서 다루지 않음. -->
+         맞춤 미리보기(가게명/사진)는 여기서 다루지 않음. og:image는 심볼(simbol.png, 368x367 정사각형)
+         대신 전체 로고(logo.png, 1516x372 가로형)를 씀 — 사용자가 "심볼 말고 로고 전체로" 요청함
+         (2026-08-25). 가로로 매우 긴 비율이라 미리보기 카드에서 크롭될 수 있음, og:image:width/height로
+         원본 비율 힌트를 줘서 크롤러가 레이아웃을 잡을 때 참고하게 함. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Gurume Tabi" />
     <meta property="og:title" content="Gurume Tabi — 일본 찐맛집 검색" />
     <meta property="og:description" content="광고 없는 찐맛집, 일본 미식여행을 위한 맛집 검색" />
     <meta property="og:url" content="https://gurume-tabi.com" />
-    <meta property="og:image" content="https://gurume-tabi.com/simbol.png" />
+    <meta property="og:image" content="https://gurume-tabi.com/logo.png" />
+    <meta property="og:image:width" content="1516" />
+    <meta property="og:image:height" content="372" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Gurume Tabi — 일본 찐맛집 검색" />
     <meta name="twitter:description" content="광고 없는 찐맛집, 일본 미식여행을 위한 맛집 검색" />
-    <meta name="twitter:image" content="https://gurume-tabi.com/simbol.png" />
+    <meta name="twitter:image" content="https://gurume-tabi.com/logo.png" />
   </head>
   <body>
     <div id="root"></div>
