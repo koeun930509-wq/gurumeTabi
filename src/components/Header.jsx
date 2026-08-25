@@ -143,12 +143,12 @@ export default function Header({ active, showSearch = true }) {
         <AccountActions />
       </div>
 
-      {/* 모바일 — 메뉴 닫혀 있을 때만 아바타 표시(로그아웃은 드롭다운 안으로 이동) */}
-      {!menuOpen && (
-        <div className="md:hidden flex items-center translate-x-2">
-          <AccountActions showLogout={false} />
-        </div>
-      )}
+      {/* 모바일 — 아바타는 햄버거 메뉴 열림 여부와 무관하게 항상 표시(로그아웃은 드롭다운 안으로 이동).
+          예전엔 메뉴가 열리면(menuOpen) 아바타를 숨기고 그 자리에 X 버튼만 남겼는데, 사용자가 "전체
+          메뉴 보기에서도 프사가 계속 나와야 한다"고 요청해서 조건 없이 항상 렌더링하도록 바꿈(2026-08-25). */}
+      <div className="md:hidden flex items-center translate-x-2">
+        <AccountActions showLogout={false} />
+      </div>
 
       {/* 검색 아이콘 — 모바일 전용. 누르면 메인 화면 검색창 탭 시 나오는 것과 같은 전체화면 검색으로 이동 */}
       <button

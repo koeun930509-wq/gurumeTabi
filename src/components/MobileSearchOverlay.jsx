@@ -1,5 +1,4 @@
 import { IconArrowLeft, IconClose, IconSearch } from './icons'
-import AccountActions from './AccountActions'
 
 function formatSearchedAt(iso) {
   const d = new Date(iso)
@@ -48,14 +47,6 @@ export default function MobileSearchOverlay({
         >
           <IconSearch className="w-5 h-5" />
         </button>
-        {/* 전체화면 오버레이가 Header를 완전히 덮어버려서 아바타가 안 보이던 문제(2026-08-25 리포트)
-            — 오버레이 안에도 계속 보이도록 여기에 추가. AccountActions 자체가 button/Link를 렌더링하므로
-            그 위를 또 button으로 감싸지 않고, onClickCapture로 클릭을 가로채 오버레이만 먼저 닫는다
-            (마이페이지 이동/로그인 이동 둘 다 오버레이가 열린 채로 남는 걸 방지, showLogout=false는
-            Header 모바일 아바타와 동일한 패턴). */}
-        <div className="flex-none" onClickCapture={onClose}>
-          <AccountActions showLogout={false} />
-        </div>
       </form>
 
       <div className="flex-1 overflow-y-auto">
