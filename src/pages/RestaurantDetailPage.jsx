@@ -362,6 +362,11 @@ export default function RestaurantDetailPage() {
                         <IconStar className="w-3.5 h-3.5" />
                         {restaurant.rating} ({restaurant.reviewCount})
                       </span>
+                      {restaurant.isChain && (
+                        <span className="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">
+                          체인점
+                        </span>
+                      )}
                       {restaurant.localRatio > 0 && (
                         <span className="inline-flex items-center gap-1 text-xs text-brand-navy bg-brand-navy/10 px-2.5 py-1 rounded-full">
                           현지인 추천

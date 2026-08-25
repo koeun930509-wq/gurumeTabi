@@ -21,6 +21,7 @@ function toViewModel(row) {
     reviewCount: row.review_count ?? 0,
     tagline: row.tagline ?? '',
     localRatio: row.local_ratio ?? 0,
+    isChain: row.is_chain ?? false,
     hasRudeReview: row.has_rude_review ?? false,
     status: row.status ?? 'open',
     openingHours: row.opening_hours ?? null,

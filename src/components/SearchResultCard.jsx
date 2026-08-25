@@ -122,6 +122,11 @@ export default function SearchResultCard({ restaurant, onClick, selected = false
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5 mt-1">
+          {restaurant.isChain && (
+            <span className="text-[11px] font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">
+              체인점
+            </span>
+          )}
           {restaurant.localRatio > 0 && (
             <span className="text-[11px] font-semibold text-brand-coral-dark bg-brand-coral/10 px-2.5 py-1 rounded-full">
               현지인 추천
