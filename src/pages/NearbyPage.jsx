@@ -167,7 +167,12 @@ export default function NearbyPage() {
       />
       <Header active="nearby" showSearch={false} />
 
-      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4 p-3 md:p-4">
+      {/* 모바일은 grid가 아니라 flex-col로 바꿔서 각 자식이 자기 콘텐츠 높이만큼만 차지하게 함 — grid를
+          유지한 채 md:grid-cols-1만 썼을 때는 grid의 기본 align-content(stretch)가 컨테이너의 남는
+          세로 공간을 auto row(오른쪽/아래 컬럼)에 그대로 분배해서, "일본이 아님"처럼 짧은 안내 문구가
+          있을 때도 지도와의 간격이 화면 높이만큼 벌어지는 문제가 있었음(사용자 스크린샷으로 발견).
+          md 이상(2열 그리드로 지도·목록이 나란함)에서는 기존처럼 grid를 씀. */}
+      <div className="flex-1 min-h-0 flex flex-col md:grid md:grid-cols-[1fr_1fr] gap-4 p-3 md:p-4">
         {userLocation ? (
           // 지도는 일본 밖이어도 실제 GPS 위치로 항상 렌더링한다 — "일본이 아님" 안내는 오른쪽 카드
           // 영역에서만 보여주고, 왼쪽 지도는 상태와 무관하게 내 위치 마커만 있는 상태로 표시됨(주변
@@ -204,8 +209,12 @@ export default function NearbyPage() {
           </div>
         )}
 
-        <div className="h-full overflow-y-scroll pretty-scroll">
-          <div className="min-h-full flex flex-col gap-4">
+        {/* 모바일에서 h-full/min-h-full을 그대로 두면 이 안쪽 flex-col이 화면 남은 공간 전체 높이를 갖게 되고,
+            그 안의 flex-1(예: OUTSIDE_JAPAN 안내 블록)이 justify-center로 그 큰 공간의 정중앙에 배치되면서
+            지도와의 간격이 과하게 벌어지는 문제가 있었음(사용자 스크린샷으로 발견) — md 이상(지도와 나란한
+            2열 그리드)에서만 지도 높이에 맞춰 h-full/min-h-full을 적용하고, 모바일은 콘텐츠 높이만큼만 차지. */}
+        <div className="md:h-full overflow-y-scroll pretty-scroll">
+          <div className="md:min-h-full flex flex-col gap-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-3">
               <h1 className="text-xl font-bold text-gray-900 pl-2">내 근처 맛집</h1>
 
@@ -327,7 +336,9 @@ export default function NearbyPage() {
             </div>
 
             {state === STATE.OUTSIDE_JAPAN && (
-              <div className="flex-1 min-h-0 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-3">
+              // md 이상에서만 flex-1로 지도 높이만큼 늘어나 정중앙에 배치되고, 모바일은 콘텐츠 크기만큼만
+              // 차지해 지도 바로 아래 붙도록 함(위 h-full 관련 주석과 같은 이유).
+              <div className="md:flex-1 md:min-h-0 rounded-2xl p-6 flex flex-col items-center md:justify-center text-center gap-3">
                 <span className="text-5xl">🗾</span>
                 <span className="text-base text-gray-400">
                   위치가 일본이 아니에요.
