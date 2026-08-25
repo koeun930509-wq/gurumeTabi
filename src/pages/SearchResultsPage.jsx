@@ -83,7 +83,9 @@ const RESULTS_PAGE_SIZE = 8;
 const SORT_OPTIONS = [
   { key: "reviews", label: "리뷰 많은 순", sorter: (a, b) => b.reviewCount - a.reviewCount },
   { key: "rating", label: "평점 높은 순", sorter: (a, b) => b.rating - a.rating },
-  { key: "local", label: "현지인 비율 높은 순", sorter: (a, b) => b.localRatio - a.localRatio },
+  // "현지인 비율 높은 순" 정렬은 제거됨(2026-08-25) — local_ratio가 정량적 %가 아니라 100/0
+  // 이진값(네이버 리뷰 "현지"/"로컬" 키워드 언급 유무)으로 바뀌면서 "비율"이라는 라벨과
+  // 실제 데이터 성격이 안 맞고, 사이드바의 "전체/현지인추천" 2단계 필터와 기능이 겹침.
 ];
 
 function FilterSegmentGroup({ title, options, value, onChange }) {
