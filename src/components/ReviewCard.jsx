@@ -12,7 +12,7 @@ function toGraphemes(text) {
   return Array.from(text)
 }
 
-export default function ReviewCard({ review, googlePlaceId }) {
+export default function ReviewCard({ review, googlePlaceId, restaurantName }) {
   const isNaver = review.source === 'naver'
   const [expanded, setExpanded] = useState(false)
   const [isClamped, setIsClamped] = useState(false)
@@ -69,9 +69,15 @@ export default function ReviewCard({ review, googlePlaceId }) {
   }, [review.snippet])
   // 구글 리뷰는 개별 리뷰 고유 링크를 API가 제공하지 않고, 리뷰 탭 직행에 필요한 CID도 Places API 응답에 없어서
   // place_id 기반 링크로는 가게 개요 페이지까지만 갈 수 있음(리뷰 탭 자동 전환 불가) — 그래서 카드 안내 문구로 보완함.
-  const googleReviewsUrl = googlePlaceId
-    ? `https://www.google.com/maps/place/?q=place_id:${googlePlaceId}&query_place_id=${googlePlaceId}`
-    : null
+  // URL은 RestaurantDetailPage의 "구글 지도" 버튼과 동일하게 /maps/search/?api=1 형식을 씀 — 예전엔
+  // /maps/place/?q=place_id:... 형식을 썼는데, 안드로이드에서 이 경로가 네이버 지도 앱의 App Link로 등록돼
+  // 있어 다른 지도 앱을 기본으로 설정해둔 기기에서 그 앱이 링크를 가로채 "검색결과 없음"으로 뜨는 문제가
+  // 있었음(2026-08-25 사용자 리포트로 발견 — "구글 지도" 버튼은 같은 문제 없이 잘 이동한다는 점에서
+  // /maps/search/ 경로는 이 가로채기 패턴에 안 걸린다는 걸 확인함).
+  const googleReviewsUrl =
+    googlePlaceId && restaurantName
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurantName)}&query_place_id=${googlePlaceId}`
+      : null
   // 네이버 블로그 리뷰는 검색 API가 개별 글 URL(item.link)을 그대로 줘서 원문으로 바로 이동 가능 — 2026-08-18 이전에
   // 수집된 리뷰는 link 컬럼이 비어있을 수 있어(백필 전) 그 경우에만 클릭 비활성화로 폴백.
   const targetUrl = isNaver ? review.link : googleReviewsUrl

@@ -450,7 +450,7 @@ export default function RestaurantDetailPage() {
                 ) : (
                   <div className="flex flex-col gap-2.5 max-h-[600px] overflow-y-auto pretty-scroll pb-1">
                     {shuffledReviews.map((rv, i) => (
-                      <ReviewCard key={i} review={rv} googlePlaceId={restaurant.googlePlaceId} />
+                      <ReviewCard key={i} review={rv} googlePlaceId={restaurant.googlePlaceId} restaurantName={restaurant.name} />
                     ))}
                   </div>
                 )}
