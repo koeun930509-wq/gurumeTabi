@@ -340,7 +340,7 @@ export default function NearbyPage() {
               // 차지해 지도 바로 아래 붙도록 함(위 h-full 관련 주석과 같은 이유).
               <div className="md:flex-1 md:min-h-0 rounded-2xl p-6 flex flex-col items-center md:justify-center text-center gap-3">
                 <span className="text-5xl">🗾</span>
-                <span className="text-base text-gray-400">
+                <span className="text-base text-[#333]">
                   위치가 일본이 아니에요.
                   <br />
                   일본에서 접속해주세요.
