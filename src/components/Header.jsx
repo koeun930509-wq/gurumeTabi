@@ -103,7 +103,7 @@ export default function Header({ active, showSearch = true }) {
       </Link>
 
       {/* 데스크톱 nav 링크 — 화면 정중앙 고정, 모바일에서는 숨기고 햄버거 메뉴로 이동 */}
-      <div className="hidden md:flex items-center gap-10 lg:gap-[4.5rem] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div className="hidden xl:flex items-center gap-[4.5rem] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <Link to="/search" className={navLinkClass(active === 'search')}>
           일본 맛집 검색
         </Link>
@@ -139,14 +139,14 @@ export default function Header({ active, showSearch = true }) {
       )}
 
       {/* 데스크톱 — 아바타 + 로그아웃 아이콘 */}
-      <div className="hidden md:flex items-center gap-6">
+      <div className="hidden xl:flex items-center gap-6">
         <AccountActions />
       </div>
 
       {/* 모바일 — 아바타는 햄버거 메뉴 열림 여부와 무관하게 항상 표시(로그아웃은 드롭다운 안으로 이동).
           예전엔 메뉴가 열리면(menuOpen) 아바타를 숨기고 그 자리에 X 버튼만 남겼는데, 사용자가 "전체
           메뉴 보기에서도 프사가 계속 나와야 한다"고 요청해서 조건 없이 항상 렌더링하도록 바꿈(2026-08-25). */}
-      <div className="md:hidden flex items-center translate-x-2">
+      <div className="xl:hidden flex items-center translate-x-2">
         <AccountActions showLogout={false} />
       </div>
 
@@ -154,7 +154,7 @@ export default function Header({ active, showSearch = true }) {
       <button
         onClick={() => setMobileSearchOpen(true)}
         aria-label="검색"
-        className="md:hidden flex items-center justify-center text-brand-navy cursor-pointer"
+        className="xl:hidden flex items-center justify-center text-gray-500 hover:text-brand-navy transition-colors cursor-pointer"
       >
         <IconSearch className="w-6 h-6" />
       </button>
@@ -164,7 +164,7 @@ export default function Header({ active, showSearch = true }) {
         onClick={() => setMenuOpen((v) => !v)}
         aria-label="메뉴 열기"
         aria-expanded={menuOpen}
-        className="md:hidden -ml-2 text-brand-navy"
+        className="xl:hidden -ml-2 text-gray-500 hover:text-brand-navy transition-colors"
       >
         {menuOpen ? <IconClose className="w-7 h-7" /> : <IconMenu className="w-7 h-7" />}
       </button>
@@ -181,7 +181,7 @@ export default function Header({ active, showSearch = true }) {
       {menuOpen &&
         createPortal(
           <div
-            className={`fixed left-0 right-0 bottom-0 md:hidden bg-white border-b border-gray-200 shadow-md z-40 flex flex-col ${
+            className={`fixed left-0 right-0 bottom-0 xl:hidden bg-white border-b border-gray-200 shadow-md z-40 flex flex-col ${
               navHeight === 0 ? 'top-[75px]' : ''
             }`}
             style={navHeight > 0 ? { top: navHeight } : undefined}

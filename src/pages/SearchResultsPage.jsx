@@ -707,13 +707,13 @@ export default function SearchResultsPage() {
             ) : (
               <>
                 {viewMode === "list" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                  <div className="grid grid-cols-1 gap-4 items-start">
                     {results.map((r) => (
                       <SearchResultCard key={r.id} restaurant={r} />
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                     {results.map((r) => (
                       <SearchResultGridCard key={r.id} restaurant={r} />
                     ))}

@@ -108,14 +108,14 @@ function PhotoCarousel({ images, name }) {
           <button
             onClick={showPrevPhoto}
             aria-label="이전 사진"
-            className="absolute top-1/2 left-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer"
+            className="absolute top-1/2 left-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity cursor-pointer"
           >
             <IconChevronRight className="w-4 h-4 rotate-180" />
           </button>
           <button
             onClick={showNextPhoto}
             aria-label="다음 사진"
-            className="absolute top-1/2 right-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer"
+            className="absolute top-1/2 right-2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 text-white opacity-100 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity cursor-pointer"
           >
             <IconChevronRight className="w-4 h-4" />
           </button>
@@ -289,47 +289,47 @@ export default function RestaurantDetailPage() {
           className="w-full aspect-[32/14] sm:aspect-[32/5] sm:max-h-[260px] object-cover sm:[mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] sm:[-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)]"
           style={{ objectPosition: "center calc(50% - 200px)", ...(restaurant.image ? { display: "none" } : {}) }}
         />
-        <div className="sm:hidden absolute inset-0 bg-black/5 pointer-events-none" />
+        <div className="sm:hidden absolute inset-0 bg-black/20 pointer-events-none" />
         {restaurant.image && (
           <div className="hidden sm:block absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 via-70% to-transparent pointer-events-none" />
         )}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="text-[#fff] font-bold text-xl md:text-2xl text-center px-6">{restaurant.name}</h1>
+          <h1 className="text-[#fff] font-bold text-xl xl:text-2xl text-center px-6">{restaurant.name}</h1>
         </div>
         <div className="absolute top-4 inset-x-6 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer -translate-x-2 md:translate-x-0 md:translate-y-2"
+            className="inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 xl:w-10 xl:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer -translate-x-2 xl:translate-x-0 xl:translate-y-2"
           >
-            <IconArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+            <IconArrowLeft className="w-4 h-4 xl:w-5 xl:h-5" />
           </button>
           {/* 모바일: OS 네이티브 공유 시트 / PC: 공유 시트가 없으므로 링크 복사 버튼으로 대체 */}
           <button
             onClick={handleShareClick}
             aria-label="공유하기"
-            className="md:hidden inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow-md hover:text-brand-navy transition-colors cursor-pointer translate-x-2"
+            className="xl:hidden inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full w-8 h-8 shadow-md hover:text-brand-navy transition-colors cursor-pointer translate-x-2"
           >
             <IconShare className="w-4 h-4" />
           </button>
           <button
             onClick={handleCopyLinkClick}
             aria-label="주소 복사"
-            className="hidden md:inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full md:w-10 md:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer md:translate-y-2"
+            className="hidden xl:inline-flex items-center justify-center bg-white/80 backdrop-blur text-gray-700 rounded-full xl:w-10 xl:h-10 shadow-md hover:text-brand-navy transition-colors cursor-pointer xl:translate-y-2"
           >
-            <IconLink className="md:w-5 md:h-5" />
+            <IconLink className="xl:w-5 xl:h-5" />
           </button>
         </div>
       </div>
 
       <div className="flex flex-col px-0">
-        <div className="relative z-10 -mt-3 md:mx-6 bg-white rounded-none md:rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-4 md:p-6 flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row gap-6 md:gap-x-6">
+        <div className="relative z-10 -mt-3 xl:mx-6 bg-white rounded-none xl:rounded-t-3xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] p-4 xl:p-6 flex flex-col gap-6">
+          <div className="flex flex-col xl:flex-row gap-6 xl:gap-x-6">
             {/* 왼쪽: 사진+정보(flex row, items-stretch로 높이 동기화) 위, 리뷰 아래 — 지도(오른쪽 독립 블록)와는
                 완전히 분리되어 있어, 리뷰가 아무리 길어져도 지도/저장버튼 라인에 영향을 주지 않는다. */}
-            <div className="order-1 md:flex-[2] flex flex-col gap-6 min-w-0">
-              <div className="flex flex-col md:flex-row md:items-stretch gap-6">
+            <div className="order-1 xl:flex-[2] flex flex-col gap-6 min-w-0">
+              <div className="flex flex-col xl:flex-row xl:items-stretch gap-6">
                 {/* 사진 */}
-                <div className="md:flex-1 min-w-0">
+                <div className="xl:flex-1 min-w-0">
                   <PhotoCarousel
                     images={restaurant.images?.length ? restaurant.images : restaurant.image ? [restaurant.image] : []}
                     name={restaurant.name}
@@ -337,7 +337,7 @@ export default function RestaurantDetailPage() {
                 </div>
 
                 {/* 식당 정보 — 저장 버튼은 mt-auto로 사진 하단 라인에 맞춤(items-stretch가 이 컬럼을 사진과 같은 높이로 늘림) */}
-                <div className="md:flex-1 min-w-0 flex flex-col gap-4">
+                <div className="xl:flex-1 min-w-0 flex flex-col gap-4">
                   <div className="flex flex-wrap items-center gap-2.5">
                     <button
                       onClick={() => navigate(`/search?q=${encodeURIComponent(restaurant.region)}`)}
@@ -452,7 +452,7 @@ export default function RestaurantDetailPage() {
                   {restaurant.googlePlaceId && (
                     <span className="text-[11px] text-gray-400 text-right relative top-1 -left-1">
                       클릭하면 구글맵 가게 페이지로 이동해요 —
-                      <br className="md:hidden" /> 상단 '리뷰' 탭을 눌러 전체 리뷰를 확인하세요
+                      <br className="xl:hidden" /> 상단 '리뷰' 탭을 눌러 전체 리뷰를 확인하세요
                     </span>
                   )}
                 </div>
@@ -475,7 +475,7 @@ export default function RestaurantDetailPage() {
 
             {/* 오른쪽: 위치(지도) + 근처 백업 플랜/디저트 — 왼쪽 블록(사진+정보+리뷰)과 완전히 독립된 형제
                 컬럼이라, 리뷰 길이와 무관하게 항상 자기 콘텐츠(지도+버튼들) 높이만큼만 차지한다. */}
-            <aside className="order-2 md:flex-[0.85] flex flex-col gap-3 min-w-0 h-fit">
+            <aside className="order-2 xl:flex-[0.85] flex flex-col gap-3 min-w-0 h-fit">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-gray-900">위치</h3>
                 {restaurant.hotpepperUrl && (
