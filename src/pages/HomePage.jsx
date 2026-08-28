@@ -35,7 +35,7 @@ export default function HomePage() {
         path="/"
       />
       {/* 배경 영상 + 어두운 오버레이 */}
-      <video className="absolute inset-0 w-full h-full object-cover -z-20" src="/sushi.mp4" autoPlay muted loop playsInline aria-hidden="true" />
+      <video className="absolute inset-0 w-full h-full object-cover -z-20" src="/sushi.mp4" poster="/sushi-poster.jpg" autoPlay muted loop playsInline aria-hidden="true" />
       <div className="absolute inset-0 bg-brand-navy-dark/35 -z-10" aria-hidden="true" />
 
       {/* header — 상단 고정 */}
