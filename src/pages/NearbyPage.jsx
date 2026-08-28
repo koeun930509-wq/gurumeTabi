@@ -46,13 +46,24 @@ export default function NearbyPage() {
   const [userLocation, setUserLocation] = useState(null)
   const [restaurants, setRestaurants] = useState([])
   const [loadingRestaurants, setLoadingRestaurants] = useState(false)
-  const [selectedId, setSelectedId] = useState(null)
+  // selectedId도 sort/category/view와 같은 이유로 URL 쿼리(?selected=)에 반영한다 — 상세 페이지 진입 후
+  // 뒤로가기로 돌아오면 이 페이지가 재마운트되며 순수 useState(null)이었을 때는 선택된 가게가 지도·카드
+  // 하이라이트에서 사라지는 문제가 있었다(사용자 리포트로 발견).
+  const [selectedId, setSelectedIdState] = useState(() => searchParams.get('selected') ?? null)
   const [sortBy, setSortByState] = useState(() => searchParams.get('sort') ?? 'distance')
   const [categoryFilter, setCategoryFilterState] = useState(() => searchParams.get('category') ?? 'all')
   const [viewMode, setViewModeState] = useState(() => searchParams.get('view') ?? 'grid')
   const [sortMenuOpen, setSortMenuOpen] = useState(false)
 
   // 기본값일 때는 쿼리 파라미터 자체를 지워서 URL이 지저분해지지 않게 한다(SearchResultsPage와 동일 패턴).
+  function setSelectedId(id) {
+    setSelectedIdState(id)
+    const next = new URLSearchParams(searchParams)
+    if (id == null) next.delete('selected')
+    else next.set('selected', id)
+    setSearchParams(next, { replace: true })
+  }
+
   function setSortBy(key) {
     setSortByState(key)
     const next = new URLSearchParams(searchParams)
@@ -80,6 +91,14 @@ export default function NearbyPage() {
   const sortMenuRef = useRef(null)
   const categoryMenuRef = useRef(null)
   const selectedCardRef = useRef(null)
+  // 아래 카테고리 필터 변경 감지 effect가 "마운트 시에도" 한 번 실행되는 걸 막기 위한 이전 값 저장용 ref —
+  // 단순 boolean 플래그(첫 실행이었는지)로는 React 18 StrictMode의 개발 모드 이중 마운트(mount→unmount→
+  // remount)에서 오작동했다: 1차 마운트에서 플래그를 true로 세팅한 뒤 StrictMode가 즉시 재마운트하면,
+  // ref 자체는 유지되므로 2차 마운트 때 "이미 마운트됨"으로 오판해 실제로 categoryFilter가 안 바뀌었는데도
+  // setSelectedId(null)을 호출해버렸다(상세 페이지에서 뒤로가기 직후 ?selected= 쿼리가 사라지는 버그로
+  // 발견). "이전 값과 실제로 다른지"를 비교하는 방식으로 바꿔서, 몇 번을 재실행해도 categoryFilter 값
+  // 자체가 안 바뀌었으면 안전하게 skip되도록 했다.
+  const prevCategoryFilterRef = useRef(categoryFilter)
 
   // pill 버튼 그룹(전체/식당/카페·디저트·베이커리)이 모바일 좁은 화면에서 줄바꿈되며 레이아웃이 깨지는
   // 문제가 있었음(2026-08-24 발견) — 정렬과 동일한 드롭다운 UI로 바꿔서 폭을 고정폭 버튼 하나로 줄임.
@@ -134,7 +153,11 @@ export default function NearbyPage() {
 
   // 카테고리 필터가 바뀌면 지도에서 선택 중이던 마커가 새 필터에 없을 수 있어(예: "식당"만 남기고 다른
   // 카테고리를 골랐다가 방금 선택한 카페가 걸러짐) 정보창이 붕 뜨는 걸 막기 위해 선택을 초기화한다.
+  // 단, 마운트 시(첫 실행)에는 건너뛴다 — 그렇지 않으면 상세 페이지에서 뒤로가기로 돌아와 URL의
+  // ?selected= 쿼리가 막 복원된 직후 이 effect가 "마운트 효과"로 한 번 더 실행되어 곧바로 지워버린다.
   useEffect(() => {
+    if (prevCategoryFilterRef.current === categoryFilter) return
+    prevCategoryFilterRef.current = categoryFilter
     setSelectedId(null)
   }, [categoryFilter])
 
@@ -167,17 +190,19 @@ export default function NearbyPage() {
       />
       <Header active="nearby" showSearch={false} />
 
-      {/* 모바일은 grid가 아니라 flex-col로 바꿔서 각 자식이 자기 콘텐츠 높이만큼만 차지하게 함 — grid를
-          유지한 채 md:grid-cols-1만 썼을 때는 grid의 기본 align-content(stretch)가 컨테이너의 남는
-          세로 공간을 auto row(오른쪽/아래 컬럼)에 그대로 분배해서, "일본이 아님"처럼 짧은 안내 문구가
-          있을 때도 지도와의 간격이 화면 높이만큼 벌어지는 문제가 있었음(사용자 스크린샷으로 발견).
-          md 이상(2열 그리드로 지도·목록이 나란함)에서는 기존처럼 grid를 씀. */}
-      <div className="flex-1 min-h-0 flex flex-col md:grid md:grid-cols-[1fr_1fr] gap-4 p-3 md:p-4">
+      {/* 모바일/태블릿은 grid가 아니라 flex-col로 바꿔서 각 자식이 자기 콘텐츠 높이만큼만 차지하게 함 —
+          grid를 유지한 채 xl:grid-cols-1만 썼을 때는 grid의 기본 align-content(stretch)가 컨테이너의
+          남는 세로 공간을 auto row(오른쪽/아래 컬럼)에 그대로 분배해서, "일본이 아님"처럼 짧은 안내
+          문구가 있을 때도 지도와의 간격이 화면 높이만큼 벌어지는 문제가 있었음(사용자 스크린샷으로 발견).
+          아이패드 프로(1024px) 등 태블릿 폭에서도 데스크톱 2열 그리드가 카드를 과하게 압축시키는 문제가
+          있어(사용자 리포트), 브레이크포인트를 md(768px)에서 xl(1280px)로 올림 — xl 이상에서만 기존처럼
+          2열 grid로 지도·목록이 나란히 배치됨. */}
+      <div className="flex-1 min-h-0 flex flex-col xl:grid xl:grid-cols-[1fr_1fr] gap-4 p-3 xl:p-4">
         {userLocation ? (
           // 지도는 일본 밖이어도 실제 GPS 위치로 항상 렌더링한다 — "일본이 아님" 안내는 오른쪽 카드
           // 영역에서만 보여주고, 왼쪽 지도는 상태와 무관하게 내 위치 마커만 있는 상태로 표시됨(주변
           // 맛집 마커는 STATE.READY일 때만 fetchNearbyRestaurants가 채워주므로 자연히 0개로 나옴).
-          <div className="h-64 md:h-full rounded-2xl overflow-hidden">
+          <div className="flex-none h-[356px] xl:h-full rounded-2xl overflow-hidden">
             <NearbyMap
               userLocation={userLocation}
               restaurants={filteredRestaurants}
@@ -186,7 +211,7 @@ export default function NearbyPage() {
             />
           </div>
         ) : (
-          <div className="h-64 md:h-full rounded-2xl bg-white flex flex-col items-center justify-center gap-4 text-center p-6">
+          <div className="flex-none h-[356px] xl:h-full rounded-2xl bg-white flex flex-col items-center justify-center gap-4 text-center p-6">
             {state === STATE.REQUESTING && (
               <>
                 <IconLocateFixed className="w-12 h-12 text-brand-coral animate-pulse" />
@@ -209,17 +234,18 @@ export default function NearbyPage() {
           </div>
         )}
 
-        {/* 모바일에서 h-full/min-h-full을 그대로 두면 이 안쪽 flex-col이 화면 남은 공간 전체 높이를 갖게 되고,
-            그 안의 flex-1(예: OUTSIDE_JAPAN 안내 블록)이 justify-center로 그 큰 공간의 정중앙에 배치되면서
-            지도와의 간격이 과하게 벌어지는 문제가 있었음(사용자 스크린샷으로 발견) — md 이상(지도와 나란한
-            2열 그리드)에서만 지도 높이에 맞춰 h-full/min-h-full을 적용하고, 모바일은 콘텐츠 높이만큼만 차지. */}
-        <div className="md:h-full overflow-y-scroll pretty-scroll">
-          <div className="md:min-h-full flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-3">
+        {/* 모바일/태블릿에서 h-full/min-h-full을 그대로 두면 이 안쪽 flex-col이 화면 남은 공간 전체 높이를
+            갖게 되고, 그 안의 flex-1(예: OUTSIDE_JAPAN 안내 블록)이 justify-center로 그 큰 공간의 정중앙에
+            배치되면서 지도와의 간격이 과하게 벌어지는 문제가 있었음(사용자 스크린샷으로 발견) — xl 이상
+            (지도와 나란한 2열 그리드)에서만 지도 높이에 맞춰 h-full/min-h-full을 적용하고, 그 미만은
+            콘텐츠 높이만큼만 차지. */}
+        <div className="xl:h-full overflow-y-scroll pretty-scroll">
+          <div className="xl:min-h-full flex flex-col gap-4">
+            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3 pt-3">
               <h1 className="text-xl font-bold text-gray-900 pl-2">내 근처 맛집</h1>
 
               {state === STATE.READY && restaurants.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+                <div className="flex items-center gap-2 flex-wrap w-full xl:w-auto">
                   <div className="relative flex-none" ref={sortMenuRef}>
                     <button
                       type="button"
@@ -336,9 +362,9 @@ export default function NearbyPage() {
             </div>
 
             {state === STATE.OUTSIDE_JAPAN && (
-              // md 이상에서만 flex-1로 지도 높이만큼 늘어나 정중앙에 배치되고, 모바일은 콘텐츠 크기만큼만
+              // xl 이상에서만 flex-1로 지도 높이만큼 늘어나 정중앙에 배치되고, 그 미만은 콘텐츠 크기만큼만
               // 차지해 지도 바로 아래 붙도록 함(위 h-full 관련 주석과 같은 이유).
-              <div className="md:flex-1 md:min-h-0 rounded-2xl p-6 flex flex-col items-center md:justify-center text-center gap-3">
+              <div className="xl:flex-1 xl:min-h-0 rounded-2xl p-6 flex flex-col items-center xl:justify-center text-center gap-3">
                 <span className="text-5xl">🗾</span>
                 <span className="text-base text-[#333]">
                   위치가 일본이 아니에요.

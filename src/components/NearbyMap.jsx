@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GoogleMap, MarkerF, OverlayViewF, useJsApiLoader } from '@react-google-maps/api'
 import { IconClose, IconCoffee, IconUtensils } from './icons'
@@ -63,12 +64,91 @@ function buildPinIcon(kind) {
   }
 }
 
+// 정보창(말풍선) 카드가 마커 위로 떠 있어서, 마커 좌표를 그대로 지도 중심으로 잡으면 마커+말풍선
+// 블록 전체는 화면 중앙보다 위로 치우쳐 보인다 — panBy로 지도를 아래로 이동시켜(=마커가 화면상
+// 아래로 내려가) 마커+말풍선을 합친 블록의 세로 중심이 화면 정중앙에 오게 한다. 값은 실제 렌더링된
+// 카드 높이(~105px, getPixelPositionOffset의 y: -height-46 여백 포함)로 boundingBox 실측 후 조정한 값 —
+// 카드 내용(폰트 크기, padding 등)이 크게 바뀌면 이 값도 함께 재조정해야 함.
+const INFO_CARD_VERTICAL_OFFSET = 76
+// 카드 자체 높이(~105px) + getPixelPositionOffset의 마커-카드 간격(46px) = 마커 앵커부터 카드 상단까지의
+// 거리. 아래 useEffect에서 지도가 작을 때 offset 상한을 계산하는 데 씀 — 위 실측값과 같은 이유로 카드
+// 내용이 바뀌면 이 값도 같이 재조정해야 함.
+const CARD_BLOCK_HEIGHT = 151
+// 카드의 min-w/max-w(아래 JSX의 min-w-[270px] max-w-[270px])와 반드시 같은 값이어야 함 — 가로 방향
+// clamp 계산에 씀. 카드 폭을 바꾸면 이 값도 함께 수정할 것.
+const CARD_WIDTH = 270
+// xl(1280px) 이상에서의 카드 폭(아래 JSX의 xl:min-w-[360px] xl:max-w-[360px])과 같은 값이어야 함.
+const CARD_WIDTH_XL = 360
+
 export default function NearbyMap({ userLocation, restaurants, selectedId, onSelectRestaurant }) {
   const navigate = useNavigate()
+  const mapRef = useRef(null)
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'gurume-tabi-google-map-script',
     googleMapsApiKey: MAP_API_KEY,
   })
+
+  // selectedId 또는 restaurants가 바뀔 때 실행 — center prop을 직접 오프셋시키는 방식은 줌 레벨마다
+  // 픽셀당 위경도 비율이 달라져 부정확하므로, panBy(픽셀 단위)로 지도 중심을 옮긴 뒤 그만큼 다시 화면을
+  // 내려 보정한다. restaurants도 dependency에 포함시킨 이유: 상세 페이지에서 뒤로가기로 돌아왔을 때
+  // selectedId는 URL 쿼리에서 즉시 복원되지만 restaurants는 비동기 fetch라 아직 빈 배열일 수 있어서,
+  // selectedId만 보면 target을 못 찾고 그대로 리턴해버려 지도가 이동하지 않는 문제가 있었다.
+  useEffect(() => {
+    const map = mapRef.current
+    const target = restaurants.find((r) => r.id === selectedId)
+    if (!map || !target) return
+    // 지도가 작을 때(모바일의 h-[356px] 등) 고정 오프셋을 그대로 적용하면 카드 상단이 지도 위쪽 경계
+    // 밖으로 밀려나 잘려 보이는 문제가 있었다(사용자 스크린샷으로 발견) — 마커는 지도 중앙보다
+    // offset만큼 아래에 위치하고, 카드는 마커보다 CARD_BLOCK_HEIGHT(카드 높이+마커·카드 간격)만큼
+    // 위에 있으므로, "카드 상단 = mapHeight/2 - offset - CARD_BLOCK_HEIGHT"가 여유 공간(8px) 밑으로
+    // 내려가지 않도록 offset 상한을 지도 높이에 맞춰 다시 계산한다.
+    const mapHeight = map.getDiv()?.offsetHeight ?? 0
+    const mapWidth = map.getDiv()?.offsetWidth ?? 0
+    const maxOffsetForMapHeight = mapHeight > 0 ? mapHeight / 2 - CARD_BLOCK_HEIGHT - 8 : INFO_CARD_VERTICAL_OFFSET
+    const verticalOffset = Math.max(0, Math.min(INFO_CARD_VERTICAL_OFFSET, maxOffsetForMapHeight))
+    // setCenter 직후 곧바로 panBy를 호출하면 Google Maps 내부적으로 두 이동이 합쳐지지 못하고 panBy가
+    // 무시되는 경우가 있었다(실측 시 카드가 지도 상단에 계속 잘려 보이는 문제로 발견 — panTo나
+    // requestAnimationFrame 한 프레임 뒤로 미루는 정도로는 부족했고, 짧은 지연(200ms) 후에 호출해야
+    // 안정적으로 반영됨을 boundingBox 실측으로 확인함).
+    map.setCenter({ lat: target.lat, lng: target.lng })
+    const timer = setTimeout(() => {
+      // 카드는 마커를 기준으로 좌우 폭의 절반씩 뻗어나가는데(getPixelPositionOffset의 x: -width/2),
+      // 마커가 지도 왼쪽/오른쪽 가장자리에 가까이 있으면 카드 절반이 지도 밖으로 잘려 보이는 문제가
+      // 있었다(사용자 스크린샷으로 발견 — 세로 중앙 정렬과는 별개의, 원래부터 있던 가로 방향 버그).
+      // getProjection으로 지도 중심의 픽셀 좌표를 구해서, 카드가 지도 좌우 경계를 넘는 만큼 지도를
+      // 옆으로 밀어 카드가 항상 화면 안에 들어오게 한다. 카드 폭 자체가 xl(1280px) 이상에서 더 넓어지므로
+      // (JSX의 xl:min-w-[360px]) window.innerWidth로 같은 브레이크포인트를 판별해 실제 렌더링된 폭과 맞춘다.
+      let horizontalOffset = 0
+      const projection = map.getProjection()
+      if (projection && mapWidth > 0) {
+        const bounds = map.getBounds()
+        if (bounds) {
+          const sw = projection.fromLatLngToPoint(bounds.getSouthWest())
+          const scale = Math.pow(2, map.getZoom())
+          const markerPoint = projection.fromLatLngToPoint({ lat: target.lat, lng: target.lng })
+          const markerX = (markerPoint.x - sw.x) * scale
+          const cardWidth = window.innerWidth >= 1280 ? CARD_WIDTH_XL : CARD_WIDTH
+          const halfCardWidth = cardWidth / 2
+          if (markerX - halfCardWidth < 0) {
+            horizontalOffset = markerX - halfCardWidth - 8
+          } else if (markerX + halfCardWidth > mapWidth) {
+            horizontalOffset = markerX + halfCardWidth - mapWidth + 8
+          }
+        }
+      }
+      map.panBy(horizontalOffset, -verticalOffset)
+    }, 200)
+    return () => clearTimeout(timer)
+  }, [selectedId, restaurants])
+
+  // 초기 중심은 항상 사용자 위치 — 카드를 선택했을 때의 이동은 위 useEffect의 setCenter/panBy가 담당한다.
+  // useMemo로 감싸는 이유: {lat, lng} 리터럴을 매 렌더 새로 만들면 참조가 계속 바뀌어서, @react-google-maps/api가
+  // "center prop이 바뀌었다"고 판단해 내부적으로 map.setCenter(center)를 다시 호출한다 — 이게 useEffect의
+  // setCenter/panBy 결과를 리렌더링마다 되돌려버려서, 카드를 연속으로 여러 번 선택하면(예: A 선택 후 곧바로 B
+  // 선택) 두 번째 이동에서 지도가 여전히 사용자 위치를 중심으로 유지되며 정보창이 지도 밖으로 잘리는 버그가
+  // 있었다(사용자 스크린샷으로 발견 — getCenter()가 target 좌표가 아니라 계속 userLocation을 가리키고 있었음).
+  // userLocation.lat/lng 값 자체가 안 바뀌는 한 같은 객체 참조를 재사용해서 이 재적용을 막는다.
+  const center = useMemo(() => ({ lat: userLocation.lat, lng: userLocation.lng }), [userLocation.lat, userLocation.lng])
 
   if (loadError) {
     return (
@@ -87,8 +167,6 @@ export default function NearbyMap({ userLocation, restaurants, selectedId, onSel
   }
 
   const selected = restaurants.find((r) => r.id === selectedId) ?? null
-  // 카드를 클릭해 가게를 선택하면 그 위치로 지도 중심을 옮긴다 — 선택 전 기본 중심은 항상 사용자 위치.
-  const center = selected ? { lat: selected.lat, lng: selected.lng } : { lat: userLocation.lat, lng: userLocation.lng }
 
   return (
     <GoogleMap
@@ -96,6 +174,12 @@ export default function NearbyMap({ userLocation, restaurants, selectedId, onSel
       center={center}
       zoom={16}
       options={MAP_OPTIONS}
+      onLoad={(map) => {
+        mapRef.current = map
+      }}
+      onUnmount={() => {
+        mapRef.current = null
+      }}
     >
       <MarkerF
         position={{ lat: userLocation.lat, lng: userLocation.lng }}
@@ -133,7 +217,7 @@ export default function NearbyMap({ userLocation, restaurants, selectedId, onSel
           mapPaneName="floatPane"
           getPixelPositionOffset={(width, height) => ({ x: -width / 2, y: -height - 46 })}
         >
-          <div className="relative bg-white rounded-2xl shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)] p-[16.8px] min-w-[270px]">
+          <div className="relative bg-white rounded-2xl shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)] p-[16.8px] min-w-[270px] max-w-[270px] xl:min-w-[360px] xl:max-w-[360px]">
             <button
               type="button"
               onClick={() => onSelectRestaurant(null)}
@@ -158,7 +242,7 @@ export default function NearbyMap({ userLocation, restaurants, selectedId, onSel
                 )}
               </span>
               <span className="flex flex-col gap-1 min-w-0">
-                <span className="text-sm font-bold text-gray-900 leading-snug break-keep group-hover/infowindow:underline">
+                <span className="text-sm font-bold text-gray-900 leading-snug break-keep line-clamp-2 xl:line-clamp-1 group-hover/infowindow:underline">
                   {selected.name}
                 </span>
                 <span className="text-xs text-gray-500">
