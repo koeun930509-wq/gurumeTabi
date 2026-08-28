@@ -358,3 +358,13 @@ export function IconEyeOff(props) {
     </svg>
   )
 }
+
+export function IconMapFold(props) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z" />
+      <path d="M9 4v14" />
+      <path d="M15 6v14" />
+    </svg>
+  )
+}

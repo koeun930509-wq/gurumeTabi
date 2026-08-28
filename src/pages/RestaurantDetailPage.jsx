@@ -11,6 +11,7 @@ import {
   IconCoffee,
   IconExternalLink,
   IconLink,
+  IconMapFold,
   IconPhone,
   IconPin,
   IconShare,
@@ -424,7 +425,7 @@ export default function RestaurantDetailPage() {
                       onClick={handleSaveClick}
                       className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-base font-bold text-white bg-gradient-to-b from-brand-coral to-brand-coral-dark rounded-xl shadow-[0_6px_16px_-4px_rgba(126,34,206,0.5)] hover:brightness-105 transition-all cursor-pointer"
                     >
-                      <IconStarFilled className="w-6 h-6" />
+                      <IconStarFilled className="w-5 h-5" />
                       {isSaved ? "저장 취소" : "이 가게 저장하기"}
                     </button>
                     <a
@@ -437,6 +438,7 @@ export default function RestaurantDetailPage() {
                       rel="noopener noreferrer"
                       className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-base font-bold text-brand-navy border border-brand-navy rounded-xl hover:bg-brand-navy/5 transition-colors"
                     >
+                      <IconMapFold className="w-5 h-5" />
                       구글 지도
                     </a>
                   </div>
@@ -507,7 +509,7 @@ export default function RestaurantDetailPage() {
                     onClick={() => navigate(`/place/${backup.id}`)}
                     className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-sm font-bold text-brand-coral-dark bg-brand-peach/40 rounded-xl hover:bg-brand-peach/60 transition-colors"
                   >
-                    <IconPin className="w-4 h-4" />
+                    <IconPin className="w-5 h-5" />
                     근처 백업 플랜
                   </button>
                 ) : (
@@ -522,7 +524,7 @@ export default function RestaurantDetailPage() {
                       onClick={() => navigate(`/place/${nearbyDessert.id}`)}
                       className="flex-1 inline-flex items-center justify-center gap-2 h-[52px] text-sm font-bold text-brand-pink-dark bg-brand-pink/10 rounded-xl hover:bg-brand-pink/20 transition-colors"
                     >
-                      <IconCoffee className="w-4 h-4" />
+                      <IconCoffee className="w-5 h-5" />
                       근처 디저트 맛집
                     </button>
                   ) : (
