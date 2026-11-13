@@ -677,6 +677,12 @@ export default function SearchResultsPage() {
                     value={pendingQ}
                     onChange={setPendingQ}
                     onSubmit={runSearch}
+                    onFocus={(e) => {
+                      if (window.matchMedia("(max-width: 767px)").matches) {
+                        e.target.blur();
+                        setMobileSearchOpen(true);
+                      }
+                    }}
                     placeholder="예: 오사카 라멘"
                     inputClassName="w-full text-left text-base bg-white rounded-full pl-6 pr-24 py-4 outline-none border border-gray-300 focus:border-brand-navy transition-colors"
                   />
