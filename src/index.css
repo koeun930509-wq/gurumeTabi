@@ -98,6 +98,18 @@ body {
   }
 }
 
+/* Toast 컴포넌트(화면 하단 안내 배너) 진입 애니메이션 — 아래에서 살짝 올라오며 페이드인 */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 /* 검색 input 포커스 시 브랜드 컬러 그라데이션이 회전하는 2px 보더 */
 @keyframes gradient-border-spin {
   to {

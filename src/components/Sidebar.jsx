@@ -1,11 +1,17 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { IconHome, IconSearch, IconPin, IconStar, IconUser, IconLogout, IconLogin } from './icons'
+import Toast from './Toast'
+
+// Header.jsx와 동일한 이유(Google Maps API 과금 우려로 임시 중단, 2026-11-13) — NEARBY_DISABLED_MESSAGE
+// 문구도 동일하게 맞춤.
+const NEARBY_DISABLED_MESSAGE = '내 근처 맛집은 현재 준비중이에요'
 
 const MENU = [
   { to: '/', key: 'home', label: '홈', Icon: IconHome },
   { to: '/search', key: 'search', label: '일본 맛집 검색', Icon: IconSearch },
-  { to: '/nearby', key: 'nearby', label: '내 근처 맛집', Icon: IconPin },
+  { to: '/nearby', key: 'nearby', label: '내 근처 맛집', Icon: IconPin, disabled: true },
   { to: '/scrap', key: 'scrap', label: '스크랩 맛집', Icon: IconStar },
   { to: '/mypage', key: 'mypage', label: '마이페이지', Icon: IconUser },
 ]
@@ -21,6 +27,12 @@ function menuItemClass(isActive) {
 export default function Sidebar({ active }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [toastMessage, setToastMessage] = useState('')
+
+  function showNearbyDisabledToast() {
+    setToastMessage(NEARBY_DISABLED_MESSAGE)
+    setTimeout(() => setToastMessage(''), 2000)
+  }
 
   return (
     <aside className="hidden md:flex flex-col w-60 flex-none min-h-screen bg-white/70 backdrop-blur-sm border-r border-brand-peach/60 gap-6">
@@ -31,12 +43,24 @@ export default function Sidebar({ active }) {
       </Link>
 
       <nav className="flex flex-col gap-1.5 px-5">
-        {MENU.map(({ Icon, ...item }) => (
-          <Link key={item.key} to={item.to} className={menuItemClass(active === item.key)}>
-            <Icon className="w-[18px] h-[18px] flex-none" />
-            {item.label}
-          </Link>
-        ))}
+        {MENU.map(({ Icon, ...item }) =>
+          item.disabled ? (
+            <button
+              key={item.key}
+              type="button"
+              onClick={showNearbyDisabledToast}
+              className={`${menuItemClass(active === item.key)} text-left cursor-pointer`}
+            >
+              <Icon className="w-[18px] h-[18px] flex-none" />
+              {item.label}
+            </button>
+          ) : (
+            <Link key={item.key} to={item.to} className={menuItemClass(active === item.key)}>
+              <Icon className="w-[18px] h-[18px] flex-none" />
+              {item.label}
+            </Link>
+          ),
+        )}
       </nav>
 
       <div className="mt-auto flex flex-col gap-1.5 px-5 pb-5">
@@ -64,6 +88,8 @@ export default function Sidebar({ active }) {
           </Link>
         )}
       </div>
+
+      <Toast message={toastMessage} />
     </aside>
   )
 }

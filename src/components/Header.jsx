@@ -5,14 +5,19 @@ import { IconClose, IconMenu, IconSearch, IconPin, IconStar, IconUser, IconLogou
 import SearchAutocompleteInput from './SearchAutocompleteInput'
 import AccountActions from './AccountActions'
 import MobileSearchOverlay from './MobileSearchOverlay'
+import Toast from './Toast'
 import { useAuth } from '../context/AuthContext'
 
 const navLinkClass = (isActive) =>
   `text-lg font-semibold ${isActive ? 'text-brand-navy border-b-2 border-brand-coral pb-0.5' : 'text-gray-500 hover:text-brand-navy'}`
 
+// "내 근처 맛집"은 Google Maps API 과금 우려로 임시로 막아둠(2026-11-13) — 기능 자체는
+// NearbyPage.jsx에 그대로 남아있고, 메뉴에서만 /nearby로 이동시키지 않고 안내 토스트를 띄운다.
+const NEARBY_DISABLED_MESSAGE = '내 근처 맛집은 현재 준비중이에요'
+
 const MOBILE_MENU = [
   { to: '/search', key: 'search', label: '일본 맛집 검색', Icon: IconSearch },
-  { to: '/nearby', key: 'nearby', label: '내 근처 맛집', Icon: IconPin },
+  { to: '/nearby', key: 'nearby', label: '내 근처 맛집', Icon: IconPin, disabled: true },
   { to: '/scrap', key: 'scrap', label: '스크랩 맛집', Icon: IconStar },
   { to: '/mypage', key: 'mypage', label: '마이페이지', Icon: IconUser },
 ]
@@ -29,6 +34,8 @@ export default function Header({ active, showSearch = true }) {
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
+  const toastTimerRef = useRef(null)
   const navRef = useRef(null)
   const [navHeight, setNavHeight] = useState(0)
   const [scrolled, setScrolled] = useState(false)
@@ -123,6 +130,13 @@ export default function Header({ active, showSearch = true }) {
     setMenuOpen(false)
   }
 
+  // 2초간 보여주고 자동으로 닫음 — 같은 메뉴를 연타해도 타이머가 새로 시작되도록 기존 타이머를 지운다.
+  function showNearbyDisabledToast() {
+    setToastMessage(NEARBY_DISABLED_MESSAGE)
+    clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setToastMessage(''), 2000)
+  }
+
   return (
     <nav
       ref={navRef}
@@ -145,9 +159,9 @@ export default function Header({ active, showSearch = true }) {
         <Link to="/search" className={navLinkClass(active === 'search')}>
           일본 맛집 검색
         </Link>
-        <Link to="/nearby" className={navLinkClass(active === 'nearby')}>
+        <button type="button" onClick={showNearbyDisabledToast} className={`${navLinkClass(active === 'nearby')} cursor-pointer`}>
           내 근처 맛집
-        </Link>
+        </button>
         <Link to="/scrap" className={navLinkClass(active === 'scrap')}>
           스크랩 맛집
         </Link>
@@ -227,12 +241,27 @@ export default function Header({ active, showSearch = true }) {
             } ${menuVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}
             style={navHeight > 0 ? { top: navHeight } : undefined}
           >
-            {MOBILE_MENU.map(({ to, key, label, Icon }) => (
-              <Link key={key} to={to} onClick={closeMenu} className={mobileNavLinkClass(active === key)}>
-                <Icon className="w-[18px] h-[18px] flex-none" />
-                {label}
-              </Link>
-            ))}
+            {MOBILE_MENU.map(({ to, key, label, Icon, disabled }) =>
+              disabled ? (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    showNearbyDisabledToast()
+                    closeMenu()
+                  }}
+                  className={`${mobileNavLinkClass(active === key)} text-left cursor-pointer`}
+                >
+                  <Icon className="w-[18px] h-[18px] flex-none" />
+                  {label}
+                </button>
+              ) : (
+                <Link key={key} to={to} onClick={closeMenu} className={mobileNavLinkClass(active === key)}>
+                  <Icon className="w-[18px] h-[18px] flex-none" />
+                  {label}
+                </Link>
+              ),
+            )}
 
             {user ? (
               <button
@@ -282,6 +311,8 @@ export default function Header({ active, showSearch = true }) {
           />,
           document.body,
         )}
+
+      <Toast message={toastMessage} />
     </nav>
   )
 }
