@@ -51,9 +51,9 @@ export default function SearchAutocompleteInput({
           setActiveIndex(-1)
         }}
         onKeyDown={handleKeyDown}
-        onFocus={() => {
+        onFocus={(e) => {
           setOpen(true)
-          onFocus?.()
+          onFocus?.(e)
         }}
         onBlur={() => setOpen(false)}
         placeholder={placeholder}

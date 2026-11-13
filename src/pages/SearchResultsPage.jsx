@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -10,6 +11,7 @@ import { fetchRestaurants, fetchDessertLikeRestaurantsWithReviews } from "../lib
 import { FOOD_TYPES, IGNORED_SEARCH_TOKENS, normalizeJapaneseTranscription, REGIONS, resolveSearchSynonym } from "../utils/searchTerms";
 import { resolveStatusKey } from "../utils/businessHours";
 import SearchAutocompleteInput from "../components/SearchAutocompleteInput";
+import MobileSearchOverlay from "../components/MobileSearchOverlay";
 import ScrollToTopButton from "../components/ScrollToTopButton";
 import { useAuth } from "../context/AuthContext";
 
@@ -119,9 +121,10 @@ function FilterSegmentGroup({ title, options, value, onChange }) {
 export default function SearchResultsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { addRecentSearch } = useAuth();
+  const { addRecentSearch, recentSearches, removeRecentSearch } = useAuth();
   const q = searchParams.get("q") ?? "";
   const [pendingQ, setPendingQ] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   function runSearch(keyword) {
     const trimmed = keyword.trim();
@@ -544,6 +547,12 @@ export default function SearchResultsPage() {
                       value={pendingQ}
                       onChange={setPendingQ}
                       onSubmit={runSearch}
+                      onFocus={(e) => {
+                        if (window.matchMedia("(max-width: 767px)").matches) {
+                          e.target.blur();
+                          setMobileSearchOpen(true);
+                        }
+                      }}
                       placeholder="지역·음식 검색"
                       inputClassName="bg-transparent outline-none text-sm text-gray-600 w-full placeholder:text-xs"
                       wrapperClassName="relative flex-1"
@@ -753,6 +762,26 @@ export default function SearchResultsPage() {
       {/* right만 모바일 콘텐츠 여백(grid의 p-3=12px)에 맞춰 안쪽으로 당김 — "더 보기" 버튼이 이제
           sticky가 아니라 목록 끝에서만 나타나므로 bottom을 그 버튼에 맞춰 정렬할 필요는 없어짐. */}
       <ScrollToTopButton containerRef={resultsScrollRef} className="right-3 md:right-6 bottom-3" />
+      {mobileSearchOpen &&
+        createPortal(
+          <MobileSearchOverlay
+            q={pendingQ}
+            onChangeQ={setPendingQ}
+            onSubmit={(keyword) => {
+              runSearch(keyword);
+              setMobileSearchOpen(false);
+            }}
+            onClose={() => setMobileSearchOpen(false)}
+            recentSearches={recentSearches}
+            onSelectRecent={(keyword) => {
+              setPendingQ(keyword);
+              runSearch(keyword);
+              setMobileSearchOpen(false);
+            }}
+            onRemoveRecent={removeRecentSearch}
+          />,
+          document.body,
+        )}
     </div>
   );
 }
