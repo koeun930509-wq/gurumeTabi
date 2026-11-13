@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom'
 export default function Toast({ message }) {
   if (!message) return null
   return createPortal(
-    <div className="fixed bottom-6 left-1/2 z-50 px-4 py-2.5 rounded-full bg-gray-900/90 text-white text-sm font-semibold shadow-lg pointer-events-none animate-[fade-in-up_0.2s_ease-out_forwards]">
+    <div className="fixed bottom-6 left-1/2 z-50 px-4 py-2.5 rounded-full bg-gray-900/50 text-white text-sm font-semibold shadow-lg pointer-events-none whitespace-nowrap animate-[fade-in-up_0.2s_ease-out_forwards]">
       {message}
     </div>,
     document.body,
