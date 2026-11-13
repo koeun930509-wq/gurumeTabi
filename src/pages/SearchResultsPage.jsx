@@ -434,7 +434,7 @@ export default function SearchResultsPage() {
 
             <div className="md:mb-4">
               <h4 className="text-xs md:text-[11px] tracking-wider text-gray-400 mb-2">추가 필터</h4>
-              <div className="flex flex-wrap gap-0.5 md:gap-1.5">
+              <div className="flex flex-wrap gap-2 md:gap-1.5">
                 {PRACTICAL_FILTERS.map((f) => (
                   <button
                     key={f.key}

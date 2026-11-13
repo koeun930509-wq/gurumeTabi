@@ -400,7 +400,7 @@ export default function MyPage() {
 
           {/* 활동 */}
           <section>
-            <h4 className="text-sm tracking-wider text-gray-400 font-sans mb-2.5">활동</h4>
+            <h4 className="text-base font-bold text-gray-900 mb-2.5">활동</h4>
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => navigate("/scrap")}
@@ -421,7 +421,7 @@ export default function MyPage() {
 
           {/* 설정 · 알림 */}
           <section>
-            <h4 className="text-sm tracking-wider text-gray-400 font-sans mb-2.5 flex items-center gap-1.5">
+            <h4 className="text-base font-bold text-gray-900 mb-2.5 flex items-center gap-1.5">
               설정 · 알림
               <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">준비중</span>
             </h4>
@@ -442,7 +442,7 @@ export default function MyPage() {
 
           {/* 설정 · 계정 */}
           <section>
-            <h4 className="text-sm tracking-wider text-gray-400 font-sans mb-2.5">설정 · 계정</h4>
+            <h4 className="text-base font-bold text-gray-900 mb-2.5">설정 · 계정</h4>
             <div className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] divide-y divide-brand-peach/40 overflow-hidden">
               {user && (
                 <button
@@ -478,7 +478,7 @@ export default function MyPage() {
 
           {/* 정보 */}
           <section>
-            <h4 className="text-sm tracking-wider text-gray-400 font-sans mb-2.5">정보</h4>
+            <h4 className="text-base font-bold text-gray-900 mb-2.5">정보</h4>
             <div className="bg-white rounded-2xl shadow-[0_8px_24px_-10px_rgba(109,40,217,0.25)] divide-y divide-brand-peach/40 overflow-hidden">
               <button onClick={() => setPolicyModal("terms")} className="w-full text-left p-3.5 text-base font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">이용약관</button>
               <button onClick={() => setPolicyModal("privacy")} className="w-full text-left p-3.5 text-base font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer">개인정보처리방침</button>

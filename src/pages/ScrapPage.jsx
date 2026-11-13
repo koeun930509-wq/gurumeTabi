@@ -46,7 +46,7 @@ export default function ScrapPage() {
             bottom-3=12px)이 fixed라 끝까지 스크롤하면 Footer 텍스트에 겹칠 수 있지만(최대 28px), 스크롤이
             필요 없는 화면(스크랩 0개 등)에서 Footer가 바닥에서 너무 떨어져 보이는 문제를 더 우선해 감수함 */}
         <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll pretty-scroll pb-7">
-          <div className="p-6 pb-0 md:p-8 md:pb-0 w-full min-h-full flex flex-col gap-6">
+          <div className="p-3 pb-0 md:p-4 md:pb-0 w-full min-h-full flex flex-col gap-6">
             <h1 className="font-bold text-2xl text-gray-900 flex items-baseline gap-[10px]">
               스크랩 맛집
               <span className="font-normal text-sm text-white">
