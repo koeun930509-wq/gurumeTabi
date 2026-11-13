@@ -660,7 +660,7 @@ export default function SearchResultsPage() {
             </div>
 
             {!q ? (
-              <div className="flex-1 min-h-0 text-base text-[#333] rounded-2xl p-10 flex flex-col items-center justify-center gap-4">
+              <div className="flex-1 min-h-0 text-base text-[#333] rounded-2xl p-10 pt-20 flex flex-col items-center gap-4">
                 <span className="text-center">
                   아직 검색을 안 하셨어요
                   <br />
