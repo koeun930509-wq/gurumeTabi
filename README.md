@@ -100,6 +100,36 @@ npm run lint     # oxlint
 - **체인점 배지**(2026-08-25 추가): 가게명에서 지점 접미사(점/본점/지점)를 뗀 기본 상호명이 3곳 이상이면 `restaurants.is_chain=true`로 판정하는 일회성 백필(127곳 해당). 검색 카드·상세 페이지에 회색 "체인점" 배지로 표시. 자동 유지되지 않아 대량 재수집 후에는 재실행 필요(`CLAUDE.md` 참고)
 - **링크 미리보기(OG 메타태그)**(2026-08-25 추가): SPA라 `Seo.jsx`가 렌더링하는 OG 태그는 JS를 실행하는 크롤러(구글·네이버)에만 보이고, 카카오톡 등 JS 미실행 미리보기 봇에는 안 보이던 문제 — `index.html`에 고정 OG/Twitter 태그(로고 이미지 포함)를 추가해 모든 페이지가 최소한 로고+사이트명으로는 미리보기되도록 함(가게별 맞춤 미리보기는 아직 없음)
 
+## Google Maps API 과금 사건 및 할당량 제한 조치 (2026-10-02)
+
+**사건**: GCP 무료 크레딧 소진 후 사전 알림 없이 카드로 자동 결제 발생. 프론트엔드에서 Google Maps API를 호출하는 지점은 `RestaurantDetailPage.jsx`(Maps Embed API, 가게 상세 지도)와 `NearbyMap.jsx`(Maps JavaScript API, `/nearby` 지도) 둘뿐인데, 둘 다 **버튼 클릭이 아니라 페이지 접속 자체가 호출 트리거**라서 배포 사이트가 켜져 있는 한(실사용자 방문 + sitemap.xml에 등록된 약 4,600여 개 가게 상세페이지를 주기적으로 도는 구글 크롤러) 계속 호출이 쌓여 과금되는 구조였음.
+
+**조치**: 예산(Budget)의 "지출 한도(Spending cap)" 기능은 적용 대상이 Cloud Run 등 일부 서비스로 한정되어 Maps API에는 효과가 없어 포기하고, 대신 `console.cloud.google.com/google/maps-apis/quotas`에서 **Maps JavaScript API의 "Map loads per day" 할당량을 무제한 → 800으로 직접 제한**(즉시 반영 확인됨). 하루 800회 × 30일 = 월 24,000회로, Maps JavaScript API 무료 한도(월 28,000회)를 항상 하회하도록 설계해 **매달 과금액이 0원으로 고정**되는 구조를 만듦 — 할당량 초과 시엔 그날 남은 시간 동안 지도 호출이 실패(지도 미노출)할 뿐 추가 과금은 발생하지 않음. Maps Embed API는 Google이 완전 무료로 제공하는 API라 애초에 이 할당량 화면에 노출되지 않아 별도 조치 불필요.
+
+**결제 수단(카드)은 삭제하지 않고 유지하기로 결정** — Maps Platform은 무료 한도 내 사용이라도 결제 수단 등록 자체가 API 활성화의 필수 전제조건이라, 카드를 삭제하면 할당량과 무관하게 지도 기능이 통째로 꺼지기 때문.
+
+## 진행 중: Google Places 사진 URL → Cloudflare R2 마이그레이션 (2026-09-18 시작)
+
+**배경**: `restaurants.image_url`/`image_urls`에 저장해온 Google Places 사진 URL이 영구 URL이 아니라 시간이 지나면(대략 며칠~한 달) `400 INVALID_ARGUMENT`로 만료된다는 걸 실측으로 확인함 — "한 번 수집하면 끝"이 아니라 계속 깨지는 구조적 문제. 근본 해결로 사진을 실제 파일로 다운로드해 **Cloudflare R2**(무료 티어: 스토리지 10GB, egress 무료, 이 프로젝트 사진 총량 약 6.1GB 추정이 전부 무료 범위 안)에 자체 호스팅하기로 결정(Supabase Storage Pro $25/월, Bunny.net, S3+CloudFront, Cloudinary 등과 비교해 R2가 egress 무료라 가장 유리).
+
+**현재 상태(2026-09-20 기준)**:
+- 전체 4,664개 레스토랑 중 마이그레이션 스크립트(`_tmp-migrate-photos-to-r2.mjs` + 무한 재시도 루프 `_tmp-migrate-loop.sh`, 전부 스크래치 파일이라 git에는 없음)를 백그라운드로 완전히 한 사이클 재실행 완료(exit=0으로 정상 종료, 자동 재시도 루프도 함께 종료됨)
+- R2 버킷(`gurume-tabi-photos`) 및 Public Development URL(`https://pub-3808d892cd6a42c69ef56969060337db.r2.dev`) 설정 완료, `.env`에 `R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_BUCKET_NAME`/`R2_PUBLIC_BASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` 추가 완료
+- **마이그레이션 결과(2026-09-20 최종)**: 전체 4,664곳 중 **1,728곳 R2 이전 완료**, **2,930곳은 Google 사진 URL이 이미 만료(`400`)되어 실패**(사진 실패 14,261장), 6곳은 애초에 사진 없음 — 만료분은 이 스크립트로는 더 복구 불가능하고, Google Places 재수집으로 새 URL을 받아와야만 해결됨(아래 "다음에 이어서 할 일" 참고)
+- 프론트엔드(`src/lib/restaurants.js`의 `toViewModel`, 렌더링 컴포넌트 3곳)는 R2 URL이든 Google URL이든 순수 `<img src>`로 그대로 처리하므로 **코드 수정 불필요**
+
+**디버깅 과정에서 발견한 실제 버그(중요, 재발 방지용 기록)**:
+1. execFile에 사진 URL 배열을 **명령줄 인자**로 그대로 넘기면 Windows 명령줄 길이 제한(~8191자)을 사진 5장분 URL이 넘어서 `Command failed`로 실패 — 실측 확인
+2. 이를 stdin(`input` 옵션)으로 고쳤더니, 워커의 `readFileSync(0)`가 파이프 EOF를 못 받아 매번 45초 타임아웃까지 블로킹되다 `SIGKILL`당함(stderr 빈 문자열로 확인)
+3. 최종적으로 **임시 파일 경유**(부모가 URL 배열을 JSON 임시 파일에 쓰고, 워커에는 파일 경로만 argv로 전달) 방식으로 완전히 해결 — 이후 실행에서 실패 사유가 전부 `fetch status 400`(진짜 만료)로만 나옴, execFile 자체 실패는 재발 안 함
+4. 이후 child_process(워커 자식 프로세스) 자체를 없애고 부모 프로세스 안에서 fetch/S3 업로드를 AbortController 타임아웃과 함께 직접 처리하는 방식으로 재작성(2026-09-19) — 시스템 메모리가 낮을 때 자식 프로세스 대량 스폰이 `0xC0000409`로 무더기로 죽는 문제가 있었음(위 "실데이터 수집 파이프라인"과 무관한 별개 이슈)
+
+~~`sync-restaurants` Edge Function에 R2 업로드 로직 추가~~: 2026-11-13 완료 — `sync-restaurants`(v25)가 Deno 환경에 맞춰 `aws4fetch`(경량 AWS SigV4 서명 라이브러리, Node `@aws-sdk/client-s3` 대신 사용)로 Google Places 사진을 받는 즉시 R2에 업로드하고, DB에는 R2 public URL만 저장하도록 수정됨. R2 secret 5종을 Edge Function에 신규 등록했고, 가게 1곳 실 호출로 사진 5장 모두 R2에 업로드되어 공개 URL로 접근 가능함을 확인(HTTP 200). R2 secret이 없으면 기존 Google URL을 그대로 쓰는 폴백이라 로컬 개발 환경 등에서도 안전하게 동작함. **이제부터 신규/재수집분은 처음부터 사진이 안 깨짐** — 기존 수집분(아래 2,930곳)과는 무관.
+
+**다음에 이어서 할 일 (사용자 확인 필요, 아직 미착수)**:
+1. **실패한 2,930곳 처리 방법 결정** — (a) `sync-restaurants`로 대상 지역·카테고리를 재수집해 새 Google 사진 URL을 받아온 뒤 이번엔 바로 R2에 저장(Google Places + Translation API 비용 발생, 과거 기록상 전체 재수집 1회에 약 9~10만 원 — 이번엔 범위를 어떻게 좁힐지 먼저 정해야 함, 만료 패턴이 전 지역·카테고리에 고르게 퍼져 있어 일부만 좁히기는 어려움을 2026-11-13에 확인), 또는 (b) 일단 보류
+2. 검증: 실제 사이트에서 R2로 이전된 사진이 정상 렌더링되는지 폭넓게 확인 — 아직 미착수(단건 테스트만 완료)
+
 ## 아직 안 된 것 (다음 단계)
 
 - **광고성 리뷰 정밀 판별**: 네이버 블로그 리뷰(2026-08-18 연동 완료, 아래 참고)는 현재 검색 스니펫에서 "협찬"/"체험단" 등 키워드만 걸러내는 수준(`is_ad_filtered`) — 본문 전체를 LLM으로 정밀 분류하려면 blog.naver.com 개별 글 추가 크롤링이 필요(별도 약관 확인 필요). 맛 표현만 추출한 `taste_snippet`은 LLM 없이 키워드 매칭으로 2026-08-18에 구현·백필 완료했으나, 아직 프론트엔드 UI에는 노출하지 않음(DB 컬럼만 채워진 상태)

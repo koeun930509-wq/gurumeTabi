@@ -35,12 +35,16 @@ export default function Header({ active, showSearch = true }) {
   // 드롭다운 메뉴 열림/닫힘 애니메이션 — menuOpen만으로 조건부 렌더링하면 닫힐 때 DOM이 즉시 사라져서
   // transition이 재생될 시간이 없다(opacity/transform이 0으로 가는 도중에 언마운트됨). menuMounted를
   // 별도로 둬서, 닫을 때는 먼저 menuVisible만 false로 바꿔 CSS 트랜지션을 재생시키고, 그 트랜지션 시간
-  // (200ms)만큼 지난 뒤에 menuMounted를 false로 바꿔 실제로 DOM에서 제거한다. menuVisible을 menuOpen과
-  // 분리한 이유: 마운트와 동시에(같은 렌더에서) opacity-100을 주면 브라우저가 시작 상태 없이 바로 최종
+  // (250ms)만큼 지난 뒤에 menuMounted를 false로 바꿔 실제로 DOM에서 제거한다. menuVisible을 menuOpen과
+  // 분리한 이유: 마운트와 동시에(같은 렌더에서) 최종 상태를 주면 브라우저가 시작 상태 없이 바로 그
   // 상태로 페인트해버려 트랜지션이 재생되지 않는다 — mount 직후 다음 프레임에 menuVisible을 true로
-  // 바꿔야 "opacity-0 → opacity-100" 전환이 실제로 애니메이션된다.
+  // 바꿔야 전환이 실제로 애니메이션된다. 패널 전체(로그인/로그아웃 버튼 포함)가 함께 위에서 아래로
+  // 미끄러져 내려오는 느낌을 내기 위해 -translate-y-full(패널 자기 높이만큼 위, 즉 헤더 뒤에 완전히
+  // 숨어있는 지점)에서 translate-y-0으로 전환한다 — 이전엔 -translate-y-2(8px)만 줘서 "펼쳐진다"는
+  // 느낌이 약했다(사용자 피드백으로 발견).
   const [menuMounted, setMenuMounted] = useState(false)
   const [menuVisible, setMenuVisible] = useState(false)
+  const rafRef = useRef(null)
 
   // 스크롤을 조금이라도 내리면 헤더가 sticky로 화면 상단에 붙어있는 상태에서 얇게 줄어들도록
   // — 페이지 자체(window)가 스크롤되는 화면(상세 페이지 등)에서만 발동함. 검색결과/마이페이지/스크랩처럼
@@ -81,15 +85,26 @@ export default function Header({ active, showSearch = true }) {
 
   // menuOpen이 true가 되면 즉시 마운트하고, 다음 프레임에 menuVisible을 true로 올려 진입 트랜지션을
   // 재생시킨다. false가 되면 menuVisible을 먼저 false로 내려 퇴장 트랜지션을 재생시키고, 그 트랜지션
-  // 시간(200ms)만큼 지난 뒤에 menuMounted를 false로 바꿔 실제로 DOM에서 제거한다.
+  // 시간(아래 JSX의 duration-300과 일치해야 함)만큼 지난 뒤에 menuMounted를 false로 바꿔 실제로 DOM에서
+  // 제거한다.
   useEffect(() => {
     if (menuOpen) {
       setMenuMounted(true)
-      const raf = requestAnimationFrame(() => setMenuVisible(true))
-      return () => cancelAnimationFrame(raf)
+      // requestAnimationFrame을 한 번만 걸면 "마운트(menuMounted=true, 초기 클래스)"와 "menuVisible=true
+      // (최종 클래스)"가 브라우저가 실제로 한 번도 페인트하지 않은 채 같은 프레임에 합쳐져 처리되는
+      // 경우가 있었다 — 그러면 트랜지션의 시작 상태 자체가 화면에 그려진 적이 없어 CSS 트랜지션이 재생
+      //되지 않고 곧바로 최종 상태로 보인다(실측: 300ms 트랜지션인데 50ms 만에 완료된 것처럼 보이는
+      // 버그로 발견). 두 번째 raf 안에서 setMenuVisible(true)를 호출해, 첫 raf가 실행되는 시점(다음
+      // 페인트 직전)에는 반드시 초기 상태가 이미 한 번 페인트된 뒤이도록 보장한다.
+      const raf1 = requestAnimationFrame(() => {
+        const raf2 = requestAnimationFrame(() => setMenuVisible(true))
+        rafRef.current = raf2
+      })
+      rafRef.current = raf1
+      return () => cancelAnimationFrame(rafRef.current)
     }
     setMenuVisible(false)
-    const timer = setTimeout(() => setMenuMounted(false), 200)
+    const timer = setTimeout(() => setMenuMounted(false), 300)
     return () => clearTimeout(timer)
   }, [menuOpen])
 
@@ -202,14 +217,14 @@ export default function Header({ active, showSearch = true }) {
           top+bottom 조합을 쓰는 이유는 100vh가 모바일 브라우저(특히 인앱 웹뷰)에서 주소창 포함 전체
           높이로 계산되어 실제 화면보다 크게 잡히는 문제가 있었기 때문(이전 필터 오버레이 버그와 동일 원인).
           menuOpen이 아니라 menuMounted로 조건부 렌더링하는 이유는 위 useEffect 설명 참고 — 열릴 때는
-          위에서 아래로 슬라이드하며 페이드인, 닫힐 때는 역순으로 재생되도록 menuOpen 값에 따라
-          opacity/translate-y 클래스를 전환한다. */}
+          패널 전체(로그인/로그아웃 버튼 포함)가 헤더 바로 뒤(-translate-y-full)에서 제자리(translate-y-0)로
+          미끄러져 내려오며 페이드인, 닫힐 때는 역순으로 재생된다. */}
       {menuMounted &&
         createPortal(
           <div
-            className={`fixed left-0 right-0 bottom-0 xl:hidden bg-white border-b border-gray-200 shadow-md z-40 flex flex-col transition-[opacity,transform] duration-200 ease-out ${
+            className={`fixed left-0 right-0 bottom-0 xl:hidden bg-white border-b border-gray-200 shadow-md z-40 flex flex-col transition-[opacity,transform] duration-300 ease-out ${
               navHeight === 0 ? 'top-[75px]' : ''
-            } ${menuVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+            } ${menuVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}`}
             style={navHeight > 0 ? { top: navHeight } : undefined}
           >
             {MOBILE_MENU.map(({ to, key, label, Icon }) => (
