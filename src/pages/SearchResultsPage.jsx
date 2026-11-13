@@ -121,7 +121,7 @@ function FilterSegmentGroup({ title, options, value, onChange }) {
 export default function SearchResultsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { addRecentSearch, recentSearches, removeRecentSearch } = useAuth();
+  const { addRecentSearch, recentSearches, removeRecentSearch, clearRecentSearches } = useAuth();
   const q = searchParams.get("q") ?? "";
   const [pendingQ, setPendingQ] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -785,6 +785,7 @@ export default function SearchResultsPage() {
               setMobileSearchOpen(false);
             }}
             onRemoveRecent={removeRecentSearch}
+            onClearRecent={clearRecentSearches}
           />,
           document.body,
         )}

@@ -15,7 +15,7 @@ export default function HomePage() {
   const [q, setQ] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const navigate = useNavigate();
-  const { recentSearches, addRecentSearch, removeRecentSearch } = useAuth();
+  const { recentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } = useAuth();
 
   function runSearch(keyword) {
     addRecentSearch(keyword);
@@ -138,6 +138,7 @@ export default function HomePage() {
             setMobileSearchOpen(false);
           }}
           onRemoveRecent={removeRecentSearch}
+          onClearRecent={clearRecentSearches}
         />
       )}
     </div>

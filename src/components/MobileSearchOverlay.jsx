@@ -15,6 +15,7 @@ export default function MobileSearchOverlay({
   recentSearches,
   onSelectRecent,
   onRemoveRecent,
+  onClearRecent,
 }) {
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col md:hidden">
@@ -79,6 +80,16 @@ export default function MobileSearchOverlay({
           ))
         )}
       </div>
+
+      {recentSearches.length > 0 && (
+        <button
+          type="button"
+          onClick={onClearRecent}
+          className="flex-none self-start px-4 py-3 text-sm text-gray-400 hover:text-gray-600 cursor-pointer"
+        >
+          검색 결과 전체 삭제
+        </button>
+      )}
     </div>
   )
 }

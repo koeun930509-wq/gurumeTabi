@@ -30,7 +30,7 @@ function mobileNavLinkClass(isActive) {
 
 export default function Header({ active, showSearch = true }) {
   const navigate = useNavigate()
-  const { user, logout, addRecentSearch, recentSearches, removeRecentSearch } = useAuth()
+  const { user, logout, addRecentSearch, recentSearches, removeRecentSearch, clearRecentSearches } = useAuth()
   const [q, setQ] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
@@ -308,6 +308,7 @@ export default function Header({ active, showSearch = true }) {
               setMobileSearchOpen(false)
             }}
             onRemoveRecent={removeRecentSearch}
+            onClearRecent={clearRecentSearches}
           />,
           document.body,
         )}
