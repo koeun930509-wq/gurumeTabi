@@ -80,7 +80,7 @@ function filterStateToSearchParamEntries(filterState) {
   return entries;
 }
 
-const RESULTS_PAGE_SIZE = 10;
+const RESULTS_PAGE_SIZE = 12;
 
 const SORT_OPTIONS = [
   { key: "reviews", label: "리뷰 많은 순", sorter: (a, b) => b.reviewCount - a.reviewCount },
