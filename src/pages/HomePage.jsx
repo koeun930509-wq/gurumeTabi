@@ -30,8 +30,8 @@ export default function HomePage() {
   return (
     <div className="relative h-screen flex flex-col overflow-hidden">
       <Seo
-        title="Gurume Tabi — 광고 없는 일본 찐맛집 검색"
-        description="일본 여행 중 광고 없는 진짜 현지인 맛집을 찾는 검색 플랫폼. 오사카, 도쿄 등 지역과 라멘, 스시 같은 음식 종류로 검색하고 현지인 방문 비율로 확인하세요."
+        title="Gurume Tabi — 협찬 광고 없는 일본 찐맛집 검색"
+        description="일본 여행 중 협찬 광고 없는 진짜 현지인 맛집을 찾는 검색 플랫폼. 오사카, 도쿄 등 지역과 라멘, 스시 같은 음식 종류로 검색하고 현지인 방문 비율로 확인하세요."
         path="/"
       />
       {/* 배경 영상 + 어두운 오버레이 */}
@@ -46,7 +46,7 @@ export default function HomePage() {
         <div className="flex flex-col items-center gap-5 w-full -mt-[60px]">
           <div className="flex flex-col items-center gap-2">
             <h1 className="font-jua text-5xl sm:text-5xl md:text-6xl text-white leading-tight">
-              광고 없는 <span className="text-brand-coral">찐맛집</span>
+              협찬 광고 없는 <span className="text-brand-coral">찐맛집</span>
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-white">일본 미식 여행을 위한 맛집 검색 플랫폼</p>
           </div>
